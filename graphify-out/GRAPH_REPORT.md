@@ -1,13 +1,18 @@
 # Graph Report - Real_estate_tokenization  (2026-05-17)
 
 ## Corpus Check
-- 27 files · ~38,768 words
+- 37 files · ~42,765 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 543 nodes · 558 edges · 71 communities (43 shown, 28 thin omitted)
+- 666 nodes · 681 edges · 77 communities (49 shown, 28 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `76e1b672`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Community 0|Community 0]]
@@ -22,6 +27,7 @@
 - [[_COMMUNITY_Community 9|Community 9]]
 - [[_COMMUNITY_Community 10|Community 10]]
 - [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
 - [[_COMMUNITY_Community 13|Community 13]]
 - [[_COMMUNITY_Community 14|Community 14]]
 - [[_COMMUNITY_Community 15|Community 15]]
@@ -79,6 +85,11 @@
 - [[_COMMUNITY_Community 67|Community 67]]
 - [[_COMMUNITY_Community 68|Community 68]]
 - [[_COMMUNITY_Community 69|Community 69]]
+- [[_COMMUNITY_Community 72|Community 72]]
+- [[_COMMUNITY_Community 73|Community 73]]
+- [[_COMMUNITY_Community 74|Community 74]]
+- [[_COMMUNITY_Community 75|Community 75]]
+- [[_COMMUNITY_Community 76|Community 76]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Chat Conversation` - 76 edges
@@ -89,8 +100,8 @@
 6. `What to Write in the Paper Next` - 24 edges
 7. `Team & AI Memory — RealChain v2` - 14 edges
 8. `useWeb3()` - 11 edges
-9. `Should I Implement Both Right Now?` - 10 edges
-10. `RealChain v2 — Tokenized Real Estate Investment Platform` - 9 edges
+9. `RealChain v2 — Hackathon Implementation Plan` - 11 edges
+10. `Should I Implement Both Right Now?` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Navbar()` --calls--> `useWeb3()`  [EXTRACTED]
@@ -104,7 +115,7 @@
 - `Property()` --calls--> `useWeb3()`  [EXTRACTED]
   frontend/src/pages/Property.jsx → frontend/src/context/Web3Context.jsx
 
-## Communities (71 total, 28 thin omitted)
+## Communities (77 total, 28 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.05
@@ -116,7 +127,7 @@ Nodes (37): 6 Figures — where and what to draw, 6 Tables — all with real dat
 
 ### Community 2 - "Community 2"
 Cohesion: 0.06
-Nodes (38): Active milestone, Agent context rules, Architecture, Central components, code:text (Project Name   : RealChain v2), code:text (User / MetaMask), code:bash (pip install graphifyy), code:bash (graphify query "how does dividend distribution work?") (+30 more)
+Nodes (39): Active milestone, Agent context rules, Architecture, Central components, code:text (Project Name   : RealChain v2), code:text (User / MetaMask), code:text (User / MetaMask), code:bash (pip install graphifyy) (+31 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.07
@@ -147,12 +158,16 @@ Cohesion: 0.12
 Nodes (16): dependencies, ethers, react, react-dom, react-router-dom, devDependencies, vite, @vitejs/plugin-react (+8 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.13
-Nodes (14): author, description, devDependencies, dotenv, hardhat, @nomicfoundation/hardhat-toolbox, @openzeppelin/contracts, keywords (+6 more)
+Cohesion: 0.09
+Nodes (21): author, description, devDependencies, dotenv, hardhat, @nomicfoundation/hardhat-toolbox, @openzeppelin/contracts, keywords (+13 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.16
 Nodes (14): claimAllGas, claimEpochGas, deploy(), depositEpochs(), epochCounts, estimateUSD(), { ethers }, gasRow() (+6 more)
+
+### Community 12 - "Community 12"
+Cohesion: 0.06
+Nodes (34): 2A. OwnerDashboard.jsx (Person B), 2B. InvestorDashboard.jsx (Person C), 2C. Update App.jsx routing + Navbar (Person B or C, after dashboards exist), 3A. Install UGF SDK, 3B. Build UGFContext.jsx, 3C. Wrap claimAll() with UGF in InvestorDashboard, 3D. Gas-in-USDC UI indicators, 4A. End-to-end test (+26 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.15
@@ -270,8 +285,28 @@ Nodes (3): code:powershell (# In hardhat.config.js, Base Sepolia is already adda
 Cohesion: 0.67
 Nodes (3): Planner Response, User Input, Why This is Actually a Big Deal
 
+### Community 72 - "Community 72"
+Cohesion: 0.1
+Nodes (16): mongoose, TransactionSchema, mongoose, UserSchema, express, filter, limit, router (+8 more)
+
+### Community 73 - "Community 73"
+Cohesion: 0.1
+Nodes (19): author, dependencies, cors, dotenv, ethers, express, mongoose, morgan (+11 more)
+
+### Community 74 - "Community 74"
+Cohesion: 0.12
+Nodes (17): 1A. Add Base Sepolia network to hardhat.config.js, 1B. Get testnet funds + Deploy to Base Sepolia, 1C. Update frontend network config, 1D. Update Web3Context for Base Sepolia, 1E. Fix deploy script for clean demo state, 1F. Add convenience scripts to package.json, code:js (baseSepolia: {), code:block3 (BASE_SEPOLIA_RPC_URL=https://sepolia.base.org) (+9 more)
+
+### Community 75 - "Community 75"
+Cohesion: 0.15
+Nodes (11): mongoose, PropertySchema, count, { ethers }, express, factory, factoryABI, Property (+3 more)
+
+### Community 76 - "Community 76"
+Cohesion: 0.22
+Nodes (8): app, cors, express, mongoose, morgan, { requireDb }, mongoose, requireDb()
+
 ## Knowledge Gaps
-- **379 isolated node(s):** `name`, `version`, `description`, `main`, `test` (+374 more)
+- **460 isolated node(s):** `name`, `version`, `description`, `main`, `compile` (+455 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -279,13 +314,13 @@ Nodes (3): Planner Response, User Input, Why This is Actually a Big Deal
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Chat Conversation` connect `Community 0` to `Community 1`, `Community 3`, `Community 5`, `Community 6`, `Community 8`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 23`, `Community 24`, `Community 25`, `Community 27`, `Community 28`, `Community 29`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 41`, `Community 42`, `Community 43`, `Community 44`, `Community 45`, `Community 46`, `Community 50`, `Community 51`, `Community 52`, `Community 53`, `Community 54`, `Community 55`, `Community 56`, `Community 57`, `Community 58`?**
-  _High betweenness centrality (0.369) - this node is a cross-community bridge._
+  _High betweenness centrality (0.245) - this node is a cross-community bridge._
 - **Why does `For Right Now (local only)` connect `Community 1` to `Community 0`, `Community 64`, `Community 66`, `Community 67`, `Community 68`, `Community 69`, `Community 65`, `Community 26`, `Community 59`, `Community 60`, `Community 61`, `Community 62`, `Community 63`?**
-  _High betweenness centrality (0.130) - this node is a cross-community bridge._
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Why does `What to Write in the Paper Next` connect `Community 3` to `Community 0`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `description` to the rest of the system?**
-  _379 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _460 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.05 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
