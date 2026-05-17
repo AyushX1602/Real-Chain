@@ -1,0 +1,300 @@
+================================================================================
+HACKATHON PROJECT — WHAT NEEDS TO CHANGE AND WHAT NEEDS TO BE BUILT
+================================================================================
+Hackathon: UGF (Universal Gas Framework) Hackathon
+Track: Track 3 — Wallet and Agents ("reward claim" use case)
+Chain: Base Sepolia (Chain ID: 84532)
+Core requirement: Users pay gas in Mock USD, never need ETH in wallet
+================================================================================
+
+--------------------------------------------------------------------------------
+THE CORE IDEA FOR THE HACKATHON
+--------------------------------------------------------------------------------
+RealChain currently has a UX problem: investors hold USDC (from buying tokens
+or earning rent) but STILL need ETH sitting in their wallet just to call
+claimAll(), buyFromOwner(), or depositRental(). This is the exact friction
+UGF solves.
+
+Hackathon pitch:
+  "Investors earn USDC rental income from property tokens. They should be able
+   to claim it, buy tokens, and trade — all using only USDC. With UGF, they
+   pay gas in the same USDC they earn. They never need to think about ETH."
+
+The demo flow for judges:
+  1. User has USDC. Has ZERO ETH.
+  2. User clicks "Claim Dividends"
+  3. UGF pays ETH gas behind the scenes
+  4. UGF deducts small USDC fee from user
+  5. Transaction succeeds. User never saw ETH.
+
+--------------------------------------------------------------------------------
+WHAT DOES NOT CHANGE (KEEP FROM CURRENT PROJECT)
+--------------------------------------------------------------------------------
+
+contracts/PropertyToken.sol       — NO CHANGE
+contracts/MockUSDC.sol            — NO CHANGE (but see note below)
+contracts/PropertyFactory.sol     — MINOR CHANGE (Base Sepolia deployment only)
+contracts/RentalDistribution.sol  — NO CHANGE
+contracts/RentalDistributionV2.sol — NO CHANGE
+contracts/Marketplace.sol         — NO CHANGE
+All test files                    — NO CHANGE (tests still run on local hardhat)
+scripts/deploy.js                 — MINOR CHANGE (add Base Sepolia network)
+
+NOTE ON MockUSDC: The hackathon uses UGF's own "Mock USD" token on Base Sepolia
+(get from faucet at universalgasframework.com/faucets). For the hackathon,
+you may need to use UGF's Mock USD address instead of deploying your own MockUSDC.
+Check UGF docs for the official Mock USD contract address on Base Sepolia.
+If UGF's Mock USD is ERC-20 compatible (it is), your contracts work as-is —
+just point them at the UGF Mock USD address instead of your deployed MockUSDC.
+
+--------------------------------------------------------------------------------
+WHAT NEEDS TO CHANGE — NETWORK
+--------------------------------------------------------------------------------
+
+1. hardhat.config.js
+   ADD Base Sepolia network configuration:
+
+   baseSepolia: {
+     url: "https://sepolia.base.org",
+     chainId: 84532,
+     accounts: [process.env.PRIVATE_KEY]
+   }
+
+2. frontend/src/config/contracts.js
+   CHANGE NETWORK_CHAIN_ID from 31337 to 84532
+   CHANGE LOCAL_RPC_URL to Base Sepolia RPC
+   UPDATE CONTRACT_ADDRESSES after deploying to Base Sepolia
+
+3. Deploy to Base Sepolia:
+   npx hardhat run scripts/deploy.js --network baseSepolia
+   (Need Base Sepolia ETH from faucet: https://www.alchemy.com/faucets/base-sepolia)
+
+--------------------------------------------------------------------------------
+WHAT NEEDS TO BE BUILT — UGF INTEGRATION
+--------------------------------------------------------------------------------
+
+This is the main new work. UGF replaces MetaMask's direct transaction signing
+with a relay flow: instead of user signing and paying gas in ETH, UGF quotes
+the gas, user approves USDC payment, UGF executes.
+
+Install UGF React SDK:
+  cd frontend
+  npm install @tychilabs/react-ugf
+
+The UGF integration needs to wrap these specific transactions:
+  - claimAll() in Dividends.jsx         ← MOST IMPORTANT (the demo centerpiece)
+  - buyFromOwner() in Property.jsx      ← SECOND PRIORITY
+  - depositRental() in Dividends.jsx    ← THIRD PRIORITY
+  - buyFromListing() in Property.jsx    ← FOURTH PRIORITY
+
+You do NOT need to wrap every transaction for the hackathon demo.
+claimAll() alone is enough to win the "reward claim" track.
+
+How UGF flow works in code (conceptual — check actual SDK docs):
+  OLD (current):
+    const tx = await rental.claimAll();
+    await tx.wait();
+
+  NEW (with UGF):
+    // 1. Get a quote from UGF for this transaction
+    // 2. Show user: "This will cost $0.05 in Mock USD"
+    // 3. User approves
+    // 4. UGF SDK executes the transaction
+    // 5. UGF deducts USDC from user
+    // 6. Transaction confirmed on-chain
+    (See UGF SDK docs for exact API: universalgasframework.com/docs)
+
+Files to modify for UGF:
+  frontend/src/context/Web3Context.jsx
+    - Import UGF SDK
+    - Add UGF client/provider initialization
+    - Expose ugfExecute() or similar function to components
+
+  frontend/src/pages/Dividends.jsx
+    - Replace direct claimAll() call with UGF-wrapped version
+    - Show "Gas paid in USDC" indicator to user
+    - Show estimated USDC gas cost before user confirms
+
+  frontend/src/pages/Property.jsx
+    - Replace buyFromOwner() call with UGF-wrapped version (second priority)
+
+--------------------------------------------------------------------------------
+WHAT NEEDS TO BE BUILT — ROLE-SPECIFIC PAGES (FRONTEND REDESIGN)
+--------------------------------------------------------------------------------
+
+CURRENT PROBLEM:
+The frontend currently shows the same pages to everyone. Owner and investor
+see the same Property page and the same Dividends page. This is confusing:
+  - Owner sees a "Buy tokens" form that's irrelevant to them
+  - Investor sees a "Deposit Rental Income" form that they can't use
+  - There's no clear separation of what each role does
+
+WHAT NEEDS TO BE BUILT:
+
+The roleHint from Web3Context already detects "Owner" vs "Investor".
+Use it to show different content.
+
+OPTION A — Conditional rendering (easier, less code):
+  Keep existing page structure but show/hide sections based on role.
+  In Property.jsx:
+    if (roleHint === "Owner") show DepositRentalSection
+    if (roleHint === "Investor") show BuyTokensSection
+  In Dividends.jsx:
+    if (roleHint === "Owner") show DepositForm prominently at top
+    if (roleHint === "Investor") show ClaimAll button prominently
+
+OPTION B — Separate pages (cleaner, better UX, more work):
+  Create new files:
+    frontend/src/pages/OwnerDashboard.jsx  — owner-specific view
+    frontend/src/pages/InvestorDashboard.jsx — investor-specific view
+  Update App.jsx routing:
+    /dashboard → shows OwnerDashboard if roleHint==="Owner" else InvestorDashboard
+
+RECOMMENDATION: Option B for the hackathon. Judges should immediately see
+a role-specific dashboard when they connect a wallet. It looks more polished.
+
+OWNER DASHBOARD should show:
+  - Properties they own (list from factory filtered by owner address)
+  - For each property: token supply remaining, total rent deposited
+  - "Deposit Rental Income" form with UGF gasless toggle
+  - Recent epoch history
+  - "Create New Property" button (calls factory.createProperty)
+
+INVESTOR DASHBOARD should show:
+  - Properties where they hold tokens (current portfolio)
+  - Total pending dividends across all properties
+  - "Claim All Dividends" button (UGF-powered — the hackathon centerpiece)
+  - Secondary market listings they've created
+  - Link to browse all properties (Home page)
+
+NEW NAVBAR LOGIC:
+  - Not connected: show "Connect Wallet" button, neutral nav
+  - Connected as Owner: show "Dashboard" linking to OwnerDashboard
+  - Connected as Investor: show "Dashboard" linking to InvestorDashboard
+
+--------------------------------------------------------------------------------
+WHAT NEEDS TO BE BUILT — UI CHANGES
+--------------------------------------------------------------------------------
+
+"Pay Gas with USDC" indicator:
+  Every UGF-powered button needs a visible indicator that gas is paid in USDC.
+  Example: Instead of just "Claim Dividends", show:
+    [Claim Dividends] [⚡ Gas paid in USDC — no ETH needed]
+  This is the hackathon's visual proof that UGF is working.
+
+USDC Gas Cost Preview:
+  Before the user confirms, show estimated USDC cost:
+    "Claiming dividends will cost approximately $0.04 in Mock USD for gas"
+  Use UGF's quote API to get this number.
+
+"Gas-free Mode" toggle (optional, nice to have):
+  A toggle in settings: [UGF Mode ON/OFF]
+  When OFF: use normal MetaMask flow (for testing)
+  When ON: use UGF relay flow
+  This lets judges toggle and see the difference.
+
+Remove the current "Switch Account" button from the navbar.
+Replace with cleaner role-based navigation.
+
+--------------------------------------------------------------------------------
+COMPLETE LIST OF FILES TO CREATE (NEW)
+--------------------------------------------------------------------------------
+
+frontend/src/pages/OwnerDashboard.jsx    — NEW FILE
+frontend/src/pages/InvestorDashboard.jsx — NEW FILE
+frontend/src/context/UGFContext.jsx      — NEW FILE (UGF SDK wrapper)
+  OR integrate UGF into existing Web3Context.jsx
+
+--------------------------------------------------------------------------------
+COMPLETE LIST OF FILES TO MODIFY
+--------------------------------------------------------------------------------
+
+hardhat.config.js                        — Add baseSepolia network
+scripts/deploy.js                        — Update for Base Sepolia deployment
+frontend/src/config/contracts.js         — Change chain ID, RPC, addresses
+frontend/src/context/Web3Context.jsx     — Add UGF initialization
+frontend/src/App.jsx                     — Add new routes for dashboards
+frontend/src/pages/Dividends.jsx         — UGF-wrap claimAll(), role UI
+frontend/src/pages/Property.jsx          — UGF-wrap buyFromOwner(), role UI
+frontend/src/pages/Home.jsx              — Link to correct dashboard by role
+frontend/src/index.css                   — Add styles for UGF indicators
+
+--------------------------------------------------------------------------------
+FILES THAT DO NOT NEED TO CHANGE
+--------------------------------------------------------------------------------
+
+All contracts (*.sol)                    — Smart contract logic is unchanged
+All test files (test/*.test.js)          — Tests run on local Hardhat, unchanged
+frontend/src/main.jsx                    — Entry point, no changes needed
+frontend/index.html                      — No changes needed
+frontend/vite.config.js                  — No changes needed
+frontend/src/pages/Portfolio.jsx         — Can stay mostly the same
+
+--------------------------------------------------------------------------------
+STEP-BY-STEP BUILD ORDER FOR HACKATHON
+--------------------------------------------------------------------------------
+
+PHASE 1 — Network Setup (30 mins):
+  1. Add baseSepolia to hardhat.config.js
+  2. Get Base Sepolia ETH from faucet (for deployment gas)
+  3. Get UGF Mock USD from faucet
+  4. Deploy contracts to Base Sepolia
+  5. Update contracts.js with new addresses
+  6. Verify frontend connects to Base Sepolia
+  7. Confirm existing functionality works on new chain
+
+PHASE 2 — Role-Specific Pages (3-4 hours):
+  1. Create OwnerDashboard.jsx
+  2. Create InvestorDashboard.jsx
+  3. Update App.jsx routing
+  4. Update Navbar to show role-based navigation
+  5. Remove mixed owner/investor content from existing pages
+
+PHASE 3 — UGF Integration (3-4 hours):
+  1. Read UGF SDK docs: universalgasframework.com/docs
+  2. Install @tychilabs/react-ugf
+  3. Initialize UGF in Web3Context or new UGFContext
+  4. Wrap claimAll() in InvestorDashboard with UGF
+  5. Add "Gas paid in USDC" indicator
+  6. Add USDC gas cost preview
+  7. Test: connect wallet with 0 ETH, claim dividends, confirm it works
+
+PHASE 4 — Polish (1-2 hours):
+  1. Test the full flow as Owner (deploy property, deposit rent)
+  2. Test the full flow as Investor (buy tokens, claim with UGF)
+  3. Fix any broken UI after the role split
+  4. Add "Gas-free Mode" toggle if time permits
+  5. Record demo video
+
+--------------------------------------------------------------------------------
+WHAT THE DEMO SHOULD SHOW (FOR JUDGES)
+--------------------------------------------------------------------------------
+
+1. Open the app. Show MetaMask with 0 ETH, some Mock USD only.
+2. Connect wallet. It detects "Investor" role automatically.
+3. Show InvestorDashboard: pending dividends = some USDC amount.
+4. Click "Claim All Dividends".
+5. A popup shows: "Gas cost: $0.04 Mock USD" — NO ETH REQUIRED.
+6. Confirm. Transaction goes through via UGF relay.
+7. Mock USD balance decreases by $0.04 (gas fee deducted by UGF).
+8. Dividend USDC lands in wallet.
+9. The user never touched ETH. Never needed ETH. Never saw ETH.
+
+This is the entire hackathon story in 60 seconds.
+
+--------------------------------------------------------------------------------
+RESOURCES
+--------------------------------------------------------------------------------
+
+UGF Docs:         https://universalgasframework.com/docs
+UGF Testnet:      https://universalgasframework.com/docs/testnet
+Mock USD Faucet:  https://universalgasframework.com/faucets
+Base Sepolia RPC: https://sepolia.base.org
+Base Faucet:      https://www.alchemy.com/faucets/base-sepolia
+UGF npm SDK:      https://www.npmjs.com/package/@tychilabs/ugf-testnet-js
+React UGF SDK:    https://www.npmjs.com/package/@tychilabs/react-ugf
+UGF GitHub:       https://github.com/TychiWallet/ugf-testnet-js
+
+================================================================================
+END OF FILE
+================================================================================

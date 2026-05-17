@@ -1,0 +1,22 @@
+# Node
+node_modules/
+
+# Hardhat
+artifacts/
+cache/
+typechain/
+typechain-types/
+coverage/
+coverage.json
+
+# Environment Variables
+.env
+.env.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Local AI tooling
+# Machine-specific Graphify/Codex hook paths are generated per developer.
+.codex/hooks.json
