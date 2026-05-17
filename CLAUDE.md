@@ -79,6 +79,18 @@ MockUSDC settlement token
 
 There is no separate traditional backend server in the current repository. The smart contracts are the backend layer.
 
+**Update (2026-05-17 evening):** An Express.js + MongoDB backend was added at `backend/` to provide REST API caching, transaction logging, and analytics. The architecture is now:
+
+```text
+User / MetaMask
+      ↓
+React + Vite frontend (port 3000)
+      ↓ ethers.js        ↓ fetch()
+Blockchain (Base Sepolia)   Express backend (port 5000)
+      ↓                         ↓
+Smart Contracts            MongoDB (realchain db)
+```
+
 ### Key files
 
 | File/Folder | Purpose |
@@ -94,6 +106,9 @@ There is no separate traditional backend server in the current repository. The s
 | `frontend/src/config/contracts.js` | Frontend network constants, addresses, ABIs |
 | `test/` | Functional, security, and gas benchmark coverage |
 | `HACKATHON_PLAN.txt` | Active UGF/Base Sepolia implementation brief; not yet implemented |
+| `backend/server.js` | Express API server — property cache, tx logs, user profiles |
+| `backend/models/` | Mongoose schemas: Property, Transaction, User |
+| `backend/routes/` | REST endpoints: /api/properties, /api/transactions, /api/users |
 
 ### Central components
 
@@ -309,6 +324,23 @@ Decided : Build the reward-claim path first, keep core Solidity stable, and isol
 Next    : Start Phase 1: Base Sepolia configuration, deployment inputs, and contract-address plumbing.
 Blockers: Need verified deployment credentials, final Base Sepolia addresses, and a reproducible demo-state setup.
 ---
+---
+Date    : 2026-05-17 (evening)
+Agent   : Antigravity
+Did     : Added Base Sepolia (chain 84532) to `hardhat.config.js` with RPC and etherscan config.
+Did     : Fixed `.env.example` PRIVATE_KEY placeholder that broke Hardhat on fresh copy.
+Did     : Added 8 convenience scripts to root `package.json` (compile, test, node, deploy:local, deploy:base, simulate, dev:frontend, dev:backend).
+Did     : Scaffolded Express.js backend at `backend/` with server.js, 3 Mongoose models (Property, Transaction, User), 3 route files (properties, transactions, users), and requireDb middleware for graceful MongoDB-offline handling.
+Did     : Installed backend dependencies (express, mongoose, ethers, dotenv, cors, morgan, nodemon).
+Did     : Curl-tested all 12 API endpoints — all pass (GETs return empty arrays when DB offline, POSTs return 503 with helpful hint).
+Did     : Updated `.env` and `.env.example` with BASE_SEPOLIA_RPC_URL, MONGODB_URI, BACKEND_PORT, BASESCAN_API_KEY.
+Did     : Added `backend/node_modules/` to `.gitignore`.
+Did     : Pushed all code to `main` branch on GitHub (https://github.com/AyushX1602/Real-Chain), deleted `master` branch.
+Decided : Tech stack finalized as React + Express + MongoDB + Solidity + UGF.
+Decided : Backend degrades gracefully without MongoDB — no hard dependency for local development.
+Next    : Build OwnerDashboard.jsx, InvestorDashboard.jsx, install UGF SDK, and get testnet ETH for Base Sepolia deployment.
+Blockers: MongoDB not installed locally (Atlas free tier recommended). Base Sepolia deployer wallet not yet funded.
+---
 ```
 
 ---
@@ -330,10 +362,12 @@ Do not write code until you confirm the intended direction.
 
 | Resource | URL |
 |----------|-----|
-| Project board | TBD |
+| GitHub repo | https://github.com/AyushX1602/Real-Chain |
 | Design docs | `PROJECT_EXPLAINED.txt`, `README.md`, `HACKATHON_PLAN.txt` |
+| Backend API | `http://localhost:5000/api/health` |
+| Frontend | `http://localhost:3000` |
 | Staging env | None configured |
 
 ---
 
-*Last updated: 2026-05-17 by Codex*
+*Last updated: 2026-05-17 (evening) by Antigravity*

@@ -12,3 +12,7 @@
 | 2026-05-17 | Keep core Solidity stable during the hackathon pass | The protocol already works; the gap is network, UX, and execution plumbing | Codex |
 | 2026-05-17 | Prefer `UGFContext.jsx` plus owner/investor dashboards | Separates concerns and makes the demo legible | Codex |
 | 2026-05-17 | Re-verify live UGF docs before implementation | Official SDKs evolve faster than internal notes | Codex |
+| 2026-05-17 | Full stack: React + Express + MongoDB + Solidity + UGF | Same JS ecosystem end-to-end; MongoDB for caching + tx logs | Antigravity |
+| 2026-05-17 | Backend degrades gracefully without MongoDB | GETs return empty arrays, POSTs return 503 with hint | Antigravity |
+| 2026-05-17 | requireDb middleware guards all API routes | Single point of control for DB connectivity handling | Antigravity |
+| 2026-05-17 | Backend port 5000, frontend port 3000 | Standard separation; CORS enabled on backend | Antigravity |
