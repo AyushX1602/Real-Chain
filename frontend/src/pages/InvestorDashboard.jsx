@@ -8,6 +8,7 @@ import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import CostBanner from "../components/CostBanner";
 import ConnectGate from "../components/ConnectGate";
+import AgentSuggestions from "../components/AgentSuggestions";
 import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -187,6 +188,17 @@ export default function InvestorDashboard() {
               </div>
             </div>
           )}
+
+          {/* Smart Agent — heuristic suggestions + optional LLM Q&A */}
+          <AgentSuggestions
+            holdings={items.map((it) => ({
+              id: it.id,
+              name: it.property?.name || `Property #${it.id}`,
+              location: it.property?.location || "",
+              pending: it.pending,
+              balance: it.balance,
+            }))}
+          />
 
           {/* Holdings */}
           <div className="section">

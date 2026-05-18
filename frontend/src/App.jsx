@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import { useWeb3 } from "./context/Web3Context";
 import { useUGF } from "./context/UGFContext";
+import { useSmartAgent, AGENT_PROVIDERS } from "./context/SmartAgentContext";
 import Icon from "./components/Icon";
 import Logo from "./components/Logo";
 import Switch from "./components/Switch";
+import GasIndicator from "./components/GasIndicator";
 import { BACKEND_URL } from "./config/contracts";
 
 import Landing from "./pages/Landing";
@@ -81,6 +83,7 @@ function Navbar() {
                 ${usdcBalance} USDC
               </span>
             )}
+            <GasIndicator />
             {account && roleHint && roleHint !== "Unknown" && (
               <span className={`role-badge ${roleHint === "Owner" ? "is-owner" : "is-investor"}`}>
                 <Icon name={roleHint === "Owner" ? "star" : "users"} size={11} /> {roleHint}
@@ -133,51 +136,134 @@ function Navbar() {
 }
 
 function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
+  const {
+    smartGas, setSmartGas,
+    smartAi, setSmartAi,
+    aiProvider, setAiProvider,
+    aiKey, setAiKey,
+    aiModel, setAiModel,
+    llmReady,
+  } = useSmartAgent();
+  const [showKey, setShowKey] = useState(false);
+
+  const provider = AGENT_PROVIDERS.find((p) => p.id === aiProvider) || AGENT_PROVIDERS[0];
+
   return (
     <div
       role="dialog"
-      aria-label="UGF settings"
-      style={{
-        position: "absolute",
-        top: "calc(100% + 8px)",
-        right: 0,
-        minWidth: 300,
-        background: "var(--positivus-white)",
-        border: "1px solid var(--positivus-black)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-offset-sm)",
-        padding: 20,
-        zIndex: "var(--z-modal)",
-      }}
+      aria-label="Settings"
+      className="settings-popover"
       onMouseDown={(e) => e.preventDefault()}
     >
-      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", color: "var(--positivus-black)", textTransform: "uppercase", marginBottom: 14 }}>
-        Demo controls
-      </div>
+      <div className="settings-section-head">Demo controls</div>
 
-      <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: 14,
-        background: "var(--positivus-grey)",
-        border: "1px solid var(--positivus-black)",
-        borderRadius: "var(--radius-md)",
-        gap: 12,
-      }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>
+      {/* UGF gasless toggle */}
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <div className="settings-row-title">
             <Icon name="bolt" size={12} /> UGF gasless mode
           </div>
-          <div style={{ fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.4 }}>
+          <div className="settings-row-desc">
             {isUGFEnabled ? "Gas paid in Mock USD" : "Gas paid in ETH (will fail with 0 ETH)"}
           </div>
         </div>
         <Switch checked={isUGFEnabled} onChange={setUGFEnabled} id="ugf-toggle" />
       </div>
 
-      <div style={{ marginTop: 12, fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.5, display: "flex", alignItems: "flex-start", gap: 6 }}>
-        <Icon name="info" size={12} />
-        <span>Toggle off to demonstrate the failure mode without UGF on a wallet with no ETH.</span>
+      <div className="settings-section-head" style={{ marginTop: 18 }}>Smart Agent</div>
+
+      {/* Smart gas optimizer */}
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <div className="settings-row-title">
+            <Icon name="trending" size={12} /> Smart gas optimizer
+          </div>
+          <div className="settings-row-desc">
+            Live gas pill in the navbar plus rule-based timing and batch suggestions on your dashboard.
+          </div>
+        </div>
+        <Switch checked={smartGas} onChange={setSmartGas} id="smart-gas-toggle" />
       </div>
+
+      {/* AI assistant */}
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <div className="settings-row-title">
+            <Icon name="spark" size={12} /> AI assistant
+          </div>
+          <div className="settings-row-desc">
+            Adds a free-text question box on the dashboard. Brings your own API key — calls go directly from your browser to the provider.
+          </div>
+        </div>
+        <Switch checked={smartAi} onChange={setSmartAi} id="smart-ai-toggle" />
+      </div>
+
+      {/* AI provider config — only when the assistant is on */}
+      {smartAi && (
+        <div className="settings-card">
+          <label className="form-group" style={{ marginBottom: 12 }}>
+            <span className="form-label">Provider</span>
+            <select className="form-input" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}>
+              {AGENT_PROVIDERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
+          </label>
+
+          <label className="form-group" style={{ marginBottom: 12 }}>
+            <span className="form-label">API key</span>
+            <span className="form-input-prefix" style={{ paddingLeft: 14 }}>
+              <span className="prefix"><Icon name="lock" size={12} /></span>
+              <input
+                className="form-input"
+                type={showKey ? "text" : "password"}
+                value={aiKey}
+                onChange={(e) => setAiKey(e.target.value)}
+                placeholder={`${provider.keyPrefix}…`}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setShowKey((v) => !v)}
+                aria-label={showKey ? "Hide key" : "Reveal key"}
+                style={{ padding: "4px 10px" }}
+              >
+                <Icon name={showKey ? "eyeOff" : "eye"} size={12} />
+              </button>
+            </span>
+          </label>
+
+          <label className="form-group" style={{ marginBottom: 8 }}>
+            <span className="form-label">Model (optional)</span>
+            <input
+              className="form-input"
+              type="text"
+              value={aiModel}
+              onChange={(e) => setAiModel(e.target.value)}
+              placeholder={provider.defaultModel}
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </label>
+
+          <div className="settings-meta">
+            <span className={`badge ${llmReady ? "badge-success" : "badge-muted"}`}>
+              <Icon name={llmReady ? "check" : "info"} size={11} />
+              {llmReady ? "Ready" : "Add a key"}
+            </span>
+            <a href={provider.docsUrl} target="_blank" rel="noreferrer" className="settings-link">
+              Get a {provider.label} key <Icon name="external" size={11} />
+            </a>
+          </div>
+
+          <div className="settings-warn">
+            <Icon name="alert" size={12} />
+            <span>
+              Keys live in this browser's localStorage and are sent directly to {provider.label}. Don't paste production keys on a shared machine.
+            </span>
+          </div>
+        </div>
+      )}
 
       <button className="btn btn-ghost btn-sm full-width" style={{ marginTop: 14 }} onClick={onClose}>Close</button>
     </div>

@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { Web3Provider } from "./context/Web3Context";
 import { UGFContextProvider } from "./context/UGFContext";
+import { SmartAgentProvider } from "./context/SmartAgentContext";
 import { ToastProvider } from "./components/Toast";
 import "./index.css";
 
@@ -12,9 +13,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <Web3Provider>
         <UGFContextProvider>
-          <ToastProvider>
-            <App />
-          </ToastProvider>
+          <SmartAgentProvider>
+            <ToastProvider>
+              <App />
+            </ToastProvider>
+          </SmartAgentProvider>
         </UGFContextProvider>
       </Web3Provider>
     </BrowserRouter>
