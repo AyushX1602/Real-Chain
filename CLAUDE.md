@@ -39,14 +39,24 @@ Started        : May 2026 (inferred from repository docs)
 
 ### Active milestone
 
-**UGF Hackathon / Track 3 — Wallet and Agents**
+**UGF Hackathon — Track 3 (Wallet & Agents / "reward claim")**
 
-North star demo:
+The authoritative plan is `implementation_plan.md`. It is now organized into three tiers:
+
+| Tier | Scope | Gate to next tier |
+|------|-------|-------------------|
+| **Tier 1 — Mandatory** (Phases 1–4) | Base Sepolia deploy, role-based dashboards, UGF-wrapped `claimAll()`, demo recording | Phase 4A end-to-end test passes |
+| **Tier 2 — Differentiators** (Phase 5) | Wrap all four state-changing flows with UGF, on/off toggle, activity feed, cost banner, rename "Dividends" → "Claim Rent", faucet helper, brand pass | 5A + 5B + 5C + 5D + 5E green |
+| **Tier 3 — Stretch** (Phase 6) | Embedded wallet (Privy/Web3Auth), soulbound NFT receipts, pitch video, live demo URL | n/a |
+
+North star demo (still the same):
 1. Investor wallet has token holdings, pending rent, some `TYI_MOCK_USD`, and **0 ETH**.
 2. Investor opens the app on Base Sepolia.
-3. Investor clicks **Claim All Dividends**.
+3. Investor clicks **Claim All Rent**.
 4. UGF prices, settles, and executes the transaction.
 5. Dividends arrive while the user never acquires or spends native ETH.
+
+Cuts (decided 2026-05-18): the V1/V2 + snapshot-attack research story stays in the repo for the academic paper but is NOT surfaced in the hackathon README, demo, or pitch. The hackathon submission is ruthlessly scoped to "zero-ETH rent claims with UGF".
 
 ---
 
@@ -155,15 +165,25 @@ Code-centric anchors from direct inspection:
 
 ## What's remaining
 
-| Priority | Task | Owner | Notes |
-|----------|------|-------|-------|
-| High | Phase 1 — Add Base Sepolia deployment support and deploy the protocol there | TBD | Needed before the public demo |
-| High | Phase 2 — Build owner/investor dashboards and role-based navigation | TBD | Judges should land on role-specific UX |
-| High | Phase 3 — Integrate UGF for `claimAll()` first | TBD | Core hackathon requirement / minimum winning scope |
-| Medium | Phase 3 stretch — Wrap `buyFromOwner()`, `depositRental()`, and `buyFromListing()` | TBD | Only after dividend claims work |
-| Medium | Phase 4 — Polish the 60-second demo path and record proof | TBD | Gas-in-Mock-USD messaging, modal, zero-ETH proof |
-| Medium | Make fresh local demo fully interactive without manual setup | TBD | See known bugs/gaps |
-| Low | Add repo URL, team ownership, staging/production metadata | TBD | Human-owned information |
+See `implementation_plan.md` for the full tiered backlog. Summary:
+
+| Priority | Tier | Task | Owner | Notes |
+|----------|------|------|-------|-------|
+| High | T1 / Phase 1 | Add Base Sepolia deploy + seed deterministic demo state | Person A | `baseSepolia` config already added; deployment + seed script still TODO |
+| High | T1 / Phase 2 | Build `OwnerDashboard.jsx` + `InvestorDashboard.jsx` + role-based routing | Persons B & C | Judges should land on a role-specific dashboard |
+| High | T1 / Phase 3 | Install `@tychilabs/react-ugf`, build `UGFContext`, UGF-wrap `claimAll()` | Person D | Core hackathon requirement |
+| High | T1 / Phase 4 | E2E test from clean state + record 60-sec demo | All | Demo script in `HACKATHON_PLAN.txt` |
+| Medium | T2 / Phase 5A | UGF-wrap `depositRental`, `buyFromOwner`, `buyFromListing`, `cancelListing`, `approve` | B + C + D | Whole demo becomes zero-ETH |
+| Medium | T2 / Phase 5B | UGF on/off toggle (proves the thesis live) | D | Toggling off → claim fails (no ETH) |
+| Medium | T2 / Phase 5C | Activity feed via existing Express + MongoDB backend | A | Gives the backend a visible job |
+| Medium | T2 / Phase 5D | Side-by-side cost banner ("without UGF" vs "with UGF") | C | Makes the value prop unmissable |
+| Medium | T2 / Phase 5E | Rename user-visible "Dividends" → "Claim Rent" | B | Beginner-friendly language |
+| Medium | T2 / Phase 5F | In-app faucet helper (Mock USD + USDC + demo wallet drop-in) | A | Removes friction for cold judges |
+| Medium | T2 / Phase 5G | Brand pass: name, logo, landing screen | All | Hackathon scoring is partly aesthetic |
+| Low | T3 / Phase 6A | Embedded wallet (Privy / Web3Auth) | C | Email-only onboarding |
+| Low | T3 / Phase 6B | Soulbound NFT receipt per claim | D | Hits Minting track too |
+| Low | T3 / Phase 6C | 60–90 sec pitch video | All | Most submissions ship without one |
+| Low | T3 / Phase 6D | Live demo URL on Vercel/Netlify | A | Custom subdomain |
 
 ### Known bugs / gaps
 - [ ] Fresh `.env.example` placeholders are unsafe for local startup if copied literally: a fake `PRIVATE_KEY` causes Hardhat config validation to fail. Blank local values work.
@@ -178,40 +198,76 @@ Code-centric anchors from direct inspection:
 
 ## Hackathon implementation brief
 
-### What must ship
-- Base Sepolia support in Hardhat and frontend network config.
-- Role-specific dashboards:
-  - `OwnerDashboard.jsx`
-  - `InvestorDashboard.jsx`
-- UGF transaction path for `claimAll()` with visible “gas paid in Mock USD” messaging and a quote/cost preview.
+> Authoritative version: `implementation_plan.md`. The summary below mirrors it.
+
+### What must ship in Tier 1
+- Base Sepolia support in Hardhat and frontend network config (`baseSepolia` is already wired; deployment is not).
+- Deterministic demo-state seeding script (`scripts/seedDemo.js` or a deploy.js extension): one investor wallet ends with PROP tokens, pending USDC rent, and ETH=0.
+- Role-specific dashboards: `OwnerDashboard.jsx`, `InvestorDashboard.jsx`, role-based routing.
+- UGF-wrapped `claimAll()` with visible "Gas paid in Mock USD" badge and a quoted cost preview.
 - A judge-ready demo path proving the investor can claim with **0 ETH**.
 
-### What should stay stable
-- Core Solidity contracts unless the integration reveals a hard blocker.
-- Existing local Hardhat tests and the V1/V2 research surface.
-- `claimAll()` as the first UGF target; do not let secondary actions outrun the centerpiece.
+### What ships in Tier 2 (only after Tier 1 is green)
+- All four state-changing flows wrapped with UGF (claim, deposit, primary buy, secondary buy).
+- UGF on/off toggle that lets judges see the system fail without UGF.
+- Activity feed driven by the Express + MongoDB backend.
+- Cost banner showing "without UGF" vs "with UGF" side by side.
+- "Dividends" renamed to "Claim Rent" everywhere user-visible.
+- In-app faucet helper.
+- Branding: name, logo, landing screen.
+
+### What ships in Tier 3 (only if time remains)
+- Embedded wallet (email login → smart wallet → UGF claim).
+- Soulbound NFT claim receipts.
+- 60–90 second pitch video.
+- Live demo URL with custom subdomain.
+
+### What stays stable
+- Core Solidity contracts and the existing 31 Hardhat tests through Tier 1 + Tier 2.
+- `claimAll()` is the first UGF target. Do not let secondary actions outrun the centerpiece.
+- The V1/V2 / snapshot-attack research surface stays in the repo but is NOT surfaced in the hackathon submission.
 
 ### Verified UGF implementation facts
-- The official testnet SDK is `@tychilabs/ugf-testnet-js`.
-- Its testnet route is Base Sepolia (`84532`) with settlement coin `TYI_MOCK_USD`.
-- Its lifecycle is: authenticate → quote → settle → sponsor/execute → confirm.
-- The official React wrapper is `@tychilabs/react-ugf`, exposing `UGFProvider` and `useUGFModal().openUGF(...)`.
-- Before coding, re-check the current official UGF SDK docs and repo READMEs; the hackathon plan is an internal brief, not the source of truth for API details.
+- Official testnet SDK: `@tychilabs/ugf-testnet-js`.
+- Official React wrapper: `@tychilabs/react-ugf`, exposing `UGFProvider` and `useUGFModal().openUGF(...)`.
+- Testnet route: Base Sepolia (`84532`) with settlement coin `TYI_MOCK_USD`.
+- Lifecycle: authenticate → quote → settle → sponsor/execute → confirm.
+- Before coding, re-check the live SDK README. Internal notes are not the source of truth.
+
+### Settlement-token policy (resolved 2026-05-18)
+- **Rent settlement**: our `MockUSDC` contract (all RealChain contracts already speak it).
+- **Gas settlement**: UGF's `TYI_MOCK_USD` (separate token, only touched by the UGF flow).
+- UI copy MUST distinguish them: "Receive USDC" (rent) vs "Pay gas in Mock USD" (UGF fee).
 
 ### Preferred implementation shape
-- New `frontend/src/context/UGFContext.jsx` owns UGF setup and execution helpers.
-- New `OwnerDashboard.jsx` owns rent deposit / owned-property flows.
+- New `frontend/src/context/UGFContext.jsx` owns UGF setup and execution helpers (including a generic `ugfExecute()` for Tier 2).
+- New `OwnerDashboard.jsx` owns rent-deposit / owned-property flows.
 - New `InvestorDashboard.jsx` owns portfolio summary and the UGF-powered claim flow.
 - `App.jsx` owns role-based routing.
-- `Web3Context.jsx` remains the generic wallet/network/contracts layer.
+- `Web3Context.jsx` remains the generic wallet/network/contracts layer (no UGF coupling).
+- Backend stays at `backend/` and earns its keep via the Tier 2 activity feed (Phase 5C).
 
-### Definition of done
-- `hardhat.config.js` supports `baseSepolia`.
-- Frontend can connect/switch to Base Sepolia.
-- Contracts are deployed and addresses are reflected in frontend config.
+### Definition of done — Tier 1
+- `hardhat.config.js` supports `baseSepolia`. ✅ already done.
+- Contracts deployed to Base Sepolia; addresses reflected in `frontend/src/config/contracts.js`.
+- `scripts/seedDemo.js` (or equivalent) leaves a known wallet with: PROP tokens > 0, pending dividends > 0, ETH = 0.
+- Frontend connects/switches to Base Sepolia.
 - Owner and investor see different dashboards.
-- Investor claim flow succeeds from a wallet with zero ETH and shows Mock-USD gas messaging.
-- The demo can be run twice from documented steps without reconstructing hidden setup knowledge.
+- Investor claim flow succeeds from a wallet with **zero ETH** and shows Mock-USD gas messaging.
+- The demo can be re-run twice from the documented seed script without manual surgery.
+
+### Definition of done — Tier 2
+- All four state-changing user flows succeed with ETH = 0.
+- The UGF toggle visibly causes claim to fail when off and succeed when on.
+- Activity feed updates within ~10s of any UGF tx.
+- Cost banner appears on every gasless button with both numbers populated.
+- The user-visible string "Dividends" appears nowhere.
+
+### Definition of done — Tier 3
+- Email-only login can complete a claim with no MetaMask.
+- Each successful claim leaves a non-transferable receipt NFT in the investor's wallet.
+- Pitch video is uploaded and linked from the README.
+- Live demo URL is reachable from a clean browser with no extensions.
 
 ---
 
@@ -341,6 +397,21 @@ Decided : Backend degrades gracefully without MongoDB — no hard dependency for
 Next    : Build OwnerDashboard.jsx, InvestorDashboard.jsx, install UGF SDK, and get testnet ETH for Base Sepolia deployment.
 Blockers: MongoDB not installed locally (Atlas free tier recommended). Base Sepolia deployer wallet not yet funded.
 ---
+---
+Date    : 2026-05-18
+Agent   : Kiro (Claude Opus 4.7)
+Did     : Read the official problem statement (`hackathon_ps.pdf`) end-to-end and confirmed the hackathon scoring is "beginner-friendly + onchain action that normally breaks because of gas".
+Did     : Audited the gap between `implementation_plan.md` (which only covered Tier 1) and what would actually win: identified Tier 2 differentiators (wrap all flows, UGF toggle, activity feed, cost banner, rename, faucet, brand) and Tier 3 stretch (embedded wallet, NFT receipt, pitch video, live URL).
+Did     : Rewrote `implementation_plan.md` into a tiered build (Tier 1 mandatory → Tier 2 differentiators → Tier 3 stretch) with explicit gates between tiers, parallel timeline, and per-person deliverables across all three tiers.
+Did     : Added Phase 1E ("deterministic demo-state seeding") as a Tier 1 task because the 60-second demo silently breaks if the demo wallet is set up by hand on demo day.
+Did     : Updated `CLAUDE.md`: rewrote Active Milestone, What's Remaining, and Hackathon Implementation Brief to reflect the tiered plan + settlement-token policy.
+Did     : Updated `AGENTS.md` with the tier-gate rule, the settlement-token policy, and the cut decision about the V1/V2 research surface.
+Decided : Settlement-token policy — our `MockUSDC` for rent, UGF's `TYI_MOCK_USD` for gas only. UI copy must distinguish them.
+Decided : Cut the V1/V2 + snapshot-attack research story from the hackathon-visible surface (README, demo, pitch). It stays in the repo for the academic paper.
+Decided : Tiers MUST ship in order. Tier 2 starts only after Phase 4A is green. Tier 3 starts only after 5A/B/C/D/E are green.
+Next    : Run a design-first spec workflow to formalize the architecture (UGF wrapper layer, role split, demo-state seeding, activity feed) before coding — design.md → requirements.md → tasks.md.
+Blockers: Same as previous entry — Base Sepolia deployer wallet still unfunded; MongoDB not yet provisioned (Atlas free tier recommended).
+---
 ```
 
 ---
@@ -370,4 +441,4 @@ Do not write code until you confirm the intended direction.
 
 ---
 
-*Last updated: 2026-05-17 (evening) by Antigravity*
+*Last updated: 2026-05-18 by Kiro (Claude Opus 4.7)*

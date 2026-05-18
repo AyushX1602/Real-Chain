@@ -13,7 +13,10 @@ const Web3Context = createContext(null);
 let _readProvider = null;
 function getReadProvider() {
   if (!_readProvider) {
-    _readProvider = new ethers.JsonRpcProvider(LOCAL_RPC_URL);
+    const rpcUrl = NETWORK_CHAIN_ID === 84532
+      ? import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org"
+      : LOCAL_RPC_URL;
+    _readProvider = new ethers.JsonRpcProvider(rpcUrl);
   }
   return _readProvider;
 }
@@ -53,6 +56,19 @@ export function Web3Provider({ children }) {
           nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
           rpcUrls: [SEPOLIA_RPC_URL],
           blockExplorerUrls: ["https://sepolia.etherscan.io"],
+        },
+      };
+    }
+
+    if (NETWORK_CHAIN_ID === 84532) {
+      return {
+        chainIdHex: "0x14a34",
+        params: {
+          chainId: "0x14a34",
+          chainName: "Base Sepolia",
+          nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+          rpcUrls: [import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org"],
+          blockExplorerUrls: ["https://sepolia.basescan.org"],
         },
       };
     }

@@ -1,7 +1,7 @@
 {
-  "network": "localhost",
+  "network": "baseSepolia",
   "distributionMode": "v1",
-  "mockUsdc": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  "factory": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  "deployedAt": "2026-05-17T15:49:52.287Z"
+  "mockUsdc": "0xc90610277191F7Dbe7Ddf18319Bd28D3aAAe9a38",
+  "factory": "0xa8bb0D4923C1aBB9294cBc115c6FF81B2DaC0168",
+  "deployedAt": "2026-05-18T09:39:24.370Z"
 }
