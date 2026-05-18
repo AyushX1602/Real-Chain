@@ -133,33 +133,54 @@ export default function Landing() {
   return (
     <div className="container reveal">
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="lp-hero">
-        <div className="lp-hero-text">
-          <h1 className="lp-hero-title">
-            Tokenized real estate, <span className="hl">zero-ETH</span> claim
-          </h1>
-          <p className="lp-hero-sub">
-            Buy fractional ownership of real properties, earn USDC rent every
-            epoch, and trade anytime. Gas is paid in Mock USD via the Universal
-            Gas Framework — your wallet never needs ETH.
-          </p>
-          <div className="flex gap-3 flex-wrap">
-            {account ? (
-              <Link to="/marketplace" className="btn btn-primary btn-xl">
-                Open marketplace <Icon name="arrowRight" size={16} />
-              </Link>
-            ) : (
-              <button className="btn btn-primary btn-xl" onClick={connect} disabled={connecting}>
-                {connecting ? "Connecting…" : "Connect wallet"}
-              </button>
-            )}
-            <a href="#how-it-works" className="btn btn-secondary btn-xl">How it works</a>
+      <section className="lp-hero-stage">
+        {/* Ambient glow orbs — give the glass something to refract */}
+        <span className="lp-hero-orb is-lime" aria-hidden="true" />
+        <span className="lp-hero-orb is-mint" aria-hidden="true" />
+        <span className="lp-hero-orb is-cool" aria-hidden="true" />
+        <span className="lp-hero-grid" aria-hidden="true" />
+
+        <section className="lp-hero">
+          <div className="lp-hero-text">
+            <span className="lp-hero-eyebrow">
+              <span className="lp-hero-eyebrow-dot" />
+              {networkName}
+              <span className="lp-hero-eyebrow-sep">·</span>
+              UGF gasless · USDC rent
+            </span>
+            <h1 className="lp-hero-title">
+              Tokenized real estate, <span className="hl">zero-ETH</span> claim
+            </h1>
+            <p className="lp-hero-sub">
+              Buy fractional ownership of real properties, earn USDC rent every
+              epoch, and trade anytime. Gas is paid in Mock USD via the Universal
+              Gas Framework — your wallet never needs ETH.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              {account ? (
+                <Link to="/marketplace" className="btn btn-primary btn-xl">
+                  Open marketplace <Icon name="arrowRight" size={16} />
+                </Link>
+              ) : (
+                <button className="btn btn-primary btn-xl" onClick={connect} disabled={connecting}>
+                  {connecting ? "Connecting…" : "Connect wallet"}
+                </button>
+              )}
+              <a href="#how-it-works" className="btn btn-secondary btn-xl">How it works</a>
+            </div>
+            <LiveRentCounter className="lp-hero-counter" />
           </div>
-          <LiveRentCounter className="lp-hero-counter" />
-        </div>
-        <div className="lp-hero-illu" aria-hidden="true">
-          <HeroIllustration />
-        </div>
+          <div className="lp-hero-illu" aria-hidden="true">
+            <span className="lp-hero-illu-glow" />
+            <HeroIllustration />
+            <span className="lp-hero-illu-pill is-top">
+              <Icon name="bolt" size={11} /> ERC-20Votes
+            </span>
+            <span className="lp-hero-illu-pill is-bottom">
+              <Icon name="coins" size={11} /> USDC settlement
+            </span>
+          </div>
+        </section>
       </section>
 
       {/* ── Trust / status strip — every value is dynamic ────────────────── */}
