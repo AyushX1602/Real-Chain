@@ -26,3 +26,4 @@
 | 2026-05-18 | Rename user-visible "Dividends" → "Claim Rent" | Hackathon explicitly asks for beginner-friendly language; "Dividends" reads as DeFi jargon | Kiro |
 | 2026-05-18 | Tier 3 stretch includes embedded wallet (Privy/Web3Auth) + soulbound NFT receipts | Embedded wallet collapses the two friction points (no ETH + no MetaMask) into one email-based onboarding. Soulbound receipts also hit the Minting track | Kiro |
 | 2026-05-18 | Run a design-first spec workflow next | Architecture is mostly known (UGF wrapper, role split, demo-state seeding, activity feed). Design-first is faster than requirements-first when the technical shape is clear | Kiro |
+| 2026-05-18 | Use `uvx --from graphifyy graphify.exe` as Graphify fallback on this machine | `graphify` is not on PATH in the current shell, but the uvx command updates `graphify-out` successfully | Codex |

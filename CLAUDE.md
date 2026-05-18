@@ -412,6 +412,16 @@ Decided : Tiers MUST ship in order. Tier 2 starts only after Phase 4A is green. 
 Next    : Run a design-first spec workflow to formalize the architecture (UGF wrapper layer, role split, demo-state seeding, activity feed) before coding — design.md → requirements.md → tasks.md.
 Blockers: Same as previous entry — Base Sepolia deployer wallet still unfunded; MongoDB not yet provisioned (Atlas free tier recommended).
 ---
+---
+Date    : 2026-05-18
+Agent   : Codex
+Did     : Ran Graphify update for this repository and rebuilt `graphify-out/graph.json`, `graphify-out/graph.html`, and `graphify-out/GRAPH_REPORT.md`.
+Did     : Confirmed `graphify` is not available directly on PATH in this shell.
+Did     : Used the working fallback command `uvx --from graphifyy graphify.exe update .` to keep graph memory current.
+Decided : Keep using the uvx Graphify fallback on this machine unless PATH is fixed.
+Next    : Continue Tier 1 implementation tasks in order from `implementation_plan.md`.
+Blockers: Base Sepolia deployer wallet funding and final deployment addresses are still pending.
+---
 ```
 
 ---
@@ -441,4 +451,4 @@ Do not write code until you confirm the intended direction.
 
 ---
 
-*Last updated: 2026-05-18 by Kiro (Claude Opus 4.7)*
+*Last updated: 2026-05-18 by Codex*

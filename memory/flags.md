@@ -13,7 +13,7 @@
 - Fresh local deploy still needs owner marketplace approval before buyer primary purchases work. Roll into the seed script (Phase 1E) so this never bites again.
 - Fresh local deploy does not auto-fund investor wallets with MockUSDC. Same fix.
 - `OwnerDashboard.jsx` and `InvestorDashboard.jsx` do not exist yet (Phase 2A/2B).
-- `@tychilabs/react-ugf` is not installed in `frontend/`. UGF SDK API surface must be re-verified against the live README before integration (Phase 3A/3B).
+- `@tychilabs/react-ugf` is installed in `frontend/`, but UGF SDK API surface must still be re-verified against the live README before integration (Phase 3A/3B).
 - Final `TYI_MOCK_USD` route/address on Base Sepolia must be confirmed against UGF's current docs; do not trust internal notes.
 
 ## Open — Tier 2 (only relevant after Tier 1 demo runs)
@@ -40,6 +40,7 @@
 ## Process / team
 - Team ownership, project board, deployment URLs are still unknown for the most part. Persons A/B/C/D are role placeholders in `implementation_plan.md`.
 - Each teammate still needs to run `graphify codex install` once locally; `.codex/hooks.json` is intentionally not shared.
+- On this machine, `graphify` is not on PATH. Use `uvx --from graphifyy graphify.exe query|path|explain|update` as the working fallback.
 - Teammates must run `cd backend && npm install` after cloning.
 - Frontend currently does not call backend API endpoints. Will start in Phase 5C.
 - After meaningful work, every agent must append a session entry to `CLAUDE.md` and update this file. Stale flags break the next agent's planning.

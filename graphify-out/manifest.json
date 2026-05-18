@@ -1,202 +1,1087 @@
 {
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\hardhat.config.js": {
-    "mtime": 1779037169.0769053,
-    "ast_hash": "9135805aaa564292154708507a13cd45",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\hardhat.config.js": {
+    "mtime": 1779101019.2344027,
+    "ast_hash": "e27a0a5e51d5a686a5b6831bcad9f04a",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\package.json": {
-    "mtime": 1779037179.959481,
-    "ast_hash": "1eeb89c0691ae331eac8eb0484cb732a",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\package.json": {
+    "mtime": 1779101019.2369363,
+    "ast_hash": "687898b4b71bcf2e75521e4643ee0faf",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\.codex\\hooks.json": {
-    "mtime": 1779034590.0895488,
-    "ast_hash": "9660fc24ee22b8f30a6335f8f4e21b08",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\.vscode\\settings.json": {
+    "mtime": 1779102091.0592234,
+    "ast_hash": "a5c945c53c763d0a327440e146751efe",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\package.json": {
-    "mtime": 1779037451.474056,
-    "ast_hash": "e4d8f1fb565fa3941351e57c065811c7",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\package.json": {
+    "mtime": 1779101019.207859,
+    "ast_hash": "9a7a94f8c6efeef4e6169ef68a8ed0f5",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\server.js": {
-    "mtime": 1779037740.447686,
-    "ast_hash": "5e2c74c58efe714a35657a891cacc4d3",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\server.js": {
+    "mtime": 1779101019.208861,
+    "ast_hash": "15912134271adf5656c9fb5eee373c9f",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\middleware\\db.js": {
-    "mtime": 1779037731.7460713,
-    "ast_hash": "4573b73308c859fca9d4d96fe5a5fb68",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\middleware\\db.js": {
+    "mtime": 1779101019.2063565,
+    "ast_hash": "95cb7f44cc5bb19f8c17504f7c9f5db6",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\models\\Property.js": {
-    "mtime": 1779037479.4928052,
-    "ast_hash": "372c54a0caec5944d47f990586e38a19",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\models\\Property.js": {
+    "mtime": 1779101019.2063565,
+    "ast_hash": "9ff17166dd9fd814a4baf6163427d5ad",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\models\\Transaction.js": {
-    "mtime": 1779037483.2074833,
-    "ast_hash": "5c617464951b626d4e7971422a0b48f0",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\models\\Transaction.js": {
+    "mtime": 1779101019.2063565,
+    "ast_hash": "3c052f17260c0595fd1329322e60a094",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\models\\User.js": {
-    "mtime": 1779037485.2249157,
-    "ast_hash": "5830d5468d682f5a7ad56f4e3f49579f",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\models\\User.js": {
+    "mtime": 1779101019.2063565,
+    "ast_hash": "284c6dda6137a586026e51f8b7c44e45",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\routes\\properties.js": {
-    "mtime": 1779037518.7483106,
-    "ast_hash": "83c5feabfa6ef171d47ff67947517f19",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\routes\\properties.js": {
+    "mtime": 1779101019.208861,
+    "ast_hash": "3f1ef86620a5f3c8373202e0bcdf11ef",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\routes\\transactions.js": {
-    "mtime": 1779037524.8635585,
-    "ast_hash": "0f9dc74760c06a5937c666c0f619725a",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\routes\\transactions.js": {
+    "mtime": 1779101019.208861,
+    "ast_hash": "7825e2137b7c467a600e51b91f5b25de",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\routes\\users.js": {
-    "mtime": 1779037526.8698542,
-    "ast_hash": "477b1602c58c13a99cd19cb0763ff689",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\routes\\users.js": {
+    "mtime": 1779101019.208861,
+    "ast_hash": "36b339ef71bd08e801315063abf8cc22",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\package.json": {
-    "mtime": 1779021983.574131,
-    "ast_hash": "2625c82d4ece3d11853d5b4e3604984e",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\package.json": {
+    "mtime": 1779101207.9335613,
+    "ast_hash": "a3ac5c9ccbc8fb4a54ead822a54211e6",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\vite.config.js": {
-    "mtime": 1779021983.5857809,
-    "ast_hash": "37dac7e336e7fbcbd993a87e31d3a9dc",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\vite.config.js": {
+    "mtime": 1779101019.2275002,
+    "ast_hash": "63bda455ccee83009d7c0a9d09628dfd",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\App.jsx": {
-    "mtime": 1779021983.6439352,
-    "ast_hash": "39e05c8bbb0a8bfa261eb3acdeb2550c",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\App.jsx": {
+    "mtime": 1779101019.2242427,
+    "ast_hash": "aa504d7a3a1526bee621f12be6f4b35f",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\main.jsx": {
-    "mtime": 1779021983.6677735,
-    "ast_hash": "128af9f40d04f169ef5a99458f33ba82",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\main.jsx": {
+    "mtime": 1779101019.226492,
+    "ast_hash": "e30dd3cdb9d003db6d78c3839ed73afd",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\config\\contracts.js": {
-    "mtime": 1779032997.9188933,
-    "ast_hash": "d11309bef5f23cac41cbe267c52b730a",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\config\\contracts.js": {
+    "mtime": 1779101019.2257955,
+    "ast_hash": "0239debdff3753241319068949a40ad5",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\context\\Web3Context.jsx": {
-    "mtime": 1779021983.6930382,
-    "ast_hash": "954398158eec77bf6e00c397eef54a2f",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\context\\Web3Context.jsx": {
+    "mtime": 1779101019.226492,
+    "ast_hash": "d19e708ad8e3a17fa7899cb07490e4eb",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Dividends.jsx": {
-    "mtime": 1779021983.7071028,
-    "ast_hash": "df0a44c018b3c0f2e81398415c377ee9",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Dividends.jsx": {
+    "mtime": 1779101019.2275002,
+    "ast_hash": "8b8bb92eb0ea20c35e7ea81e6b69cad0",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Home.jsx": {
-    "mtime": 1779021983.7168806,
-    "ast_hash": "af8d20c85665a7822e79cf1bb010ecf9",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Home.jsx": {
+    "mtime": 1779101019.2275002,
+    "ast_hash": "c8340b9d33a6ecda1c22135fa4cd3e7e",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Portfolio.jsx": {
-    "mtime": 1779021983.725293,
-    "ast_hash": "efb621270864e67ad8b1ecc7d4fc64fd",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Portfolio.jsx": {
+    "mtime": 1779101019.2275002,
+    "ast_hash": "91dc2338b877e45c745100ba26cf6ef9",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Property.jsx": {
-    "mtime": 1779021983.733606,
-    "ast_hash": "b51d4e439e576739318ebe08e74b05a0",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Property.jsx": {
+    "mtime": 1779101019.2275002,
+    "ast_hash": "c63cd36e506d425dbb604e9a4c01b849",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\scripts\\deploy.js": {
-    "mtime": 1779021983.746504,
-    "ast_hash": "0aa9a732dc1c73748c90b7a78b38ef41",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\deploy.js": {
+    "mtime": 1779101019.2379394,
+    "ast_hash": "31a4ca22488e714cb289a7664a1fc334",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\scripts\\simulate.js": {
-    "mtime": 1779021983.7525294,
-    "ast_hash": "9bb3e29932d717d52ef1fe02fb015483",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\seedDemo.js": {
+    "mtime": 1779101019.2379394,
+    "ast_hash": "3db26aabe502665413545fa9a2c891f6",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\test\\DistributionV2.test.js": {
-    "mtime": 1779021983.7639172,
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\simulate.js": {
+    "mtime": 1779101019.2379394,
+    "ast_hash": "821d8535d06da4f770aeec71a95d4c8f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\test\\DistributionV2.test.js": {
+    "mtime": 1779101019.2379394,
     "ast_hash": "f6fcbe411e8891b18536fae1135889a5",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\test\\FactoryDistributionMode.test.js": {
-    "mtime": 1779021983.7698479,
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\test\\FactoryDistributionMode.test.js": {
+    "mtime": 1779101019.2389393,
     "ast_hash": "fa4c87db06b50a8424420c2de7876653",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\test\\GasBenchmark.test.js": {
-    "mtime": 1779021983.7743044,
-    "ast_hash": "173aea77de9405c12d6414c6ccf2cd4c",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\test\\GasBenchmark.test.js": {
+    "mtime": 1779101019.2389393,
+    "ast_hash": "ee73c96b3e3dbcf4aaec1cd6f4d3493b",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\test\\RealEstatePlatform.test.js": {
-    "mtime": 1779021983.7846406,
-    "ast_hash": "558e21e4bb2d8a304871b605ef3f03ea",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\test\\RealEstatePlatform.test.js": {
+    "mtime": 1779101019.2389393,
+    "ast_hash": "8b81adc301d4c3be346e34795b84052b",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\test\\SnapshotAttack.test.js": {
-    "mtime": 1779021983.791517,
-    "ast_hash": "53d670053b098aee06c36388ff656ce8",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\test\\SnapshotAttack.test.js": {
+    "mtime": 1779101019.2389393,
+    "ast_hash": "11ed4153fa705436995a3c052f8f66dd",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\test\\V1VsV2Benchmark.test.js": {
-    "mtime": 1779021983.7995563,
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\test\\V1VsV2Benchmark.test.js": {
+    "mtime": 1779101019.2399395,
     "ast_hash": "f87ac6fc5e0a83a097b63ff3b0b6d56c",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\AGENTS.md": {
-    "mtime": 1779035159.1345167,
-    "ast_hash": "5987539b66bb9ccdfa1ab06eec522cb4",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\skill.json": {
+    "mtime": 1779101813.0914462,
+    "ast_hash": "38e7befe0e5fee6afbb8f3192429f9a1",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\CLAUDE.md": {
-    "mtime": 1779038018.4682903,
-    "ast_hash": "5b0f1c927494ea9b273262d5f21dda4b",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\cip\\core.py": {
+    "mtime": 1779101812.9992983,
+    "ast_hash": "97922bcc747a77d5564f2f67d8b4c7b9",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\HACKATHON_PLAN.txt": {
-    "mtime": 1779021983.3983016,
-    "ast_hash": "85ef6cea89b03190fbdb4930bf41e1bf",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\cip\\generate.py": {
+    "mtime": 1779101812.9992983,
+    "ast_hash": "4e21922d1169f73729fe4f7d9d0d6b62",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\implementation_plan.md": {
-    "mtime": 1779036252.4410584,
-    "ast_hash": "690b0282ba5e0003def2b040aee976c8",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\cip\\render-html.py": {
+    "mtime": 1779101812.9992983,
+    "ast_hash": "e0f4ec7de6cbfe51386e2b64ccd19c21",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\PROJECT_EXPLAINED.txt": {
-    "mtime": 1779021983.4606721,
-    "ast_hash": "0d7388caf6fb5fa88fe75c331452739d",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\cip\\search.py": {
+    "mtime": 1779101813.0004542,
+    "ast_hash": "3c6a773330a5c317f6214da55b4077ff",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\README.md": {
-    "mtime": 1779021983.4695604,
-    "ast_hash": "92cdb37a12bb04ee93170485b9802c8a",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\icon\\generate.py": {
+    "mtime": 1779101813.0004542,
+    "ast_hash": "00856566d7283782e7a02c9c0c238cca",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\Real-Estate Project Audit.md": {
-    "mtime": 1779021983.4789288,
-    "ast_hash": "8bbd59ffde42b75f10702cc7e00eedbf",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\logo\\core.py": {
+    "mtime": 1779101813.0004542,
+    "ast_hash": "6f79fef275acb58f37a9c9746de9f157",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\index.html": {
-    "mtime": 1779021983.5643506,
-    "ast_hash": "e97557d8282890bf18fa2499a748372b",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\logo\\generate.py": {
+    "mtime": 1779101813.0004542,
+    "ast_hash": "c055fcd5fc7d01874b6fc90dc797e5e9",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\memory\\decisions.md": {
-    "mtime": 1779038032.7795205,
-    "ast_hash": "b917c61844f12a82d17fb4a4d1a98b8e",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\scripts\\logo\\search.py": {
+    "mtime": 1779101813.001469,
+    "ast_hash": "751a89ded37904135601234dd4f5ad21",
     "semantic_hash": ""
   },
-  "D:\\codes\\BlockChain\\Real_estate_tokenization\\memory\\flags.md": {
-    "mtime": 1779038073.7098696,
-    "ast_hash": "61423b9e761d9ae168113ce8b4fddbdf",
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\scripts\\fetch-background.py": {
+    "mtime": 1779101812.991697,
+    "ast_hash": "845de6824aaabb9f04bb0826d859bf6b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\scripts\\generate-slide.py": {
+    "mtime": 1779101812.992237,
+    "ast_hash": "4bbb10408cb4443e39941a294786a73f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\scripts\\search-slides.py": {
+    "mtime": 1779101812.992237,
+    "ast_hash": "bf072244fc927f737e0b96b8507aca4f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\scripts\\slide_search_core.py": {
+    "mtime": 1779101812.993252,
+    "ast_hash": "2613032ccc664e4a036f07e7851e796b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\scripts\\shadcn_add.py": {
+    "mtime": 1779101813.0622153,
+    "ast_hash": "f48766f026e79dcc33963214271487a2",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\scripts\\tailwind_config_gen.py": {
+    "mtime": 1779101813.0622153,
+    "ast_hash": "0524a678e8c06da8494183fae5f62159",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\scripts\\tests\\coverage-ui.json": {
+    "mtime": 1779101813.0632281,
+    "ast_hash": "42c486def8b180c1e72b1e7b865b9607",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\scripts\\tests\\test_shadcn_add.py": {
+    "mtime": 1779101813.0632281,
+    "ast_hash": "3dd7ee21be2436d9c11cb3baa25f94e8",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\scripts\\tests\\test_tailwind_config_gen.py": {
+    "mtime": 1779101813.0632281,
+    "ast_hash": "d7bf6262c528b829caa11b01b19eab4e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude-plugin\\marketplace.json": {
+    "mtime": 1779101812.9831746,
+    "ast_hash": "7f3e6f8dea403986110bdf3456be9d15",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude-plugin\\plugin.json": {
+    "mtime": 1779101812.9831746,
+    "ast_hash": "48a0d38ab60783927964a262a8d354cd",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\package.json": {
+    "mtime": 1779101813.0842543,
+    "ast_hash": "2dcd8c26434875ac52b5321a21eb2aaa",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\tsconfig.json": {
+    "mtime": 1779101813.0869045,
+    "ast_hash": "e837ef9ba550eaf043dc4d5f2ca9808c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\data\\_sync_all.py": {
+    "mtime": 1779101813.0677783,
+    "ast_hash": "ce3fd6613eee315556671046b7a76a6f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\scripts\\core.py": {
+    "mtime": 1779101813.0783894,
+    "ast_hash": "70afbbb9745c76319817fb23c4da64b2",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\scripts\\design_system.py": {
+    "mtime": 1779101813.0796218,
+    "ast_hash": "f10fa759d4a25dcd16d1a6d72a505a5c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\scripts\\search.py": {
+    "mtime": 1779101813.0796218,
+    "ast_hash": "8c7e35426fe8f6f3ed91e9dce0ed7af1",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\agent.json": {
+    "mtime": 1779101813.0796218,
+    "ast_hash": "1da97ae26a385dfe72dcfc2d53ee4007",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\augment.json": {
+    "mtime": 1779101813.081167,
+    "ast_hash": "91f0d7641e4be16690ad41204f368f46",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\claude.json": {
+    "mtime": 1779101813.081167,
+    "ast_hash": "889d60b17ea32d9125efde4e32661985",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\codebuddy.json": {
+    "mtime": 1779101813.081718,
+    "ast_hash": "9bed7a142c4d286937c89249ac450403",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\codex.json": {
+    "mtime": 1779101813.081718,
+    "ast_hash": "cf1b2bd1e89ded1c18628c5a961444ae",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\continue.json": {
+    "mtime": 1779101813.081718,
+    "ast_hash": "c83dc9767601621b1d6c4769d59b3f0f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\copilot.json": {
+    "mtime": 1779101813.081718,
+    "ast_hash": "0c5bc2cf7678c2495b5b04d86913d708",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\cursor.json": {
+    "mtime": 1779101813.081718,
+    "ast_hash": "040517209e07fd90ea84a0e7ef06a1cf",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\droid.json": {
+    "mtime": 1779101813.081718,
+    "ast_hash": "21bf2431248bcf7ada08fb1e4700ea41",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\gemini.json": {
+    "mtime": 1779101813.081718,
+    "ast_hash": "9586eba71075e5a94b7189808683c57c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\kilocode.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "f4c4bcdddcb88fecad8bc0f53d93d2e7",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\kiro.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "8bafe3a4a93300985a8932d5087bfb3f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\opencode.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "fcfde55d4f61aba985a1d39d0aab24a7",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\qoder.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "e08340509021578de2746107e660320f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\roocode.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "41f09d01c965befdf14456c7e0b5df28",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\trae.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "5bb1852dadf1f9b9d3d45455bb98bb26",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\warp.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "2854878d64f4c43c33ead888952bdf82",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\platforms\\windsurf.json": {
+    "mtime": 1779101813.0832376,
+    "ast_hash": "de081e586c8a66c14b66e7c088bc655d",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\index.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "730fffda8cbb62fea0c24e102f3a002b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\commands\\init.ts": {
+    "mtime": 1779101813.0842543,
+    "ast_hash": "a5b9d3b6cb0790f4008c154e4d48cd1a",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\commands\\uninstall.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "cb8c6c74e663435f10849ce1567476ca",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\commands\\update.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "d3cb7f7f8e918d29f85b5cdac3068019",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\commands\\versions.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "037828c21dfd2a2c2b70517810872529",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\types\\index.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "c27ea8c1408525cc79368c55eef013b8",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\utils\\detect.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "23d019853c490851eff169cf7d56c0a4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\utils\\extract.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "f9e84e45a521a2fc41a838e56c34c4f0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\utils\\github.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "b7857440289008abce806f869399e34c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\utils\\logger.ts": {
+    "mtime": 1779101813.0853224,
+    "ast_hash": "efccc9f9d33a43147825403052b3230f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\src\\utils\\template.ts": {
+    "mtime": 1779101813.0869045,
+    "ast_hash": "8fb94e14afdcbe394b26d26237594cef",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\data\\_sync_all.py": {
+    "mtime": 1779101813.0922356,
+    "ast_hash": "ce3fd6613eee315556671046b7a76a6f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\scripts\\core.py": {
+    "mtime": 1779101813.1021545,
+    "ast_hash": "579bd996ca10aa22a33c712a172d8b90",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\scripts\\design_system.py": {
+    "mtime": 1779101813.1021545,
+    "ast_hash": "f10fa759d4a25dcd16d1a6d72a505a5c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\scripts\\search.py": {
+    "mtime": 1779101813.1021545,
+    "ast_hash": "89f1dc15dbd0ecd96999deaf936e3166",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\agent.json": {
+    "mtime": 1779101813.1031597,
+    "ast_hash": "c4a66a4235824b6c6c2d4d9c830ea55b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\augment.json": {
+    "mtime": 1779101813.1031597,
+    "ast_hash": "b483589d32f22a9211d1e827412f4342",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\claude.json": {
+    "mtime": 1779101813.1031597,
+    "ast_hash": "1ce71533f4290a12cb1acb425def3e7f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\codebuddy.json": {
+    "mtime": 1779101813.1031597,
+    "ast_hash": "d7d53866d1b14cfc710c6c3ec58419b4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\codex.json": {
+    "mtime": 1779101813.1031597,
+    "ast_hash": "4ccf0266c7c7f09c7c04d89dd23a8d13",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\continue.json": {
+    "mtime": 1779101813.1041622,
+    "ast_hash": "b1001267718c22fd57f9e80489a06786",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\copilot.json": {
+    "mtime": 1779101813.1041622,
+    "ast_hash": "85566a8ce7f7d68f51247f7d6ba3564d",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\cursor.json": {
+    "mtime": 1779101813.1041622,
+    "ast_hash": "46445b325d391cdd834e173989887107",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\droid.json": {
+    "mtime": 1779101813.1041622,
+    "ast_hash": "f732ba08356148e9b2656847e29210f5",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\gemini.json": {
+    "mtime": 1779101813.1041622,
+    "ast_hash": "3c64435aa70598f9cd0a0a22085d94fe",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\kilocode.json": {
+    "mtime": 1779101813.1041622,
+    "ast_hash": "80f2b26926a464c672baef88516efd2e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\kiro.json": {
+    "mtime": 1779101813.1051598,
+    "ast_hash": "b31b20bca5019e5c5329b20c2fef63f5",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\opencode.json": {
+    "mtime": 1779101813.1051598,
+    "ast_hash": "39e67ff75a45243b8702059d6c78c14c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\qoder.json": {
+    "mtime": 1779101813.1051598,
+    "ast_hash": "8b11462bc192383c91be31722bb5597c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\roocode.json": {
+    "mtime": 1779101813.1051598,
+    "ast_hash": "d6f9bca842aa9a03aa3d17216bbbabe3",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\trae.json": {
+    "mtime": 1779101813.1051598,
+    "ast_hash": "11004ab7c557df8bd9ce672494e010d1",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\warp.json": {
+    "mtime": 1779101813.1051598,
+    "ast_hash": "4065ff35f98d71032cc2533090f52a9a",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\platforms\\windsurf.json": {
+    "mtime": 1779101813.1051598,
+    "ast_hash": "3449cfd496bdfeeb32bf5c86e80e1d18",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\AGENTS.md": {
+    "mtime": 1779101019.202844,
+    "ast_hash": "c406bbd3a19cf211b11b82a390fc92f6",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\CLAUDE.md": {
+    "mtime": 1779101019.203346,
+    "ast_hash": "2200902dcbfe00d653d9fec30c2ad1e1",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\HACKATHON_PLAN.txt": {
+    "mtime": 1779101019.203346,
+    "ast_hash": "f63bd179f6745f49cd1c673fc95997b9",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\implementation_plan.md": {
+    "mtime": 1779101019.2359169,
+    "ast_hash": "fc5e99d129ad0fbc352b70237812ff71",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\PROJECT_EXPLAINED.txt": {
+    "mtime": 1779101019.204349,
+    "ast_hash": "566866bd4277f084020e14edf5a506f4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\README.md": {
+    "mtime": 1779101019.2048514,
+    "ast_hash": "3da6f4a5f6b5c90fe0397dedcc41fada",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\Real-Estate Project Audit.md": {
+    "mtime": 1779101019.2053535,
+    "ast_hash": "a8c1182f707e6d2ea8e69c8811d5c7ba",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\.kiro\\specs\\hackathon-zero-eth-claim\\design.md": {
+    "mtime": 1779101019.2013385,
+    "ast_hash": "4d1d84e4b31f7e50e9b008da414e94b2",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\.kiro\\specs\\hackathon-zero-eth-claim\\requirements.md": {
+    "mtime": 1779101019.2023418,
+    "ast_hash": "53060dd94a61548835cece5bdc2438c3",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\.kiro\\specs\\hackathon-zero-eth-claim\\tasks.md": {
+    "mtime": 1779101019.2023418,
+    "ast_hash": "6439d1ac3ffa753ea50c36f9986f4f1c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\index.html": {
+    "mtime": 1779101019.2242427,
+    "ast_hash": "3a53953b882cf6b13a8f0a6e9bf5c4fb",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\memory\\decisions.md": {
+    "mtime": 1779102434.8570573,
+    "ast_hash": "0b28787cf2d0ef833493d052a2a2a572",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\memory\\flags.md": {
+    "mtime": 1779102434.8591385,
+    "ast_hash": "0ccaae02035801ca314b35ccb2321ecc",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\CLAUDE.md": {
+    "mtime": 1779101813.0654469,
+    "ast_hash": "7960bc4b39f7fb12760f649774c0aa6d",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\README.md": {
+    "mtime": 1779101813.0667531,
+    "ast_hash": "c45aa2f856d9cf75cdece7f1562f0ef3",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\banner-design\\SKILL.md": {
+    "mtime": 1779101812.9845345,
+    "ast_hash": "b9e489566e9e04049b9ac2482c1e6773",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\banner-design\\references\\banner-sizes-and-styles.md": {
+    "mtime": 1779101812.9845345,
+    "ast_hash": "d77cc03e8ce1a2621dd8d6e565d2a835",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\SKILL.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "1bee3c3249845db66e6a1d22f678f4ff",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\approval-checklist.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "32c1cbadbd8fb01558c89e47a3eea2c9",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\asset-organization.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "3fd34bbdbcb6f7d6bc3e3b54291c1f81",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\brand-guideline-template.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "a105e4b545d7ee596951e5a942941f52",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\color-palette-management.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "ff5b9d16adfa70735bfaaf86c092cff2",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\consistency-checklist.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "1508efecb7217da592bacbe5dd8453c3",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\logo-usage-rules.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "880c7a7461a816256d1eb29a4c9a45a1",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\messaging-framework.md": {
+    "mtime": 1779101812.9850647,
+    "ast_hash": "57f14bdc36a88948ac5da2927dd478ba",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\typography-specifications.md": {
+    "mtime": 1779101812.9866295,
+    "ast_hash": "e977a8b6c3f3cce2c300db34b5c478d4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\update.md": {
+    "mtime": 1779101812.9866295,
+    "ast_hash": "5c10082d89427a1038f572ba8c7e4d4b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\visual-identity.md": {
+    "mtime": 1779101812.9866295,
+    "ast_hash": "222cd317fcd2fd46c1c9771da9dd28f8",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\references\\voice-framework.md": {
+    "mtime": 1779101812.9866295,
+    "ast_hash": "e3ec9108522055fa2a7a3b6e390a1b48",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\brand\\templates\\brand-guidelines-starter.md": {
+    "mtime": 1779101812.9881709,
+    "ast_hash": "9dcc6005ce27b600247070138aa815c6",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\SKILL.md": {
+    "mtime": 1779101812.993252,
+    "ast_hash": "ed6792e882de28e3cdf8e93159241f34",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\banner-sizes-and-styles.md": {
+    "mtime": 1779101812.9957776,
+    "ast_hash": "d77cc03e8ce1a2621dd8d6e565d2a835",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\cip-deliverable-guide.md": {
+    "mtime": 1779101812.9957776,
+    "ast_hash": "f553a691a1feeda942a1ad7a8e7fa14f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\cip-design.md": {
+    "mtime": 1779101812.9957776,
+    "ast_hash": "e401b8a6364d782d896b7562e0e78c8b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\cip-prompt-engineering.md": {
+    "mtime": 1779101812.9957776,
+    "ast_hash": "c37289aaaa114caa03642c3e582b8363",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\cip-style-guide.md": {
+    "mtime": 1779101812.9967809,
+    "ast_hash": "af22ac3b3af8c0845e9e20216adc0ca5",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\design-routing.md": {
+    "mtime": 1779101812.9967809,
+    "ast_hash": "33ca1737a2fa08c2651cb2970b17988b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\icon-design.md": {
+    "mtime": 1779101812.9967809,
+    "ast_hash": "878c3c03161170f19c5c27eddc7bea61",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\logo-color-psychology.md": {
+    "mtime": 1779101812.9967809,
+    "ast_hash": "ea8820f66e2ea82d52acc70ec8fa2211",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\logo-design.md": {
+    "mtime": 1779101812.9967809,
+    "ast_hash": "1f0ac87c092a11964f00846ec80c0c97",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\logo-prompt-engineering.md": {
+    "mtime": 1779101812.997778,
+    "ast_hash": "42ac71a96a568ba6d151ab2b512c59c4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\logo-style-guide.md": {
+    "mtime": 1779101812.997778,
+    "ast_hash": "71429dc380a3c5a731c8654addb467c6",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\slides-copywriting-formulas.md": {
+    "mtime": 1779101812.997778,
+    "ast_hash": "25ee8ea822b1c8186db79aa794fa246c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\slides-create.md": {
+    "mtime": 1779101812.997778,
+    "ast_hash": "477752a5cc080a9ce932b02ba961a0d8",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\slides-html-template.md": {
+    "mtime": 1779101812.9982824,
+    "ast_hash": "f72faaf4f650dfc05550619a42fae258",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\slides-layout-patterns.md": {
+    "mtime": 1779101812.9982824,
+    "ast_hash": "0cbb0495b234ea4b7182e661570a1879",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\slides-strategies.md": {
+    "mtime": 1779101812.9982824,
+    "ast_hash": "3356abc0533fe316df905a39c4a3afa0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\slides.md": {
+    "mtime": 1779101812.9982824,
+    "ast_hash": "90e3b6463ed33d5bb87556cf69873705",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design\\references\\social-photos-design.md": {
+    "mtime": 1779101812.9982824,
+    "ast_hash": "b8617d37634488aee25a5d8298e26e8d",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\SKILL.md": {
+    "mtime": 1779101812.9881709,
+    "ast_hash": "0810798ee4a353e6d11509a767e5a6e0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\references\\component-specs.md": {
+    "mtime": 1779101812.990186,
+    "ast_hash": "800d64833545996f7c61af874ea0c66e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\references\\states-and-variants.md": {
+    "mtime": 1779101812.991186,
+    "ast_hash": "7c9ea66af1b4b2df9b1cb585d9d67d84",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\design-system\\references\\tailwind-integration.md": {
+    "mtime": 1779101812.991186,
+    "ast_hash": "d8cbd2666cd878b35bee5ea2dc25e4e0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\slides\\SKILL.md": {
+    "mtime": 1779101813.001469,
+    "ast_hash": "a92c2c4ade3184c3c10573349f599c41",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\slides\\references\\copywriting-formulas.md": {
+    "mtime": 1779101813.001469,
+    "ast_hash": "25ee8ea822b1c8186db79aa794fa246c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\slides\\references\\create.md": {
+    "mtime": 1779101813.001469,
+    "ast_hash": "477752a5cc080a9ce932b02ba961a0d8",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\slides\\references\\html-template.md": {
+    "mtime": 1779101813.002483,
+    "ast_hash": "f72faaf4f650dfc05550619a42fae258",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\slides\\references\\layout-patterns.md": {
+    "mtime": 1779101813.002483,
+    "ast_hash": "0cbb0495b234ea4b7182e661570a1879",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\slides\\references\\slide-strategies.md": {
+    "mtime": 1779101813.002483,
+    "ast_hash": "3356abc0533fe316df905a39c4a3afa0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\LICENSE.txt": {
+    "mtime": 1779101813.002483,
+    "ast_hash": "0ba5044c64ef53cb0189c9546081e228",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\SKILL.md": {
+    "mtime": 1779101813.002483,
+    "ast_hash": "d6b1c5a77cf1846a43a5a1b9dd4eace0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\ArsenalSC-OFL.txt": {
+    "mtime": 1779101813.0034804,
+    "ast_hash": "055bd399651c728b58127489b203a607",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\BigShoulders-OFL.txt": {
+    "mtime": 1779101813.0050035,
+    "ast_hash": "b0ec6188dddb41bf5044b09a7491debc",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Boldonse-OFL.txt": {
+    "mtime": 1779101813.0065088,
+    "ast_hash": "854766d78df004c93bb082be848947b9",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\BricolageGrotesque-OFL.txt": {
+    "mtime": 1779101813.0090377,
+    "ast_hash": "bd05ea51cf13ec198f9133c1f1f64da0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\CrimsonPro-OFL.txt": {
+    "mtime": 1779101813.011602,
+    "ast_hash": "333ff51d7c275eb19f486ec9abbf21af",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\DMMono-OFL.txt": {
+    "mtime": 1779101813.0131295,
+    "ast_hash": "b03164427c6f0defd4796fd3f3fb0cf4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\EricaOne-OFL.txt": {
+    "mtime": 1779101813.0141437,
+    "ast_hash": "9ad51b36a93965acb98cf1c652c60970",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\GeistMono-OFL.txt": {
+    "mtime": 1779101813.0151422,
+    "ast_hash": "f07afc995766b888767e16ae8d119901",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Gloock-OFL.txt": {
+    "mtime": 1779101813.0151422,
+    "ast_hash": "3fcad5713c9b110fddef500d051ac585",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\IBMPlexMono-OFL.txt": {
+    "mtime": 1779101813.017995,
+    "ast_hash": "992dcb568e1ffac11f740ee2fa1f028b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\InstrumentSans-OFL.txt": {
+    "mtime": 1779101813.0280948,
+    "ast_hash": "030a9e886b4fe2e1720b5db020eca3ad",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Italiana-OFL.txt": {
+    "mtime": 1779101813.029606,
+    "ast_hash": "4447ac843a769071814ae5cab23693ec",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\JetBrainsMono-OFL.txt": {
+    "mtime": 1779101813.0316577,
+    "ast_hash": "d91d325d953444833285afa3b119e0fa",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Jura-OFL.txt": {
+    "mtime": 1779101813.0357838,
+    "ast_hash": "5aaa855638a6f50828766d1e9c876f4c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\LibreBaskerville-OFL.txt": {
+    "mtime": 1779101813.0357838,
+    "ast_hash": "585261c25563d76996884860f128bcf1",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Lora-OFL.txt": {
+    "mtime": 1779101813.041325,
+    "ast_hash": "65d41d82ac358216fb2707da15c1d3fb",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\NationalPark-OFL.txt": {
+    "mtime": 1779101813.0438447,
+    "ast_hash": "367777dbf9fa1d1ef152fd06b5e08fc6",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\NothingYouCouldDo-OFL.txt": {
+    "mtime": 1779101813.0438447,
+    "ast_hash": "42a7c035f1ddb3fcda7ddf746519b017",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Outfit-OFL.txt": {
+    "mtime": 1779101813.0461013,
+    "ast_hash": "af9efd1ed592546b9477763b02d684c1",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\PixelifySans-OFL.txt": {
+    "mtime": 1779101813.0476065,
+    "ast_hash": "24ba91e15992e8bbd5a20db081d4d92f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\PoiretOne-OFL.txt": {
+    "mtime": 1779101813.0476065,
+    "ast_hash": "3d4cab0d7b79e053c1a40dab710bfc95",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\RedHatMono-OFL.txt": {
+    "mtime": 1779101813.049142,
+    "ast_hash": "ef29b840f660a62db32c43d71a7280c0",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Silkscreen-OFL.txt": {
+    "mtime": 1779101813.049142,
+    "ast_hash": "6bd21d8f9817d19bb012997a9726d968",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\SmoochSans-OFL.txt": {
+    "mtime": 1779101813.0501423,
+    "ast_hash": "79208bd389da9f263bc0b3d79aaaa3f6",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\Tektur-OFL.txt": {
+    "mtime": 1779101813.051782,
+    "ast_hash": "5bf5c4d52bb660a0b29f6ca8d1d5b892",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\WorkSans-OFL.txt": {
+    "mtime": 1779101813.056119,
+    "ast_hash": "e5dd6bfc16fb9c9713dce1e02d877c90",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\canvas-fonts\\YoungSerif-OFL.txt": {
+    "mtime": 1779101813.0581343,
+    "ast_hash": "016f9e9ecf329086639c0e1b542bf9a6",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\references\\canvas-design-system.md": {
+    "mtime": 1779101813.0596957,
+    "ast_hash": "31a5d5a6e020a02a32415ad17067da24",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\references\\shadcn-accessibility.md": {
+    "mtime": 1779101813.0596957,
+    "ast_hash": "5158549b94aaae3326b7e7854d51dc06",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\references\\shadcn-components.md": {
+    "mtime": 1779101813.0596957,
+    "ast_hash": "7dfd7e872df6c607a571dbeeb59e1789",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\references\\shadcn-theming.md": {
+    "mtime": 1779101813.0606987,
+    "ast_hash": "80597d1759014fe29c7cbee37bc5caf9",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\references\\tailwind-customization.md": {
+    "mtime": 1779101813.0606987,
+    "ast_hash": "c2366766ac4d6183eae1fddcc45f3c29",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\references\\tailwind-responsive.md": {
+    "mtime": 1779101813.0606987,
+    "ast_hash": "4bd3c15e0828b65f646e248a4e6c67a8",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\references\\tailwind-utilities.md": {
+    "mtime": 1779101813.0606987,
+    "ast_hash": "b0a93822074b869ebe3c6647acffa733",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\scripts\\requirements.txt": {
+    "mtime": 1779101813.0622153,
+    "ast_hash": "d2f397f72424decd5aca67cc7c28dc4c",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-styling\\scripts\\tests\\requirements.txt": {
+    "mtime": 1779101813.0632281,
+    "ast_hash": "d60e024efe9d4a8d1d065ec333260210",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.claude\\skills\\ui-ux-pro-max\\SKILL.md": {
+    "mtime": 1779101813.0632281,
+    "ast_hash": "9e67626a0013e85287078d475bdf105f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.github\\workflows\\claude-code-review.yml": {
+    "mtime": 1779101813.064764,
+    "ast_hash": "eb8350983dfe3661a54b70c99fb2f60e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.github\\workflows\\claude.yml": {
+    "mtime": 1779101813.064764,
+    "ast_hash": "af6222d735f87d48dabfa6b6ca17f031",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\.github\\workflows\\python-package-conda.yml": {
+    "mtime": 1779101813.0654469,
+    "ast_hash": "5700cabe0bcda00e8b43b62c5cf222c7",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\README.md": {
+    "mtime": 1779101813.0672657,
+    "ast_hash": "0c132ec96c4dd4a696d65d79388f61b3",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\base\\quick-reference.md": {
+    "mtime": 1779101813.0796218,
+    "ast_hash": "3f3d402a0fbac706535e6504d1a85083",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\cli\\assets\\templates\\base\\skill-content.md": {
+    "mtime": 1779101813.0796218,
+    "ast_hash": "42fd42998168c4b3daf13a006c8e3f0e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\docs\\\u4e09\u4e2a data-scripts-templates \u7684\u533a\u522b.md": {
+    "mtime": 1779101813.0873694,
+    "ast_hash": "dde71cd1dc6a41b0ed376d085e0832d2",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\preview\\xiaomaomi-app.html": {
+    "mtime": 1779101813.0873694,
+    "ast_hash": "1b8e1368672ff644002da44af3562a3f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\base\\quick-reference.md": {
+    "mtime": 1779101813.1031597,
+    "ast_hash": "3f3d402a0fbac706535e6504d1a85083",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\src\\ui-ux-pro-max\\templates\\base\\skill-content.md": {
+    "mtime": 1779101813.1031597,
+    "ast_hash": "5c04f0949d05c5b7a0c5156e05eb4e86",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\screenshots\\website.png": {
+    "mtime": 1779101813.0914462,
+    "ast_hash": "e31f3d6be53491d545dbfad528e7fa7b",
     "semantic_hash": ""
   }
 }
