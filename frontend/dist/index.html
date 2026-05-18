@@ -3,12 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="theme-color" content="#B9FF66" />
     <title>RealChain — Tokenized Real Estate, Zero-ETH Claim</title>
     <meta
       name="description"
       content="Buy fractional property tokens, earn USDC rent, and claim with zero ETH. Gas paid in Mock USD via the Universal Gas Framework on Base Sepolia."
     />
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="RealChain" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,10 +28,19 @@
       type="image/svg+xml"
       href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='1' y='1' width='30' height='30' rx='8' fill='%23B9FF66' stroke='%23191A23' stroke-width='2'/><path d='M16 7 24 11.5l-8 4.5-8-4.5L16 7Z' fill='%23191A23'/><path d='M8 15 16 19.5l8-4.5v3L16 22.5 8 18v-3Z' fill='%23191A23' fill-opacity='0.7'/></svg>"
     />
-    <script type="module" crossorigin src="/assets/index-ymQ4GWRU.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BNGgUgYt.css">
+    <script type="module" crossorigin src="/assets/index-CHGqaNA9.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dw0HwkgI.css">
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Register the service worker for offline browsing of the marketplace.
+      // Production-only so dev HMR isn't shadowed by a stale cache.
+      if ("serviceWorker" in navigator && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => { /* registration is best-effort */ });
+        });
+      }
+    </script>
   </body>
 </html>

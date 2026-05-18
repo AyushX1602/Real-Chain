@@ -2023,3 +2023,419 @@ tr:hover td { background: var(--positivus-grey-warm); }
   font-weight: 600;
   color: var(--positivus-black);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Extension components (live counter, watchlist, filters, comparison,
+   spotlight, owner flow, yield calculator, rent chart, holders, analytics)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Live rent counter pill */
+.live-rent-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 16px;
+  margin-top: var(--space-5);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-full);
+  background: var(--positivus-white);
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-offset-sm);
+}
+.live-rent-pill .live-rent-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--positivus-green);
+  border: 1px solid var(--positivus-black);
+  animation: liveDot 1.6s ease-in-out infinite;
+}
+@keyframes liveDot {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.25); opacity: 0.8; }
+}
+.live-rent-label { display: inline-flex; align-items: center; gap: 4px; opacity: 0.85; }
+.live-rent-value { font-family: var(--font-mono); font-weight: 700; color: var(--positivus-black); }
+
+/* Star button on property cards */
+.star-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--positivus-black);
+  background: var(--positivus-white);
+  color: var(--positivus-black);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.star-btn:hover    { background: var(--positivus-grey); transform: scale(1.06); }
+.star-btn.is-on    { background: var(--positivus-green); }
+.star-btn.is-on:hover { background: var(--positivus-green-hover); }
+
+/* Filter bar on /marketplace */
+.filter-bar {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-4);
+  background: var(--positivus-white);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-offset-sm);
+  margin-bottom: var(--space-8);
+}
+.filter-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 220px;
+  padding: 8px 16px;
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-full);
+  background: var(--positivus-grey);
+}
+.filter-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: var(--text-md);
+  color: var(--positivus-black);
+}
+.filter-search input::placeholder { color: var(--fg-muted); }
+.filter-cluster {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--text-xs);
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  font-weight: 600;
+}
+.filter-field .form-input,
+.filter-field .form-input-prefix { min-height: 40px; }
+.filter-field select.form-input { min-width: 160px; }
+
+/* ── Spotlight section ──────────────────────────────────────────────────── */
+.lp-spotlight {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-10);
+  align-items: center;
+  padding: var(--space-12) var(--space-10);
+  background: var(--positivus-white);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-offset);
+}
+@media (max-width: 920px) { .lp-spotlight { grid-template-columns: 1fr; } }
+.lp-spotlight-title {
+  font-size: clamp(28px, 4vw, var(--text-3xl));
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.15;
+  margin-bottom: var(--space-4);
+  color: var(--positivus-black);
+}
+.lp-spotlight-para {
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+  color: var(--positivus-black);
+  margin-bottom: var(--space-6);
+  max-width: 50ch;
+  opacity: 0.9;
+}
+.lp-spotlight-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.lp-spotlight-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--text-md);
+  color: var(--positivus-black);
+}
+.lp-spotlight-bullet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--positivus-grey);
+  border: 1px solid var(--positivus-black);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.lp-spotlight-bullet::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--positivus-black);
+  border-radius: 50%;
+}
+.lp-spotlight-illu svg { width: 100%; height: auto; max-width: 320px; margin-inline: auto; display: block; }
+
+/* ── Comparison table ───────────────────────────────────────────────────── */
+.lp-compare {
+  background: var(--positivus-white);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-offset);
+  overflow: hidden;
+}
+.lp-compare-head,
+.lp-compare-row {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(4, 1fr);
+}
+.lp-compare-head {
+  border-bottom: 2px solid var(--positivus-black);
+  background: var(--positivus-grey);
+}
+.lp-compare-feature {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--positivus-black);
+  border-right: 1px solid var(--positivus-black);
+  display: flex;
+  align-items: center;
+}
+.lp-compare-col-head {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--positivus-black);
+  border-right: 1px solid var(--positivus-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.lp-compare-col-head:last-child { border-right: none; }
+.lp-compare-col-head.is-green {
+  background: var(--positivus-green);
+}
+.lp-compare-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.lp-compare-row {
+  border-bottom: 1px solid var(--border-soft);
+}
+.lp-compare-row:last-child { border-bottom: none; }
+.lp-compare-row.is-zebra { background: var(--positivus-grey-warm); }
+.lp-compare-col {
+  padding: var(--space-4);
+  text-align: center;
+  border-right: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lp-compare-col:last-child { border-right: none; }
+.lp-compare-col.is-rc { background: rgba(185, 255, 102, 0.18); }
+
+.cmp-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--positivus-black);
+}
+.cmp-cell.is-yes  { background: var(--positivus-green); color: var(--positivus-black); }
+.cmp-cell.is-no   { background: var(--positivus-white);  color: var(--positivus-black); opacity: 0.45; }
+.cmp-cell.is-soft { background: var(--positivus-grey);  color: var(--positivus-black); }
+.cmp-cell.is-na   { background: transparent; border: none; color: var(--fg-muted); font-family: var(--font-mono); }
+
+/* Mobile: rotate the compare grid into a card list */
+@media (max-width: 720px) {
+  .lp-compare-head { display: none; }
+  .lp-compare-row { grid-template-columns: 1fr; padding: var(--space-3); border-bottom: 1px solid var(--positivus-black); }
+  .lp-compare-feature { border-right: none; padding: 0 0 var(--space-2); }
+  .lp-compare-col { border-right: none; justify-content: flex-start; padding: 4px 0; }
+  .lp-compare-col::before { content: attr(data-label); margin-right: 8px; opacity: 0.6; }
+}
+
+/* ── Owner flow ─────────────────────────────────────────────────────────── */
+.lp-owner-flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+  background: var(--positivus-white);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-offset);
+  padding: var(--space-10) var(--space-8);
+  position: relative;
+}
+@media (max-width: 920px) { .lp-owner-flow { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px) { .lp-owner-flow { grid-template-columns: 1fr; } }
+.lp-owner-step {
+  position: relative;
+  text-align: center;
+  padding: 0 var(--space-3);
+}
+.lp-owner-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--positivus-black);
+  color: var(--positivus-white);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-md);
+  margin-bottom: var(--space-3);
+  border: 1px solid var(--positivus-black);
+}
+.lp-owner-title { font-size: var(--text-md); font-weight: 600; margin-bottom: var(--space-2); color: var(--positivus-black); }
+.lp-owner-desc  { font-size: var(--text-sm); color: var(--fg-muted); line-height: var(--leading-snug); }
+.lp-owner-line {
+  position: absolute;
+  top: 32px;
+  right: -12px;
+  width: 24px;
+  height: 1px;
+  background: var(--positivus-black);
+}
+@media (max-width: 920px) { .lp-owner-line { display: none; } }
+
+/* ── Holder list bar ────────────────────────────────────────────────────── */
+.holder-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--positivus-grey);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.holder-bar-fill {
+  height: 100%;
+  background: var(--positivus-green);
+}
+
+/* ── Yield calculator ──────────────────────────────────────────────────── */
+.yield-calc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.yield-calc-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--positivus-black);
+  opacity: 0.7;
+}
+.yield-calc-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.yield-calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+.yield-stat {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-md);
+  background: var(--positivus-grey);
+}
+.yield-stat.is-hi { background: var(--positivus-green); }
+.yield-stat-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--positivus-black);
+  opacity: 0.75;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.yield-stat-value { font-size: var(--text-xl); font-weight: 700; color: var(--positivus-black); letter-spacing: var(--tracking-tight); }
+.yield-stat-unit  { font-size: var(--text-sm); font-weight: 500; opacity: 0.7; }
+.yield-calc-note  { font-size: var(--text-xs); color: var(--fg-muted); display: inline-flex; align-items: center; gap: 4px; }
+
+/* ── Rent chart ─────────────────────────────────────────────────────────── */
+.rent-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.rent-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.rent-chart-title { font-size: var(--text-md); font-weight: 600; color: var(--positivus-black); }
+.rent-chart-meta  { font-size: var(--text-sm); color: var(--fg-muted); }
+.rent-chart-tooltip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 12px;
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-full);
+  background: var(--positivus-grey);
+  font-size: var(--text-sm);
+}
+.rent-chart-tooltip-amt  { font-weight: 700; color: var(--positivus-black); }
+.rent-chart-tooltip-date { color: var(--fg-muted); }
+.rent-chart-svg { width: 100%; height: auto; }
+.rent-chart-empty {
+  text-align: center;
+  padding: var(--space-12);
+  color: var(--fg-muted);
+}
+
+/* ── Analytics gas split ────────────────────────────────────────────────── */
+.gas-split-bar {
+  display: flex;
+  height: 32px;
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+.gas-split-ugf { background: var(--positivus-green); }
+.gas-split-eth { background: var(--positivus-grey); border-left: 1px solid var(--positivus-black); }
+.gas-split-legend {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* Hero counter spacing tweak */
+.lp-hero-counter { margin-top: var(--space-5); }

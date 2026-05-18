@@ -7,6 +7,10 @@ import { useToast } from "../components/Toast";
 import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import CostBanner from "../components/CostBanner";
+import YieldCalculator from "../components/YieldCalculator";
+import RentChart from "../components/RentChart";
+import HolderList from "../components/HolderList";
+import useWatchlist from "../hooks/useWatchlist";
 import { MARKETPLACE_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -28,13 +32,17 @@ export default function Property() {
 
   const [prop, setProp] = useState(null);
   const [pricePerToken, setPricePerToken] = useState(0n);
+  const [totalSupply, setTotalSupply] = useState(0n);
   const [ownerBalance, setOwnerBalance] = useState(0n);
   const [myBalance, setMyBalance] = useState(0n);
   const [listings, setListings] = useState([]);
+  const [epochs, setEpochs] = useState([]);
   const [buyAmount, setBuyAmount] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [busy, setBusy] = useState(null); // null | "primary" | "listing-N"
+  const [tab, setTab] = useState("overview"); // overview | rent | holders | calculator
+  const watch = useWatchlist();
 
   useEffect(() => { loadReadOnly(); }, [id]);
   useEffect(() => { if (account && prop) loadMyBalance(); }, [account, prop]);
@@ -46,26 +54,38 @@ export default function Property() {
       const p = await factory.properties(Number(id));
       setProp(p);
 
-      const { token, market } = getReadPropertyContracts({
+      const { token, market, rental } = getReadPropertyContracts({
         propertyToken: p.propertyToken,
         rentalDistribution: p.rentalDistribution,
         marketplace: p.marketplace,
       });
 
-      const [price, ownerBal, count] = await Promise.all([
+      const [price, ownerBal, count, supply, epochCount] = await Promise.all([
         market.pricePerToken(),
         token.balanceOf(p.owner),
         market.getListingCount(),
+        token.totalSupply(),
+        rental.epochCount(),
       ]);
       setPricePerToken(price);
       setOwnerBalance(ownerBal);
+      setTotalSupply(supply);
 
+      // Listings
       const ls = [];
       for (let i = 0; i < Number(count); i++) {
         const [seller, amount, price_, active] = await market.getListing(i);
         if (active) ls.push({ id: i, seller, amount, price: price_ });
       }
       setListings(ls);
+
+      // Epoch history for the rent chart.
+      const eps = [];
+      for (let j = 0; j < Number(epochCount); j++) {
+        const [total, , ts] = await rental.getEpoch(j);
+        eps.push({ id: j, total, ts: Number(ts) });
+      }
+      setEpochs(eps);
     } catch (e) {
       console.error(e);
       setLoadError("Failed to load property. Check the network and try again.");
@@ -210,6 +230,15 @@ export default function Property() {
               </div>
             </div>
             <div className="flex gap-2 items-center flex-wrap">
+              <button
+                type="button"
+                className={`star-btn ${watch.has(Number(id)) ? "is-on" : ""}`}
+                onClick={() => watch.toggle(Number(id))}
+                aria-label={watch.has(Number(id)) ? "Remove from watchlist" : "Add to watchlist"}
+                aria-pressed={watch.has(Number(id))}
+              >
+                <Icon name="star" size={14} />
+              </button>
               <span className="badge badge-success"><span className="status-dot" /> Live</span>
               <span className="badge badge-accent"><Icon name="layers" size={11} /> ERC-20</span>
               <span className="badge badge-muted font-mono">#{prop?.propertyToken?.slice(2, 6) || "—"}</span>
@@ -241,119 +270,172 @@ export default function Property() {
         </div>
       </div>
 
-      {/* Primary market */}
-      <div className="section">
-        <h2 className="section-title"><Icon name="send" size={14} /> Primary market — buy from owner</h2>
-        <div className="card">
-          <div className="card-body">
-            <p className="text-sm text-secondary" style={{ marginBottom: 18 }}>
-              Buy directly from the property owner at the fixed listing price. Tokens entitle you to a pro-rata share of all future rent deposits.
-            </p>
+      {/* Tabs */}
+      <div className="lp-feature-tabs" role="tablist" aria-label="Property views" style={{ marginBottom: 18 }}>
+        {[
+          { k: "overview",   label: "Overview" },
+          { k: "rent",       label: "Rent history" },
+          { k: "holders",    label: "Holders" },
+          { k: "calculator", label: "Calculator" },
+        ].map((t) => (
+          <button
+            key={t.k}
+            role="tab"
+            aria-selected={tab === t.k}
+            className={`lp-feature-tab ${tab === t.k ? "is-active" : ""}`}
+            onClick={() => setTab(t.k)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-            <div className="flex gap-3 items-end flex-wrap">
-              <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
-                <label className="form-label">Tokens to buy</label>
-                <input
-                  className="form-input"
-                  type="number"
-                  min="1"
-                  placeholder="e.g. 5"
-                  value={buyAmount}
-                  onChange={(e) => setBuyAmount(e.target.value)}
-                />
-              </div>
-              <div style={{ minWidth: 160 }}>
-                <div className="form-label" style={{ marginBottom: 4 }}>Total cost</div>
-                <div style={{ fontWeight: 800, fontSize: 22, color: "var(--amber-400)", lineHeight: 1.2, fontFeatureSettings: "'tnum' on" }}>
-                  {buyAmount ? fmtUsdc(buyTotal) : "$0.00"}
+      {tab === "overview" && (
+        <>
+          {/* Primary market */}
+          <div className="section">
+            <h2 className="section-title"><Icon name="send" size={14} /> Primary market — buy from owner</h2>
+            <div className="card">
+              <div className="card-body">
+                <p className="text-sm text-secondary" style={{ marginBottom: 18 }}>
+                  Buy directly from the property owner at the fixed listing price. Tokens entitle you to a pro-rata share of all future rent deposits.
+                </p>
+
+                <div className="flex gap-3 items-end flex-wrap">
+                  <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
+                    <label className="form-label">Tokens to buy</label>
+                    <input
+                      className="form-input"
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 5"
+                      value={buyAmount}
+                      onChange={(e) => setBuyAmount(e.target.value)}
+                    />
+                  </div>
+                  <div style={{ minWidth: 160 }}>
+                    <div className="form-label" style={{ marginBottom: 4 }}>Total cost</div>
+                    <div style={{ fontWeight: 800, fontSize: 22, color: "var(--positivus-black)", lineHeight: 1.2, fontFeatureSettings: "'tnum' on" }}>
+                      {buyAmount ? fmtUsdc(buyTotal) : "$0.00"}
+                    </div>
+                  </div>
                 </div>
+
+                <button
+                  className="btn btn-primary btn-lg btn-full"
+                  style={{ marginTop: 18 }}
+                  onClick={handleBuyFromOwner}
+                  disabled={busy === "primary" || !account || !buyAmount}
+                >
+                  {!account
+                    ? <><Icon name="wallet" size={14} /> Connect wallet to buy</>
+                    : busy === "primary"
+                      ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 1.5 }} /> Processing…</>
+                      : <><Icon name="bolt" size={14} /> Buy {buyAmount || ""} PROP</>}
+                </button>
+
+                {account && buyAmount && (
+                  <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                    <UGFBadge />
+                    <CostBanner
+                      target={prop.marketplace}
+                      abi={MARKETPLACE_ABI}
+                      fnName="buyFromOwner"
+                      args={[BigInt(Math.floor(Number(buyAmount || "0")))]}
+                      estimate={140_000n}
+                    />
+                  </div>
+                )}
               </div>
             </div>
+          </div>
 
-            <button
-              className="btn btn-primary btn-lg btn-full"
-              style={{ marginTop: 18 }}
-              onClick={handleBuyFromOwner}
-              disabled={busy === "primary" || !account || !buyAmount}
-            >
-              {!account
-                ? <><Icon name="wallet" size={14} /> Connect wallet to buy</>
-                : busy === "primary"
-                  ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 1.5 }} /> Processing…</>
-                  : <><Icon name="bolt" size={14} /> Buy {buyAmount || ""} PROP</>}
-            </button>
-
-            {account && buyAmount && (
-              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-                <UGFBadge />
-                <CostBanner
-                  target={prop.marketplace}
-                  abi={MARKETPLACE_ABI}
-                  fnName="buyFromOwner"
-                  args={[BigInt(Math.floor(Number(buyAmount || "0")))]}
-                  estimate={140_000n}
-                />
+          {/* Secondary market */}
+          <div className="section">
+            <h2 className="section-title"><Icon name="users" size={14} /> Secondary market — peer listings</h2>
+            {listings.length === 0 ? (
+              <div className="card">
+                <div className="empty-state" style={{ padding: 40 }}>
+                  <span className="emoji" style={{ width: 56, height: 56 }}><Icon name="list" size={20} /></span>
+                  <h3>No active listings</h3>
+                  <p>Visit the <Link to="/portfolio" style={{ color: "var(--positivus-black)", textDecoration: "underline" }}>Portfolio</Link> page to list your tokens.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="card">
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Seller</th>
+                        <th>Amount</th>
+                        <th>Price / token</th>
+                        <th>Total</th>
+                        <th aria-label="Action" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {listings.map((l) => {
+                        const total = (l.amount * l.price) / BigInt(1e18);
+                        const id = `listing-${l.id}`;
+                        return (
+                          <tr key={l.id}>
+                            <td className="font-mono text-sm">{fmtAddr(l.seller)}</td>
+                            <td><span className="badge badge-accent">{fmtProp(l.amount)} PROP</span></td>
+                            <td>{fmtUsdc(l.price)}</td>
+                            <td className="font-bold">{fmtUsdc(total)}</td>
+                            <td>
+                              <button
+                                className="btn btn-success btn-sm"
+                                onClick={() => handleBuyFromListing(l)}
+                                disabled={busy === id}
+                              >
+                                {busy === id ? <span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> : <><Icon name="bolt" size={11} /> Buy</>}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border-soft)" }}>
+                  <UGFBadge />
+                </div>
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </>
+      )}
 
-      {/* Secondary market */}
-      <div className="section">
-        <h2 className="section-title"><Icon name="users" size={14} /> Secondary market — peer listings</h2>
-        {listings.length === 0 ? (
-          <div className="card">
-            <div className="empty-state" style={{ padding: 40 }}>
-              <span className="emoji" style={{ width: 56, height: 56 }}><Icon name="list" size={20} /></span>
-              <h3>No active listings</h3>
-              <p>Visit the <Link to="/portfolio" style={{ color: "var(--violet-300)" }}>Portfolio</Link> page to list your tokens.</p>
+      {tab === "rent" && (
+        <div className="section">
+          <h2 className="section-title"><Icon name="history" size={14} /> Rent per epoch</h2>
+          <div className="card card-elevated">
+            <div className="card-body">
+              <RentChart data={epochs} />
             </div>
           </div>
-        ) : (
-          <div className="card">
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Seller</th>
-                    <th>Amount</th>
-                    <th>Price / token</th>
-                    <th>Total</th>
-                    <th aria-label="Action" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {listings.map((l) => {
-                    const total = (l.amount * l.price) / BigInt(1e18);
-                    const id = `listing-${l.id}`;
-                    return (
-                      <tr key={l.id}>
-                        <td className="font-mono text-sm">{fmtAddr(l.seller)}</td>
-                        <td><span className="badge badge-accent">{fmtProp(l.amount)} PROP</span></td>
-                        <td>{fmtUsdc(l.price)}</td>
-                        <td className="font-bold" style={{ color: "var(--amber-400)" }}>{fmtUsdc(total)}</td>
-                        <td>
-                          <button
-                            className="btn btn-success btn-sm"
-                            onClick={() => handleBuyFromListing(l)}
-                            disabled={busy === id}
-                          >
-                            {busy === id ? <span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> : <><Icon name="bolt" size={11} /> Buy</>}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)" }}>
-              <UGFBadge />
+        </div>
+      )}
+
+      {tab === "holders" && (
+        <div className="section">
+          <h2 className="section-title"><Icon name="users" size={14} /> Top holders</h2>
+          <HolderList tokenAddress={prop?.propertyToken} ownerAddress={prop?.owner} limit={10} />
+        </div>
+      )}
+
+      {tab === "calculator" && (
+        <div className="section">
+          <h2 className="section-title"><Icon name="trending" size={14} /> Yield calculator</h2>
+          <div className="card card-elevated">
+            <div className="card-body">
+              <YieldCalculator pricePerToken={pricePerToken} totalSupply={totalSupply} />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

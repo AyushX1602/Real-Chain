@@ -3,12 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="theme-color" content="#B9FF66" />
     <title>RealChain — Tokenized Real Estate, Zero-ETH Claim</title>
     <meta
       name="description"
       content="Buy fractional property tokens, earn USDC rent, and claim with zero ETH. Gas paid in Mock USD via the Universal Gas Framework on Base Sepolia."
     />
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="RealChain" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,5 +32,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Register the service worker for offline browsing of the marketplace.
+      // Production-only so dev HMR isn't shadowed by a stale cache.
+      if ("serviceWorker" in navigator && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => { /* registration is best-effort */ });
+        });
+      }
+    </script>
   </body>
 </html>

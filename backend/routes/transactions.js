@@ -90,6 +90,34 @@ router.get("/stats", async (req, res) => {
   }
 });
 
+// ── GET /api/transactions/timeseries — Bucketed activity for /analytics ──────
+// Query: ?bucket=day|hour&days=30
+router.get("/timeseries", async (req, res) => {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days) || 30, 1), 365);
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const bucket = req.query.bucket === "hour" ? "%Y-%m-%dT%H:00" : "%Y-%m-%d";
+
+    const daily = await Transaction.aggregate([
+      { $match: { createdAt: { $gte: since } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: bucket, date: "$createdAt" } },
+          count: { $sum: 1 },
+          volume: { $sum: "$amount" },
+          ugf: { $sum: { $cond: [{ $eq: ["$gasMethod", "ugf"] }, 1, 0] } },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { _id: 0, day: "$_id", count: 1, volume: 1, ugf: 1 } },
+    ]);
+
+    res.json({ daily, bucket: req.query.bucket || "day", days });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/transactions/stats/:wallet — Per-user stats ─────────────────────
 router.get("/stats/:wallet", async (req, res) => {
   try {

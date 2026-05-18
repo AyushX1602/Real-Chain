@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useInView, AnimatePresence } from "framer-mot
 import { useWeb3 } from "../context/Web3Context";
 import Icon from "../components/Icon";
 import Logo from "../components/Logo";
+import LiveRentCounter from "../components/LiveRentCounter";
 import { BACKEND_URL, NETWORK_CHAIN_ID } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -154,6 +155,7 @@ export default function Landing() {
             )}
             <a href="#how-it-works" className="btn btn-secondary btn-xl">How it works</a>
           </div>
+          <LiveRentCounter className="lp-hero-counter" />
         </div>
         <div className="lp-hero-illu" aria-hidden="true">
           <HeroIllustration />
@@ -197,6 +199,9 @@ export default function Landing() {
         ))}
       </div>
 
+      {/* ── Spotlight: zero-ETH claim, in plain English ──────────────────── */}
+      <SpotlightSection />
+
       {/* ── Services / what we do ────────────────────────────────────────── */}
       <section className="section" style={{ marginTop: "var(--space-20)" }} id="services">
         <div className="lp-section-head">
@@ -219,6 +224,9 @@ export default function Landing() {
 
       {/* ── Tech stack breakdown ─────────────────────────────────────────── */}
       <TechStackSection />
+
+      {/* ── Comparison: RealChain vs the alternatives ────────────────────── */}
+      <ComparisonSection />
 
       {/* ── CTA banner ───────────────────────────────────────────────────── */}
       <section className="section">
@@ -326,6 +334,9 @@ export default function Landing() {
 
       {/* ── Animated workflow ────────────────────────────────────────────── */}
       <AnimatedWorkflowSection />
+
+      {/* ── Owner tokenization flow ─────────────────────────────────────── */}
+      <OwnerFlowSection />
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="section" id="how-it-works">
@@ -1331,5 +1342,192 @@ function TechUsdc() {
       <circle cx="20" cy="20" r="16" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
       <text x="20" y="25" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700" fontSize="13" fill="#191A23">USDC</text>
     </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. Spotlight — single big-feature deep-dive block
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SPOTLIGHT_BULLETS = [
+  "No ETH purchase required to start — the wallet stays at zero.",
+  "Gas settles in TYI_MOCK_USD via the Universal Gas Framework.",
+  "Claim, buy, deposit, and trade — every flow is gasless.",
+  "Works on a brand-new MetaMask install with no on-ramp.",
+];
+
+function SpotlightSection() {
+  return (
+    <section className="section" id="spotlight">
+      <Reveal>
+        <div className="lp-spotlight">
+          <div className="lp-spotlight-text">
+            <h2 className="lp-spotlight-title">Zero-ETH claim, in plain English</h2>
+            <p className="lp-spotlight-para">
+              Claim your rent without ever buying or holding native ETH. The
+              dApp routes every state-changing call through UGF, which prices
+              the transaction in Mock USD and submits it on your behalf. Your
+              ETH balance is irrelevant.
+            </p>
+            <ul className="lp-spotlight-list">
+              {SPOTLIGHT_BULLETS.map((b, i) => (
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, x: -12 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.4, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <span className="lp-spotlight-bullet" aria-hidden="true" />
+                  {b}
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+          <div className="lp-spotlight-illu" aria-hidden="true">
+            <SpotlightIllu />
+          </div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function SpotlightIllu() {
+  return (
+    <svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="20" y="40" width="280" height="200" fill="#191A23" rx="20" />
+      <rect x="40" y="60" width="240" height="40" fill="#B9FF66" rx="8" />
+      <text x="60" y="86" fontFamily="Space Grotesk" fontWeight="700" fontSize="18" fill="#191A23">Claim 300 USDC</text>
+      <rect x="40" y="120" width="160" height="14" fill="#B9FF66" opacity="0.4" rx="4" />
+      <rect x="40" y="142" width="200" height="14" fill="#B9FF66" opacity="0.3" rx="4" />
+      <rect x="40" y="180" width="240" height="40" fill="#B9FF66" stroke="#191A23" strokeWidth="2" rx="10" />
+      <text x="160" y="206" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700" fontSize="16" fill="#191A23">
+        Gas in Mock USD
+      </text>
+      <circle cx="280" cy="60" r="14" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <text x="280" y="65" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700" fontSize="14" fill="#191A23">$</text>
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. Comparison — RealChain vs the alternatives
+// ─────────────────────────────────────────────────────────────────────────────
+
+const COMPARE_COLS = [
+  { key: "rc",     label: "RealChain",   tone: "green" },
+  { key: "reit",   label: "REITs",       tone: "grey" },
+  { key: "direct", label: "Direct buy",  tone: "grey" },
+  { key: "crowd",  label: "Crowdfund",   tone: "grey" },
+];
+
+const COMPARE_ROWS = [
+  { feature: "Fractional ownership",            rc: "yes", reit: "yes",  direct: "no",   crowd: "yes" },
+  { feature: "Instant secondary trading",       rc: "yes", reit: "soft", direct: "no",   crowd: "no"  },
+  { feature: "On-chain transparency",           rc: "yes", reit: "no",   direct: "no",   crowd: "no"  },
+  { feature: "USDC dividends",                  rc: "yes", reit: "no",   direct: "no",   crowd: "no"  },
+  { feature: "Gas paid in Mock USD (zero-ETH)", rc: "yes", reit: "n/a",  direct: "n/a",  crowd: "n/a" },
+  { feature: "No broker required",              rc: "yes", reit: "no",   direct: "no",   crowd: "yes" },
+  { feature: "Low minimum cheque",              rc: "yes", reit: "yes",  direct: "no",   crowd: "yes" },
+  { feature: "Auditable claim history",         rc: "yes", reit: "soft", direct: "no",   crowd: "soft" },
+];
+
+function CompareCell({ value }) {
+  if (value === "yes")  return <span className="cmp-cell is-yes" aria-label="Yes"><Icon name="check" size={14} /></span>;
+  if (value === "no")   return <span className="cmp-cell is-no" aria-label="No"><Icon name="close" size={14} /></span>;
+  if (value === "soft") return <span className="cmp-cell is-soft" aria-label="Partial"><Icon name="check" size={12} /></span>;
+  return <span className="cmp-cell is-na" aria-label="Not applicable">—</span>;
+}
+
+function ComparisonSection() {
+  return (
+    <section className="section" id="compare">
+      <Reveal>
+        <div className="lp-section-head">
+          <h2 className="lp-section-title">vs the alternatives</h2>
+          <p className="lp-section-sub">
+            Where RealChain sits next to traditional REITs, direct property
+            ownership, and equity-crowdfunding platforms.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05}>
+        <div className="lp-compare">
+          <div className="lp-compare-head">
+            <div className="lp-compare-feature">Feature</div>
+            {COMPARE_COLS.map((c) => (
+              <div key={c.key} className={`lp-compare-col-head is-${c.tone}`}>
+                {c.key === "rc" && <span className="lp-compare-pin"><span className="status-dot" /></span>}
+                {c.label}
+              </div>
+            ))}
+          </div>
+          <Stagger>
+            {COMPARE_ROWS.map((row, i) => (
+              <motion.div
+                key={row.feature}
+                className={`lp-compare-row ${i % 2 ? "is-zebra" : ""}`}
+                variants={STAGGER_ITEM}
+              >
+                <div className="lp-compare-feature">{row.feature}</div>
+                <div className="lp-compare-col is-rc"><CompareCell value={row.rc} /></div>
+                <div className="lp-compare-col"><CompareCell value={row.reit} /></div>
+                <div className="lp-compare-col"><CompareCell value={row.direct} /></div>
+                <div className="lp-compare-col"><CompareCell value={row.crowd} /></div>
+              </motion.div>
+            ))}
+          </Stagger>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Owner tokenization flow — minimal numbered horizontal step strip
+// ─────────────────────────────────────────────────────────────────────────────
+
+const OWNER_STEPS = [
+  { title: "Mint property",     desc: "Owner fills the create form: name, location, INR valuation, USDC price per token." },
+  { title: "Approve marketplace", desc: "Marketplace gets allowance to sell from the owner's full token supply." },
+  { title: "Investors buy",     desc: "Buyers arrive on the property page and purchase from primary or secondary listings." },
+  { title: "Deposit rent",      desc: "Owner deposits rental income in USDC; an epoch is opened for claims." },
+];
+
+function OwnerFlowSection() {
+  return (
+    <section className="section" id="owner-flow">
+      <Reveal>
+        <div className="lp-section-head">
+          <h2 className="lp-section-title">For owners</h2>
+          <p className="lp-section-sub">
+            How a property owner ships a listing in four steps. Companion view
+            to the investor flow above.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05}>
+        <div className="lp-owner-flow">
+          {OWNER_STEPS.map((s, i) => (
+            <motion.div
+              key={s.title}
+              className="lp-owner-step"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="lp-owner-bubble">{String(i + 1).padStart(2, "0")}</div>
+              <h4 className="lp-owner-title">{s.title}</h4>
+              <p className="lp-owner-desc">{s.desc}</p>
+              {i < OWNER_STEPS.length - 1 && <div className="lp-owner-line" aria-hidden="true" />}
+            </motion.div>
+          ))}
+        </div>
+      </Reveal>
+    </section>
   );
 }

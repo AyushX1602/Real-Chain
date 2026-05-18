@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\routes\\transactions.js": {
-    "mtime": 1779101019.208861,
-    "ast_hash": "7825e2137b7c467a600e51b91f5b25de",
+    "mtime": 1779131899.0858746,
+    "ast_hash": "21e381f640b651eb1f1fb6d4b91e6f83",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\backend\\routes\\users.js": {
@@ -70,8 +70,8 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\App.jsx": {
-    "mtime": 1779108280.8696253,
-    "ast_hash": "96643095eea28901eb0cf8af3fc9eb6a",
+    "mtime": 1779131910.150046,
+    "ast_hash": "d4ff5e1b10adbf5d98b191112b7d2691",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\main.jsx": {
@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Home.jsx": {
-    "mtime": 1779124417.1426961,
-    "ast_hash": "967cc8bcfd3d689041f2b27afe9aacd4",
+    "mtime": 1779131960.062007,
+    "ast_hash": "3e18cd743b78f588010a6ceb82afef67",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Portfolio.jsx": {
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Property.jsx": {
-    "mtime": 1779105399.784427,
-    "ast_hash": "46f7bc4976bdb0a7fda72992eb497f6e",
+    "mtime": 1779132045.3718467,
+    "ast_hash": "400812924a3af0d56881132bad9b54f3",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\deploy.js": {
@@ -590,8 +590,8 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\index.html": {
-    "mtime": 1779107839.9544182,
-    "ast_hash": "f9c28bf6923779e79d252d6865d0f66b",
+    "mtime": 1779132534.7704906,
+    "ast_hash": "6891f1fccf00ec3d56860429c2152cca",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\memory\\decisions.md": {
@@ -1155,8 +1155,8 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Landing.jsx": {
-    "mtime": 1779129613.6489751,
-    "ast_hash": "9a58c8159fd481179d0eca9c7c18f441",
+    "mtime": 1779132149.4850225,
+    "ast_hash": "3f9c14db3e3a3244ff328574472fafeb",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\git-hooks\\pre-commit": {
@@ -1167,6 +1167,61 @@
   "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\git-hooks\\README.md": {
     "mtime": 1779127047.0536385,
     "ast_hash": "e5ff9e6017955beab0e3baf16b9f8d08",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\public\\sw.js": {
+    "mtime": 1779132240.2977362,
+    "ast_hash": "e68e60f0b92ef3d24fe4cdc4585a1266",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\HolderList.jsx": {
+    "mtime": 1779131832.61075,
+    "ast_hash": "e7e5389a66d2eb76181c66016ef6738e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\LiveRentCounter.jsx": {
+    "mtime": 1779131779.8413184,
+    "ast_hash": "c94ab01d7a820b5cdd78c074d783d1f2",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\RentChart.jsx": {
+    "mtime": 1779131820.9368358,
+    "ast_hash": "ce6c27a4dbef1878643cdfffc31b459b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\YieldCalculator.jsx": {
+    "mtime": 1779131793.395165,
+    "ast_hash": "d4de6a4c6841bc09f30039bce1a84aa6",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\hooks\\useWatchlist.js": {
+    "mtime": 1779131771.5819805,
+    "ast_hash": "40431ebb0ace5924c8db094f18a533c4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Analytics.jsx": {
+    "mtime": 1779131879.2505832,
+    "ast_hash": "42db8e2f29c240088217de1730bcafd1",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Watchlist.jsx": {
+    "mtime": 1779131859.4620192,
+    "ast_hash": "591c2f05feb087c68958b79d4a969fad",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\FEATURE_IDEAS.md": {
+    "mtime": 1779130947.8694413,
+    "ast_hash": "7ff5148139644b4c5939dd88bd15ff86",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\public\\icon-192.svg": {
+    "mtime": 1779132228.1020598,
+    "ast_hash": "3a94c6f15ab4ab15a1611f487dbdc957",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\public\\icon-512.svg": {
+    "mtime": 1779132230.3649957,
+    "ast_hash": "e07d05cdc0aa6036817c40dc1e050bf8",
     "semantic_hash": ""
   }
 }
