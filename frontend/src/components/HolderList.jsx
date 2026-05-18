@@ -2,16 +2,22 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 import Icon from "./Icon";
 import { useWeb3 } from "../context/Web3Context";
+import { BACKEND_URL } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HolderList — top token holders for a single PropertyToken contract.
-// Builds the holder set client-side by replaying the ERC20 Transfer event log
-// from the read provider. Works for low-volume tokens (which ours are) and
-// avoids needing a backend indexer.
+//
+// Strategy:
+//   1. Try the indexer-backed `GET /api/properties/:id/holders` first.
+//      That's O(1) — Mongo lookup, no log replay.
+//   2. Fall back to replaying ERC20 Transfer logs via the read provider when
+//      the indexer is offline or hasn't run yet. Cheap on testnet, painful at
+//      scale; the indexer obviates this path in production.
 //
 // Props:
+//   propertyId:   number (preferred — lets us hit the indexer)
 //   tokenAddress: 0x...
-//   ownerAddress: 0x... (rendered with an "Owner" tag)
+//   ownerAddress: 0x...
 //   limit:        number (default 10)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -21,11 +27,12 @@ const ERC20_ABI = [
   "function totalSupply() view returns (uint256)",
 ];
 
-export default function HolderList({ tokenAddress, ownerAddress, limit = 10 }) {
+export default function HolderList({ propertyId, tokenAddress, ownerAddress, limit = 10 }) {
   const { account, fmtAddr, fmtProp } = useWeb3();
   const [holders, setHolders] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState(null); // "indexer" | "on-chain"
 
   useEffect(() => {
     if (!tokenAddress) return undefined;
@@ -34,16 +41,43 @@ export default function HolderList({ tokenAddress, ownerAddress, limit = 10 }) {
     setError(null);
 
     (async () => {
+      // 1) Try the backend indexer first — fast, doesn't hit RPC limits.
+      if (propertyId !== undefined && propertyId !== null) {
+        try {
+          const r = await fetch(`${BACKEND_URL}/api/properties/${propertyId}/holders?limit=${limit}`);
+          if (r.ok) {
+            const rows = await r.json();
+            if (Array.isArray(rows) && rows.length > 0) {
+              if (!alive) return;
+              try {
+                const provider = window.ethereum
+                  ? new ethers.BrowserProvider(window.ethereum)
+                  : new ethers.JsonRpcProvider("https://sepolia.base.org");
+                const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+                const totalSupply = await token.totalSupply();
+                const enriched = rows.map((row) => ({
+                  address: row.wallet,
+                  balance: BigInt(row.balance),
+                  pct: totalSupply > 0n ? (Number(BigInt(row.balance)) / Number(totalSupply)) * 100 : 0,
+                }));
+                if (alive) {
+                  setHolders(enriched);
+                  setSource("indexer");
+                  setLoading(false);
+                }
+                return;
+              } catch { /* fall through to on-chain */ }
+            }
+          }
+        } catch { /* indexer offline — fall through to on-chain */ }
+      }
+
+      // 2) On-chain fallback — replay Transfer events.
       try {
-        // Use the wallet provider when available so we share its rate budget;
-        // otherwise fall back to a fresh read provider per the project default.
         const provider = window.ethereum
           ? new ethers.BrowserProvider(window.ethereum)
           : new ethers.JsonRpcProvider("https://sepolia.base.org");
 
-        // Pull every Transfer event ever emitted by this token. For our
-        // testnet volumes (a few hundred at worst) this is cheap; for higher
-        // volume tokens we'd swap this for a backend indexer.
         const logs = await provider.getLogs({
           address: tokenAddress,
           topics: [TRANSFER_TOPIC],
@@ -51,7 +85,6 @@ export default function HolderList({ tokenAddress, ownerAddress, limit = 10 }) {
           toBlock: "latest",
         });
 
-        // Reduce log stream into address → net balance.
         const balances = new Map();
         for (const log of logs) {
           if (!log?.topics || log.topics.length < 3) continue;
@@ -66,13 +99,11 @@ export default function HolderList({ tokenAddress, ownerAddress, limit = 10 }) {
           }
         }
 
-        // Drop zero-balance dust accounts and sort descending.
         const ranked = [...balances.entries()]
           .filter(([, bal]) => bal > 0n)
           .sort((a, b) => (b[1] > a[1] ? 1 : -1))
           .slice(0, limit);
 
-        // Total supply for ownership %
         const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
         const totalSupply = await token.totalSupply();
 
@@ -82,7 +113,10 @@ export default function HolderList({ tokenAddress, ownerAddress, limit = 10 }) {
           pct: totalSupply > 0n ? (Number(balance) / Number(totalSupply)) * 100 : 0,
         }));
 
-        if (alive) setHolders(enriched);
+        if (alive) {
+          setHolders(enriched);
+          setSource("on-chain");
+        }
       } catch (e) {
         if (alive) setError(e?.message || "Could not load holders");
       } finally {
@@ -91,7 +125,7 @@ export default function HolderList({ tokenAddress, ownerAddress, limit = 10 }) {
     })();
 
     return () => { alive = false; };
-  }, [tokenAddress, limit]);
+  }, [propertyId, tokenAddress, limit]);
 
   const ownerLc = (ownerAddress || "").toLowerCase();
   const meLc    = (account || "").toLowerCase();
@@ -120,6 +154,15 @@ export default function HolderList({ tokenAddress, ownerAddress, limit = 10 }) {
 
   return (
     <div className="card">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: "1px solid var(--border-soft)" }}>
+        <div style={{ fontSize: "var(--text-sm)", fontWeight: 600 }}>Top {holders.length} holders</div>
+        {source && (
+          <span className={`badge ${source === "indexer" ? "badge-success" : "badge-muted"}`} title={source === "indexer" ? "From backend indexer" : "Replayed from chain logs"}>
+            <Icon name={source === "indexer" ? "check" : "history"} size={11} />
+            {source === "indexer" ? "indexed" : "on-chain"}
+          </span>
+        )}
+      </div>
       <div className="table-wrap" style={{ border: "none" }}>
         <table>
           <thead>

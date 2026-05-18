@@ -202,6 +202,9 @@ export default function Landing() {
       {/* ── Spotlight: zero-ETH claim, in plain English ──────────────────── */}
       <SpotlightSection />
 
+      {/* ── Smart Agent showcase ─────────────────────────────────────────── */}
+      <SmartAgentSection />
+
       {/* ── Services / what we do ────────────────────────────────────────── */}
       <section className="section" style={{ marginTop: "var(--space-20)" }} id="services">
         <div className="lp-section-head">
@@ -718,8 +721,11 @@ const TECH_GROUPS = [
     tone: "dark",
     items: [
       { name: "Node 20 + Express", why: "Familiar JS runtime end-to-end; Express keeps the REST surface minimal and inspectable.",   icon: <TechNode /> },
-      { name: "MongoDB + Mongoose",  why: "Document model fits transaction logs and user profiles without schema migrations.",       icon: <TechMongo /> },
-      { name: "Morgan + CORS",     why: "Zero-config request logging and locked-down cross-origin defaults for the dev loop.",        icon: <TechExpress /> },
+      { name: "MongoDB + Mongoose",  why: "Document model fits transaction logs, holdings, and user profiles without schema migrations.", icon: <TechMongo /> },
+      { name: "pino-http",         why: "Structured JSON logs that ship straight to any aggregator; pino-pretty for dev legibility.",  icon: <TechExpress /> },
+      { name: "express-rate-limit", why: "Per-IP rate caps on every /api/* path with a stricter bucket on writes — production-safe defaults.", icon: <TechShield /> },
+      { name: "On-chain indexer",  why: "Polls PropertyFactory + per-property events every 12s; replaces unverified client-posted analytics.", icon: <TechIndexer /> },
+      { name: "SIWE-style auth",   why: "Single-use nonce + ethers.verifyMessage so write routes can require a real wallet signature.",   icon: <TechAuth /> },
     ],
   },
   {
@@ -786,9 +792,10 @@ const ARCH_LAYERS = [
     label: "Client",
     color: "green",
     items: [
-      { node: "frontend/src/pages",      hint: "Landing, Marketplace, Property, Portfolio, Dividends, Owner, Investor" },
-      { node: "frontend/src/components", hint: "Icon, Logo, ActivityFeed, FaucetPanel, CostBanner, UGFBadge, Toast, Switch" },
-      { node: "frontend/src/context",    hint: "Web3Context · UGFContext" },
+      { node: "frontend/src/pages",      hint: "Landing, Marketplace, Property, Portfolio, Dividends, Owner, Investor, Watchlist, Analytics" },
+      { node: "frontend/src/components", hint: "Icon, Logo, ActivityFeed, FaucetPanel, CostBanner, UGFBadge, Toast, Switch, AgentSuggestions, GasIndicator, HolderList, RentChart, YieldCalculator, LiveRentCounter" },
+      { node: "frontend/src/context",    hint: "Web3Context · UGFContext · SmartAgentContext" },
+      { node: "frontend/src/hooks",      hint: "useWatchlist · useSiweAuth" },
       { node: "frontend/src/config",     hint: "Network constants · ABIs · BACKEND_URL" },
     ],
   },
@@ -796,10 +803,11 @@ const ARCH_LAYERS = [
     label: "API",
     color: "grey",
     items: [
-      { node: "backend/server.js",        hint: "Express bootstrap, CORS, Morgan, Mongo connect" },
-      { node: "backend/routes",           hint: "/api/properties · /api/transactions · /api/users · /api/faucet" },
-      { node: "backend/middleware/db.js", hint: "requireDb gate — graceful 503 when Mongo is offline" },
-      { node: "backend/models",           hint: "Property · Transaction · User (Mongoose schemas)" },
+      { node: "backend/server.js",        hint: "Express bootstrap, CORS, pino-http logging, rate limiter, Mongo connect" },
+      { node: "backend/routes",           hint: "/api/auth · /api/properties · /api/transactions · /api/users · /api/faucet" },
+      { node: "backend/middleware",       hint: "requireDb (Mongo gate) · siwe (signed-write enforcement)" },
+      { node: "backend/jobs/indexer.js",  hint: "12s on-chain event scanner — populates transactions + holdings" },
+      { node: "backend/models",           hint: "Property · Transaction · User · Holding · AuthNonce · IndexerCheckpoint" },
     ],
   },
   {
@@ -809,8 +817,9 @@ const ARCH_LAYERS = [
       { node: "PropertyFactory.sol",       hint: "Deploys the per-property contract trio and registers it" },
       { node: "PropertyToken.sol",         hint: "ERC20Votes share token with snapshot-safe balances" },
       { node: "RentalDistribution.sol",    hint: "Epoch-based pro-rata rent distribution (V1 default)" },
+      { node: "RentalDistributionV2.sol",  hint: "O(1) accumulator-based distribution (research surface)" },
       { node: "Marketplace.sol",           hint: "Primary + secondary sales in USDC, owner-funded supply" },
-      { node: "MockUSDC.sol",              hint: "6-decimal settlement token for rent + purchases" },
+      { node: "MockUSDC.sol",              hint: "6-decimal settlement token (mint is onlyOwner)" },
     ],
   },
 ];
@@ -879,6 +888,8 @@ const FEATURE_TABS = [
       { title: "One-tap claim-all",        href: "/investor",    desc: "Hero CTA on the investor dashboard claims pending rent across every holding.", icon: "bolt" },
       { title: "Per-property claim",       href: "/dividends",   desc: "Granular epoch history with individual claim buttons and status badges.",      icon: "coins" },
       { title: "Portfolio listings",       href: "/portfolio",   desc: "List and cancel sales on the secondary market without leaving the dApp.",      icon: "briefcase" },
+      { title: "Watchlist",                href: "/watchlist",   desc: "Star any property card from the marketplace; the watchlist syncs across tabs via localStorage.", icon: "star" },
+      { title: "Yield calculator",         href: "/property/0",  desc: "Live tokens / ownership / annualized yield / payback months from the price-per-token and your inputs.", icon: "trending" },
     ],
   },
   {
@@ -892,8 +903,22 @@ const FEATURE_TABS = [
     ],
   },
   {
+    key: "agent",
+    label: "Smart Agent",
+    items: [
+      { title: "Live gas pill",            href: "/marketplace", desc: "Lime/grey/red navbar pill with the current gwei reading; classified against a rolling 1h percentile.", icon: "trending" },
+      { title: "Heuristic suggestions",    href: "/investor",    desc: "Worth-it checks per property + batch hints when several claims are open at once.", icon: "bolt" },
+      { title: "AI Q&A box",               href: "/investor",    desc: "Free-text question routed through your chosen LLM provider, grounded in real holdings + gas state.", icon: "spark" },
+      { title: "OpenAI provider",          href: "/investor",    desc: "Default model gpt-4o-mini; full Chat Completions support including system + user prompts.", icon: "spark" },
+      { title: "Anthropic Claude",         href: "/investor",    desc: "Direct Messages API with the dangerous-direct-browser-access header so the SDK isn't required.", icon: "spark" },
+      { title: "Google Gemini",            href: "/investor",    desc: "generateContent endpoint with systemInstruction, default model gemini-2.5-flash.", icon: "spark" },
+      { title: "OpenRouter",               href: "/investor",    desc: "Route through any model OpenRouter supports; HTTP-Referer + X-Title set automatically.", icon: "spark" },
+      { title: "Per-pref toggles",         href: "/marketplace", desc: "Optimizer and AI assistant are independent toggles in Settings; both off by default.", icon: "settings" },
+    ],
+  },
+  {
     key: "shared",
-    label: "Shared",
+    label: "Shared UX",
     items: [
       { title: "UGF gasless mode",         href: "/dividends",   desc: "Every state-changing call routes through UGF — settle gas in Mock USD.",       icon: "drop" },
       { title: "UGF on/off toggle",        href: "/dividends",   desc: "Settings popover lets judges flip the switch and see the failure mode live.",  icon: "settings" },
@@ -903,6 +928,23 @@ const FEATURE_TABS = [
       { title: "Toast system",             href: "/marketplace", desc: "Polite, accessible non-blocking notifications via aria-live.",                  icon: "info" },
       { title: "Connect gate",             href: "/portfolio",   desc: "Full-page prompt for routes that need a wallet, with one-click reconnect.",     icon: "wallet" },
       { title: "Network detection",        href: "/marketplace", desc: "Wrong-network banner switches MetaMask to the configured chain id in one tap.", icon: "alert" },
+      { title: "Live rent counter",        href: "/",            desc: "Hero pill ticks the protocol-wide rent claimed total upward, polled from the stats endpoint.", icon: "coins" },
+      { title: "Recent activity table",    href: "/",            desc: "The five most recent backend-logged transactions surface on the landing page when data exists.", icon: "history" },
+    ],
+  },
+  {
+    key: "platform",
+    label: "Platform",
+    items: [
+      { title: "On-chain indexer",         href: "/analytics",   desc: "12s polling job ingests PropertyCreated, Transfer, RentalDeposited, AllDividendsClaimed, TokensBought, ListingCreated, ListingCancelled.", icon: "layers" },
+      { title: "Holder leaderboard",       href: "/property/0",  desc: "/api/properties/:id/holders served from the indexer with on-chain log-replay fallback. Indexed/on-chain badge shows source.", icon: "users" },
+      { title: "Rent history chart",       href: "/property/0",  desc: "Inline SVG line + area chart per property — no charting dep, lime fill, hoverable tooltips.", icon: "trending" },
+      { title: "Wallet-signed writes",     href: "/portfolio",   desc: "SIWE-style /api/auth/nonce + signature header. Server-side ethers.verifyMessage; nonce is single-use.", icon: "lock" },
+      { title: "Rate-limited API",         href: "/marketplace", desc: "express-rate-limit on every /api/* path: 600 reads/min/IP, 60 writes/min/IP, plus per-wallet faucet cooldown.", icon: "shield" },
+      { title: "Structured logs",          href: "/analytics",   desc: "pino-http on every request with health-check noise filtered out; JSON in production, pretty in dev.", icon: "info" },
+      { title: "Analytics dashboard",      href: "/analytics",   desc: "KPI tiles, daily volume bar chart, UGF vs ETH gas split — all backed by /api/transactions/timeseries.", icon: "trending" },
+      { title: "Graceful Mongo gate",      href: "/marketplace", desc: "When Mongo is offline GETs return [] and POSTs return 503 with a hint; the frontend never breaks.", icon: "info" },
+      { title: "PWA shell + service worker", href: "/",         desc: "manifest.webmanifest + sw.js cache the app shell and last /api/properties response for offline browsing.", icon: "globe" },
     ],
   },
 ];
@@ -1529,5 +1571,212 @@ function OwnerFlowSection() {
         </div>
       </Reveal>
     </section>
+  );
+}
+
+function TechShield() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M20 3 L34 9 V21 Q34 31 20 37 Q6 31 6 21 V9 Z" fill="#191A23" stroke="#191A23" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M14 19 L18 24 L26 14" stroke="#B9FF66" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function TechIndexer() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="6" y="8" width="28" height="6" rx="2" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <rect x="6" y="17" width="28" height="6" rx="2" fill="#191A23" />
+      <rect x="6" y="26" width="28" height="6" rx="2" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <circle cx="11" cy="11" r="1.5" fill="#191A23" />
+      <circle cx="11" cy="20" r="1.5" fill="#B9FF66" />
+      <circle cx="11" cy="29" r="1.5" fill="#191A23" />
+    </svg>
+  );
+}
+function TechAuth() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="6" y="18" width="28" height="18" rx="3" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <path d="M12 18 V12 a8 8 0 0 1 16 0 V18" fill="none" stroke="#191A23" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="20" cy="26" r="2.5" fill="#191A23" />
+      <rect x="19" y="26" width="2" height="6" fill="#191A23" />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Smart Agent showcase — the dedicated section for the gas optimizer + AI
+// assistant. Two big cards side-by-side so the heuristic-vs-LLM split is
+// legible at a glance, plus a row of provider chips with their own float
+// loops (different durations, no sync).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const AGENT_FEATURES = {
+  optimizer: [
+    { icon: "trending", title: "Live gas reading",       body: "Polls the read provider every 20s and classifies the current fee against a rolling 1h percentile." },
+    { icon: "bolt",     title: "Worth-it checks",        body: "Per-property heuristics flag dust pending vs claim cost using the same gas figure as the cost banner." },
+    { icon: "layers",   title: "Batch suggestions",      body: "When two or more properties are claimable, the agent recommends Claim All on the dashboard hero." },
+    { icon: "info",     title: "Status pill in navbar",  body: "Lime/grey/red gas pill mirrors the agent's classification — visible on every page." },
+  ],
+  assistant: [
+    { icon: "spark",    title: "Bring your own key",     body: "OpenAI, Anthropic Claude, Google Gemini, OpenRouter — pick any one, paste the key, model is auto-defaulted." },
+    { icon: "lock",     title: "Direct browser → LLM",   body: "Keys live in localStorage and travel only to the chosen provider. RealChain's backend never sees them." },
+    { icon: "globe",    title: "Context aware",          body: "Each prompt includes wallet, gas state, computed heuristics and per-property pending — answers stay grounded." },
+    { icon: "alert",    title: "Risk made visible",      body: "Settings popover surfaces an explicit warning that browser-side keys are not safe on shared machines." },
+  ],
+};
+
+const AGENT_PROVIDER_CHIPS = [
+  { label: "OpenAI",     icon: <ProvOpenAI /> },
+  { label: "Anthropic",  icon: <ProvAnthropic /> },
+  { label: "Gemini",     icon: <ProvGemini /> },
+  { label: "OpenRouter", icon: <ProvOpenRouter /> },
+];
+
+function SmartAgentSection() {
+  return (
+    <section className="section" id="smart-agent">
+      <Reveal>
+        <div className="lp-section-head">
+          <h2 className="lp-section-title">Smart Agent</h2>
+          <p className="lp-section-sub">
+            Two opt-in helpers in Settings. The gas optimizer runs on real
+            on-chain data and is free. The AI assistant takes your own
+            provider key and answers grounded in the same data.
+          </p>
+        </div>
+      </Reveal>
+
+      <Stagger className="lp-agent-grid">
+        <motion.div className="lp-agent-card is-grey" variants={STAGGER_ITEM}>
+          <div className="lp-agent-card-head">
+            <span className="lp-agent-tag">
+              <FloatIcon duration={3.4} amplitude={4} rotate={2}>
+                <Icon name="trending" size={14} />
+              </FloatIcon>
+              Free · rule-based
+            </span>
+            <h3 className="lp-agent-card-title">Gas optimizer</h3>
+          </div>
+          <p className="lp-agent-card-lead">
+            Heuristic engine that watches gas, weighs it against your pending
+            rent, and surfaces concrete suggestions on the investor dashboard.
+            No external service, no per-call cost.
+          </p>
+          <ul className="lp-agent-list">
+            {AGENT_FEATURES.optimizer.map((f, i) => (
+              <li key={f.title}>
+                <FloatIcon
+                  duration={3.4 + (i % 3) * 0.4}
+                  delay={(i * 0.18) % 1.4}
+                  amplitude={5 + (i % 2)}
+                  rotate={2}
+                  className="lp-agent-list-icon"
+                >
+                  <Icon name={f.icon} size={16} />
+                </FloatIcon>
+                <div>
+                  <div className="lp-agent-list-title">{f.title}</div>
+                  <div className="lp-agent-list-desc">{f.body}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        <motion.div className="lp-agent-card is-dark" variants={STAGGER_ITEM}>
+          <div className="lp-agent-card-head">
+            <span className="lp-agent-tag is-on-dark">
+              <FloatIcon duration={3.8} amplitude={5} rotate={3}>
+                <Icon name="spark" size={14} />
+              </FloatIcon>
+              Optional · BYO key
+            </span>
+            <h3 className="lp-agent-card-title">AI assistant</h3>
+          </div>
+          <p className="lp-agent-card-lead">
+            Free-text Q&amp;A on your dashboard, routed through whichever LLM
+            provider you supply. The prompt is built from your real holdings
+            and the live gas state so the answer is never generic.
+          </p>
+          <ul className="lp-agent-list is-on-dark">
+            {AGENT_FEATURES.assistant.map((f, i) => (
+              <li key={f.title}>
+                <FloatIcon
+                  duration={3.6 + (i % 4) * 0.35}
+                  delay={(i * 0.22) % 1.5}
+                  amplitude={5 + (i % 2)}
+                  rotate={3}
+                  className="lp-agent-list-icon"
+                >
+                  <Icon name={f.icon} size={16} />
+                </FloatIcon>
+                <div>
+                  <div className="lp-agent-list-title">{f.title}</div>
+                  <div className="lp-agent-list-desc">{f.body}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="lp-agent-providers" aria-label="Supported providers">
+            {AGENT_PROVIDER_CHIPS.map((p, i) => (
+              <FloatIcon
+                key={p.label}
+                duration={3.2 + (i % 4) * 0.4}
+                delay={(i * 0.25) % 1.6}
+                amplitude={6 + (i % 3)}
+                rotate={2 + (i % 2)}
+                className="lp-agent-provider"
+              >
+                {p.icon}
+                <span>{p.label}</span>
+              </FloatIcon>
+            ))}
+          </div>
+        </motion.div>
+      </Stagger>
+    </section>
+  );
+}
+
+// Provider logo glyphs — flat lime/black/grey to match the rest of the page.
+function ProvOpenAI() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="18" fill="#191A23" />
+      <path d="M14 14 L20 11 L26 14 V22 L20 25 L14 22 Z" fill="none" stroke="#B9FF66" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M20 11 V18" stroke="#B9FF66" strokeWidth="2" />
+      <path d="M14 14 L20 18 L26 14" stroke="#B9FF66" strokeWidth="2" fill="none" />
+    </svg>
+  );
+}
+function ProvAnthropic() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="2" y="2" width="36" height="36" rx="8" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <path d="M14 30 L20 12 L26 30" stroke="#191A23" strokeWidth="3" fill="none" strokeLinejoin="round" />
+      <path d="M16 24 H24" stroke="#191A23" strokeWidth="3" />
+    </svg>
+  );
+}
+function ProvGemini() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="18" fill="#191A23" />
+      <path d="M20 8 L23 17 L32 20 L23 23 L20 32 L17 23 L8 20 L17 17 Z" fill="#B9FF66" />
+    </svg>
+  );
+}
+function ProvOpenRouter() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="2" y="2" width="36" height="36" rx="8" fill="#191A23" />
+      <circle cx="13" cy="20" r="3" fill="#B9FF66" />
+      <circle cx="27" cy="13" r="3" fill="#B9FF66" />
+      <circle cx="27" cy="27" r="3" fill="#B9FF66" />
+      <path d="M16 20 L24 13 M16 20 L24 27" stroke="#B9FF66" strokeWidth="2" />
+    </svg>
   );
 }

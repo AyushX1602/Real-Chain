@@ -1,0 +1,100 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  contracts:
+    name: contracts (hardhat tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: install root deps
+        run: npm ci
+      - name: hardhat compile
+        run: npx hardhat compile
+      - name: hardhat test
+        run: npx hardhat test
+
+  backend:
+    name: backend (boot smoke test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: install backend deps
+        run: cd backend && npm ci
+      - name: load every route + model + middleware
+        run: |
+          cd backend
+          node -e "
+            require('./logger');
+            require('./middleware/db');
+            require('./middleware/siwe');
+            require('./models/Property');
+            require('./models/Transaction');
+            require('./models/User');
+            require('./models/AuthNonce');
+            require('./models/IndexerCheckpoint');
+            require('./models/Holding');
+            require('./routes/auth');
+            require('./routes/properties');
+            require('./routes/transactions');
+            require('./routes/users');
+            require('./routes/faucet');
+            require('./jobs/indexer');
+            console.log('all backend modules load');
+          "
+
+  frontend:
+    name: frontend (vite build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: install frontend deps
+        # Frontend uses Vite 8 with @vitejs/plugin-react 4.x — the plugin's
+        # peer range only goes to Vite 7, so npm strict mode fails. Match the
+        # working local install behavior with --legacy-peer-deps.
+        run: cd frontend && npm ci --legacy-peer-deps
+      - name: vite build
+        run: cd frontend && npm run build
+
+  graphify:
+    name: graphify graph freshness
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install uv
+        run: pip install uv
+      - name: rebuild graph
+        run: uvx --from graphifyy graphify.exe update . || uvx --from graphifyy graphify update .
+      - name: detect uncommitted graph drift
+        run: |
+          if ! git diff --quiet -- graphify-out/; then
+            echo "::warning::graphify-out/ is out of sync with the source tree."
+            echo "Run npm run graphify:update locally and commit the result."
+            git --no-pager diff --stat -- graphify-out/
+          fi

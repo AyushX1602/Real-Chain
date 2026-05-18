@@ -85,4 +85,26 @@ router.get("/owner/:wallet", async (req, res) => {
   }
 });
 
+// ── GET /api/properties/:id/holders — Top holders for a property ─────────────
+// Reads from the indexer-maintained Holding collection. Falls back to an empty
+// list when the indexer hasn't run yet (the frontend's HolderList component
+// keeps its on-chain getLogs path as a backup).
+router.get("/:id/holders", async (req, res) => {
+  try {
+    const Holding = require("../models/Holding");
+    const propertyId = Number(req.params.id);
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    const rows = await Holding.find({ propertyId, balance: { $ne: "0" } })
+      .sort({ balance: -1 })
+      .limit(limit);
+    res.json(rows.map((r) => ({
+      wallet: r.wallet,
+      balance: r.balance,           // BigInt as decimal string (18dp)
+      updatedAt: r.updatedAt,
+    })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

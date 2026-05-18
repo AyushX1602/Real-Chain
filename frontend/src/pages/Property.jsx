@@ -422,7 +422,7 @@ export default function Property() {
       {tab === "holders" && (
         <div className="section">
           <h2 className="section-title"><Icon name="users" size={14} /> Top holders</h2>
-          <HolderList tokenAddress={prop?.propertyToken} ownerAddress={prop?.owner} limit={10} />
+          <HolderList propertyId={Number(id)} tokenAddress={prop?.propertyToken} ownerAddress={prop?.owner} limit={10} />
         </div>
       )}
 
