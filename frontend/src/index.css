@@ -1497,6 +1497,29 @@ tr:hover td { background: var(--positivus-grey-warm); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Hero illustration: floating Ethereum + pulsing dollar ─────────────── */
+.lp-hero-eth {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ethFloat 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes ethFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-10px) rotate(-3deg); }
+}
+
+.lp-hero-dollar {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: dollarPulse 2.4s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes dollarPulse {
+  0%, 100% { transform: scale(1)    translateY(0); }
+  50%      { transform: scale(1.06) translateY(-4px); }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════════════════════════ */

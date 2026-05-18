@@ -4,6 +4,7 @@
 - ~~Repo URL unknown~~ — `https://github.com/AyushX1602/Real-Chain`.
 - ~~`.env.example` placeholder secret broke fresh local Hardhat startup~~ — fixed; placeholder PRIVATE_KEY blanked.
 - ~~Need verified Base Sepolia deployment inputs (RPC, deployer wallet, ETH for deployment)~~ — partially: `baseSepolia` is wired in `hardhat.config.js`. Funded wallet + actual deployment still TODO (see Open).
+- ~~Graphify refresh required manual `graphify update` calls~~ — automated 2026-05-18 via Kiro fileEdited/fileCreated/fileDeleted/agentStop hooks, opt-in `scripts/git-hooks/pre-commit`, and root npm scripts (`graphify:update`, `:watch`, `:query`, `:explain`, `:path`).
 
 ## Open — Tier 1 (must clear before demo can run)
 - Base Sepolia deployer wallet not yet funded with testnet ETH. Faucet: https://www.alchemy.com/faucets/base-sepolia
@@ -42,6 +43,7 @@
 - Each teammate still needs to run `graphify codex install` once locally; `.codex/hooks.json` is intentionally not shared.
 - On this machine, `graphify` is not on PATH. Use `uvx --from graphifyy graphify.exe query|path|explain|update` as the working fallback.
 - On this machine, Graphify Codex integration is installed and auto-runs via local `.codex/hooks.json` (machine-specific; not committed).
+- On this machine, four Kiro IDE hooks (`graphify-update-on-edit`, `graphify-update-on-create`, `graphify-update-on-delete`, `graphify-update-on-stop`) refresh `graphify-out/` automatically on every save / create / delete / agent-stop event so the AI's view of the project tracks the working tree line by line. Other contributors can opt their machine in by either running `uvx --from graphifyy graphify.exe install --platform kiro` (Kiro skill), wiring the same hooks via Kiro's hook UI, or running `git config core.hooksPath scripts/git-hooks` for a portable git pre-commit refresh.
 - Teammates must run `cd backend && npm install` after cloning.
 - Frontend currently does not call backend API endpoints. Will start in Phase 5C.
 - After meaningful work, every agent must append a session entry to `CLAUDE.md` and update this file. Stale flags break the next agent's planning.

@@ -432,6 +432,21 @@ Decided : Future project edits should not require manual "run graphify update" r
 Next    : Continue Tier 1 implementation tasks in order from `implementation_plan.md`.
 Blockers: Base Sepolia deployer wallet funding and final deployment addresses are still pending.
 ---
+---
+Date    : 2026-05-18
+Agent   : Kiro (Claude Opus 4.7)
+Did     : Made Graphify refresh fully automatic across the workflow. Installed the official Graphify Kiro skill (`uvx --from graphifyy graphify.exe install --platform kiro`).
+Did     : Created four Kiro hooks that run `uvx --from graphifyy graphify.exe update .` automatically: on every code/doc save (`fileEdited`), on file create (`fileCreated`), on file delete (`fileDeleted` with `--force` so deleted nodes drop cleanly), and at the end of every agent turn (`agentStop`). File patterns cover `.js`, `.jsx`, `.ts`, `.tsx`, `.sol`, `.py`, `.go`, `.rs`, `.java`, `.css`, `.html`, `.md`, `.json`.
+Did     : Added six root npm scripts so the same automation works outside Kiro: `graphify:update`, `graphify:update:force`, `graphify:watch`, `graphify:query`, `graphify:explain`, `graphify:path`.
+Did     : Added an opt-in portable git hook at `scripts/git-hooks/pre-commit` (with `scripts/git-hooks/README.md`) — contributors enable it once with `git config core.hooksPath scripts/git-hooks`. The hook runs `npm run graphify:update`, falls back to direct uvx, and re-stages `graphify-out/` so commits always carry a fresh graph snapshot.
+Did     : Tightened `.graphifyignore` to skip generated build output (`frontend/dist/`, `backend/dist/`), the cloned reference repo (`reference-positivus/`), Kiro internals (`.kiro/`), and Graphify's own output folder so the watcher does not churn.
+Did     : Refreshed the graph immediately: 194 files, 4,096 nodes, 4,838 edges, 375 communities. The graph now reflects the post-Positivus rewrite (Landing.jsx, restyled index.css, NOTICE, faucet route, etc.).
+Did     : Updated `memory/decisions.md`, `memory/flags.md`, and `AGENTS.md` to document the automation and the resolved "manual graphify update" pain point.
+Decided : Graphify state is part of the project's real-time memory contract, not a periodic chore. The combination of Kiro fileEdited/fileCreated/fileDeleted/agentStop hooks plus the optional git pre-commit gives line-level coverage in the editor and at every commit boundary.
+Decided : `.codex/hooks.json` stays gitignored (machine-specific path); the new Kiro hooks live in `.kiro/hooks/` which is also machine-local. Cross-contributor automation is delivered through the npm scripts and the opt-in git hook, both of which are committed.
+Next    : Resume Tier 1 implementation tasks from `implementation_plan.md` (Base Sepolia deployment + funded wallet still the blocker).
+Blockers: Base Sepolia deployer wallet still unfunded; final deployment addresses pending.
+---
 ```
 
 ---

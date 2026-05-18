@@ -5,8 +5,8 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\package.json": {
-    "mtime": 1779101019.2369363,
-    "ast_hash": "687898b4b71bcf2e75521e4643ee0faf",
+    "mtime": 1779127031.3726816,
+    "ast_hash": "de087bbbe0a015c806d605af3d77a400",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\.vscode\\settings.json": {
@@ -540,13 +540,13 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\AGENTS.md": {
-    "mtime": 1779105365.7648556,
-    "ast_hash": "8db0bc72adbfd32e39d22f2bd544c703",
+    "mtime": 1779127641.6679087,
+    "ast_hash": "7fff28b1154d94967c49ecbccee4e99c",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\CLAUDE.md": {
-    "mtime": 1779105660.9576776,
-    "ast_hash": "3c3aa83fce1d87addbd6e0319fb3a126",
+    "mtime": 1779127685.1976233,
+    "ast_hash": "44c29c2e4ec26eed817ca80ee764370d",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\HACKATHON_PLAN.txt": {
@@ -595,13 +595,13 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\memory\\decisions.md": {
-    "mtime": 1779105634.3779886,
-    "ast_hash": "a91a3fdda978fb5d598e3fbc59af668a",
+    "mtime": 1779127645.874297,
+    "ast_hash": "da076564c3561bbc4092a8c2f9ba723b",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\memory\\flags.md": {
-    "mtime": 1779105647.088631,
-    "ast_hash": "5a13a17c900f60ea4a743df39484a5b8",
+    "mtime": 1779127655.9897423,
+    "ast_hash": "180c8ed97260927c7071c2e597733639",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\CLAUDE.md": {
@@ -1155,8 +1155,18 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Landing.jsx": {
-    "mtime": 1779125680.2089999,
-    "ast_hash": "4322ae0e33e1b0c7a2ae2eebdff5a388",
+    "mtime": 1779127593.1961398,
+    "ast_hash": "9c3288237bc7bb46535a7570df2b2bff",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\git-hooks\\pre-commit": {
+    "mtime": 1779127621.6720169,
+    "ast_hash": "d75e451fbe4f0f7aea00128c588b296b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\git-hooks\\README.md": {
+    "mtime": 1779127047.0536385,
+    "ast_hash": "e5ff9e6017955beab0e3baf16b9f8d08",
     "semantic_hash": ""
   }
 }

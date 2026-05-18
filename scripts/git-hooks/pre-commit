@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #
-# Graphify pre-commit hook — refreshes graphify-out/ before each commit so
+# Graphify pre-commit hook â€” refreshes graphify-out/ before each commit so
 # the committed graph snapshot reflects the source tree being committed.
 #
 # Install once per clone:

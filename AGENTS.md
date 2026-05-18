@@ -15,6 +15,7 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - If `graphify` is not on PATH, use `uvx --from graphifyy graphify.exe query|path|explain|update` as the fallback command.
+- **Automation**: this repo runs `graphify update .` automatically on every fileEdited / fileCreated / fileDeleted / agentStop event via Kiro hooks, on every `git commit` via the optional `scripts/git-hooks/pre-commit`, and through the `npm run graphify:update` / `:watch` / `:query` / `:explain` / `:path` scripts at the root. You generally do not need to invoke `graphify update` by hand. If you genuinely cannot rely on the IDE hooks (running in a plain terminal without Kiro), run `npm run graphify:update` after each batch of edits.
 - Memory hygiene is mandatory and automatic: after meaningful work, every agent MUST append `CLAUDE.md` session log and update `memory/decisions.md` plus `memory/flags.md` without waiting for user reminders.
 
 ## Active hackathon branch

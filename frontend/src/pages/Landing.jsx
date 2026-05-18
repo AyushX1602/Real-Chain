@@ -482,13 +482,27 @@ function HeroIllustration() {
         <rect x="345" y="265" width="20" height="30" rx="3" />
         <rect x="380" y="265" width="20" height="30" rx="3" />
       </g>
-      <g>
+      <g className="lp-hero-dollar">
         <circle cx="465" cy="240" r="60" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
         <text x="465" y="252" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontWeight="700" fontSize="36" fill="#191A23">$</text>
       </g>
-      <g>
+      <g className="lp-hero-eth">
         <circle cx="510" cy="340" r="36" fill="#191A23" />
-        <text x="510" y="350" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontWeight="700" fontSize="22" fill="#B9FF66">P</text>
+        {/* Ethereum diamond logo, centered at (510, 340) */}
+        <g fill="#B9FF66">
+          {/* Upper-left face */}
+          <polygon points="510,318 494,340 510,332" opacity="0.7" />
+          {/* Upper-right face */}
+          <polygon points="510,318 526,340 510,332" />
+          {/* Lower-left face (below middle) */}
+          <polygon points="510,332 494,340 510,348" />
+          {/* Lower-right face (below middle) */}
+          <polygon points="510,332 526,340 510,348" opacity="0.85" />
+          {/* Bottom triangle, left half */}
+          <polygon points="510,352 494,343 510,362" opacity="0.7" />
+          {/* Bottom triangle, right half */}
+          <polygon points="510,352 526,343 510,362" />
+        </g>
       </g>
       <rect x="0" y="395" width="600" height="6" fill="#191A23" />
     </svg>
