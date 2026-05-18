@@ -1843,6 +1843,8 @@ tr:hover td { background: var(--positivus-grey-warm); }
   box-shadow: var(--shadow-offset);
   padding: var(--space-10) var(--space-8) var(--space-8);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .lp-workflow-line {
   position: absolute;
@@ -1923,4 +1925,101 @@ tr:hover td { background: var(--positivus-grey-warm); }
   line-height: var(--leading-snug);
   color: var(--fg-muted);
   max-width: 220px;
+}
+
+/* ── Workflow — interactive enhancements ───────────────────────────────── */
+
+.lp-workflow-node {
+  cursor: pointer;
+  outline: none;
+  border-radius: var(--radius-lg);
+  padding-top: 4px;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.lp-workflow-node:focus-visible {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px var(--positivus-black);
+}
+.lp-workflow-node.is-active .lp-workflow-tag {
+  background: var(--positivus-green);
+  color: var(--positivus-black);
+  border: 1px solid var(--positivus-black);
+}
+.lp-workflow-node.is-active .lp-workflow-title {
+  text-decoration: underline;
+  text-decoration-color: var(--positivus-black);
+  text-underline-offset: 4px;
+}
+
+.lp-workflow-bubble-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Pulsing halo around the active node — uses transform + opacity only so
+   it stays on the compositor and doesn't cause layout. */
+.lp-workflow-halo {
+  position: absolute;
+  inset: -8px;
+  border: 2px solid var(--positivus-black);
+  border-radius: 50%;
+  pointer-events: none;
+  transform-origin: center;
+  z-index: 0;
+}
+
+/* Lime data packet that travels along the connector line. Positioned
+   absolutely against the workflow card; framer-motion animates `x` from
+   0% → 100% across the line's bounds. */
+.lp-workflow-packet {
+  position: absolute;
+  top: calc(var(--space-10) + 30px);
+  left: var(--space-12);
+  width: calc(100% - var(--space-12) * 2);
+  height: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+.lp-workflow-packet::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--positivus-green);
+  border: 1px solid var(--positivus-black);
+  box-shadow: 0 0 0 6px rgba(185, 255, 102, 0.35);
+}
+@media (max-width: 1100px) { .lp-workflow-packet { display: none; } }
+
+/* Caption under the timeline that narrates the spotlight. */
+.lp-workflow-caption {
+  margin-top: var(--space-8);
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-full);
+  background: var(--positivus-white);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  align-self: flex-start;
+  font-size: var(--text-sm);
+}
+.lp-workflow-caption-step {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--fg-muted);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+}
+.lp-workflow-caption-title {
+  font-weight: 600;
+  color: var(--positivus-black);
 }

@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useInView, AnimatePresence } from "framer-motion";
 import { useWeb3 } from "../context/Web3Context";
 import Icon from "../components/Icon";
 import Logo from "../components/Logo";
@@ -1002,22 +1002,39 @@ const WORKFLOW_STEPS = [
 
 function AnimatedWorkflowSection() {
   const reduce = useReducedMotion();
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: false, amount: 0.35 });
+
+  // Auto-progressing spotlight. -1 means "no override"; whichever node is
+  // hovered takes priority over the auto cycle.
+  const [autoIdx, setAutoIdx] = useState(0);
+  const [hoverIdx, setHoverIdx] = useState(-1);
+  const activeIdx = hoverIdx >= 0 ? hoverIdx : autoIdx;
+
+  useEffect(() => {
+    if (reduce || !inView) return undefined;
+    const id = setInterval(() => {
+      setAutoIdx((i) => (i + 1) % WORKFLOW_STEPS.length);
+    }, 2200);
+    return () => clearInterval(id);
+  }, [reduce, inView]);
 
   return (
-    <section className="section" id="workflow">
+    <section className="section" id="workflow" ref={sectionRef}>
       <Reveal>
         <div className="lp-section-head">
           <h2 className="lp-section-title">End-to-end flow</h2>
           <p className="lp-section-sub">
             From "open the app" to "USDC in your wallet" — six steps with no
-            ETH ever leaving the user's wallet. Every arrow on the diagram
-            below is wired by code in this repo.
+            ETH ever leaving the user's wallet. Hover any step to pause the
+            tour, or watch the highlight cycle through on its own.
           </p>
         </div>
       </Reveal>
 
       <Reveal delay={0.05}>
         <div className="lp-workflow">
+          {/* Static base track */}
           <motion.div
             className="lp-workflow-line"
             initial={reduce ? { scaleX: 1 } : { scaleX: 0 }}
@@ -1026,29 +1043,146 @@ function AnimatedWorkflowSection() {
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             aria-hidden="true"
           />
+
+          {/* Lime "data packet" that rides the connector. Pure transform
+              animation, GPU-friendly. Hidden on small screens via CSS. */}
+          {!reduce && (
+            <motion.span
+              className="lp-workflow-packet"
+              aria-hidden="true"
+              initial={{ x: "0%", opacity: 0 }}
+              animate={inView ? { x: "100%", opacity: [0, 1, 1, 1, 0] } : { x: "0%", opacity: 0 }}
+              transition={{
+                duration: 4.4,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "loop",
+              }}
+            />
+          )}
+
           <Stagger className="lp-workflow-row" stagger={0.12}>
             {WORKFLOW_STEPS.map((step, i) => (
-              <motion.div className="lp-workflow-node" key={step.title} variants={STAGGER_ITEM}>
-                <FloatIcon
-                  duration={3.6 + (i % 4) * 0.45}
-                  delay={(i * 0.25) % 1.5}
-                  amplitude={6 + (i % 3)}
-                  rotate={3}
-                  className="lp-workflow-bubble"
-                >
-                  <span className="lp-workflow-step">{String(i + 1).padStart(2, "0")}</span>
-                  <Icon name={step.icon} size={18} />
-                </FloatIcon>
-                <div className="lp-workflow-tag">{step.label}</div>
-                <h4 className="lp-workflow-title">{step.title}</h4>
-                <p className="lp-workflow-desc">{step.desc}</p>
-              </motion.div>
+              <WorkflowNode
+                key={step.title}
+                step={step}
+                idx={i}
+                total={WORKFLOW_STEPS.length}
+                isActive={activeIdx === i}
+                onHover={setHoverIdx}
+                inView={inView}
+                reduce={reduce}
+              />
             ))}
           </Stagger>
+
+          {/* Status caption — narrates the current spotlight for both
+              sighted and screen-reader users. */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={WORKFLOW_STEPS[activeIdx].title}
+              className="lp-workflow-caption"
+              initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              role="status"
+              aria-live="polite"
+            >
+              <span className="lp-workflow-caption-step">
+                Step {activeIdx + 1} / {WORKFLOW_STEPS.length}
+              </span>
+              <span className="lp-workflow-caption-title">
+                {WORKFLOW_STEPS[activeIdx].title}
+              </span>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </Reveal>
     </section>
   );
+}
+
+function WorkflowNode({ step, idx, total, isActive, onHover, inView, reduce }) {
+  const tilt = isActive ? -4 : 0;
+
+  return (
+    <motion.div
+      className={`lp-workflow-node ${isActive ? "is-active" : ""}`}
+      variants={STAGGER_ITEM}
+      onMouseEnter={() => onHover(idx)}
+      onMouseLeave={() => onHover(-1)}
+      onFocus={() => onHover(idx)}
+      onBlur={() => onHover(-1)}
+      tabIndex={0}
+      role="group"
+      aria-label={`Step ${idx + 1} of ${total}: ${step.title}`}
+      whileHover={reduce ? undefined : { y: -4 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <motion.span
+        className="lp-workflow-bubble"
+        animate={
+          reduce
+            ? { scale: 1, rotate: 0, y: 0 }
+            : isActive
+              ? { scale: 1.12, rotate: tilt, y: -6, boxShadow: "0 6px 0 0 #191A23" }
+              : { scale: 1,    rotate: 0,    y: 0,  boxShadow: "0 3px 0 0 #191A23" }
+        }
+        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <span className="lp-workflow-step">
+          <CountUp from={0} to={idx + 1} active={inView} />
+        </span>
+        <motion.span
+          className="lp-workflow-bubble-icon"
+          animate={reduce ? { scale: 1 } : isActive ? { scale: 1.18 } : { scale: 1 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Icon name={step.icon} size={20} />
+        </motion.span>
+
+        {/* Pulsing halo while active. Pure transform+opacity. */}
+        {!reduce && isActive && (
+          <motion.span
+            className="lp-workflow-halo"
+            aria-hidden="true"
+            initial={{ scale: 0.6, opacity: 0.5 }}
+            animate={{ scale: 1.6, opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut", repeat: Infinity }}
+          />
+        )}
+      </motion.span>
+
+      <div className="lp-workflow-tag">{step.label}</div>
+      <h4 className="lp-workflow-title">{step.title}</h4>
+      <p className="lp-workflow-desc">{step.desc}</p>
+    </motion.div>
+  );
+}
+
+// Small count-up that runs once when its parent scrolls into view. Used for
+// the 01 / 02 / 03 step badges so they tick up rather than appear instantly.
+function CountUp({ from = 0, to, active }) {
+  const [value, setValue] = useState(active ? to : from);
+  useEffect(() => {
+    if (!active) {
+      setValue(from);
+      return undefined;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const dur = 480;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setValue(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, from, to]);
+  return <>{String(value).padStart(2, "0")}</>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
