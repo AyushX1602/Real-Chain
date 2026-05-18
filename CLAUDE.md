@@ -422,6 +422,16 @@ Decided : Keep using the uvx Graphify fallback on this machine unless PATH is fi
 Next    : Continue Tier 1 implementation tasks in order from `implementation_plan.md`.
 Blockers: Base Sepolia deployer wallet funding and final deployment addresses are still pending.
 ---
+---
+Date    : 2026-05-18
+Agent   : Codex
+Did     : Installed Graphify's official Codex integration via `uvx --from graphifyy graphify.exe codex install`.
+Did     : Registered local `.codex/hooks.json` PreToolUse hook so Graphify checks/refreshes run automatically on this machine.
+Did     : Updated `AGENTS.md` to make memory updates mandatory after meaningful work and to document Graphify fallback command usage.
+Decided : Future project edits should not require manual "run graphify update" reminders in chat.
+Next    : Continue Tier 1 implementation tasks in order from `implementation_plan.md`.
+Blockers: Base Sepolia deployer wallet funding and final deployment addresses are still pending.
+---
 ```
 
 ---

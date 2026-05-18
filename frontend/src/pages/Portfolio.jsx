@@ -1,21 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
+import { useUGF } from "../context/UGFContext";
+import { useToast } from "../components/Toast";
+import Icon from "../components/Icon";
+import UGFBadge from "../components/UGFBadge";
+import ConnectGate from "../components/ConnectGate";
+import { MARKETPLACE_ABI } from "../config/contracts";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Portfolio — every property where the user holds tokens, with sell/cancel UI.
+// createListing + cancelListing routed through ugfExecute.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Portfolio() {
-  const { account, connect, getReadFactory, getReadPropertyContracts, getPropertyContracts, fmtUsdc, fmtProp, fmtAddr } = useWeb3();
+  const { account, getReadFactory, getReadPropertyContracts, getPropertyContracts, fmtUsdc, fmtProp } = useWeb3();
+  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { toast } = useToast();
   const [holdings, setHoldings] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => { load(); }, [account]);
+  useEffect(() => { if (account) load(); else { setLoading(false); setHoldings([]); } }, [account]);
 
   async function load() {
     setLoading(true);
     try {
       const factory = getReadFactory();
-      const count   = Number(await factory.getPropertiesCount());
+      const count = Number(await factory.getPropertiesCount());
       const h = [];
       for (let i = 0; i < count; i++) {
         const p = await factory.properties(i);
@@ -25,98 +38,100 @@ export default function Portfolio() {
           marketplace: p.marketplace,
         });
 
-        const [pricePerToken, listCount] = await Promise.all([
+        const [pricePerToken, listCount, bal] = await Promise.all([
           market.pricePerToken(),
           market.getListingCount(),
+          token.balanceOf(account),
         ]);
 
-        // My balance — only if wallet connected
-        let bal = 0n;
-        if (account) {
-          bal = await token.balanceOf(account);
-        }
-
-        // My active listings — only if wallet connected
         const myListings = [];
-        if (account) {
-          for (let j = 0; j < Number(listCount); j++) {
-            const [seller, amount, price, active] = await market.getListing(j);
-            if (active && seller.toLowerCase() === account.toLowerCase()) {
-              myListings.push({ listingId: j, amount, price });
-            }
+        for (let j = 0; j < Number(listCount); j++) {
+          const [seller, amount, price, active] = await market.getListing(j);
+          if (active && seller.toLowerCase() === account.toLowerCase()) {
+            myListings.push({ listingId: j, amount, price });
           }
         }
 
-        // Only show properties where I hold tokens OR if no account show all
-        if (!account || bal > 0n) {
+        if (bal > 0n || myListings.length > 0) {
           h.push({ propId: i, prop: p, balance: bal, pricePerToken, myListings });
         }
       }
       setHoldings(h);
     } catch (e) {
       console.error(e);
+      toast.error("Could not load portfolio", { msg: "Check the network and try again." });
     } finally {
       setLoading(false);
     }
   }
 
-  if (loading) return (
-    <div className="container">
-      <div className="empty-state" style={{ marginTop: 64 }}>
-        <div className="spinner" style={{ width: 36, height: 36, margin: "0 auto 16px" }} />
-        <p>Loading portfolio…</p>
-      </div>
-    </div>
-  );
+  if (!account) {
+    return (
+      <ConnectGate
+        title="Connect to view your portfolio"
+        message="Sign in with MetaMask to see your token holdings, manage listings, and track ownership."
+      />
+    );
+  }
 
   return (
-    <div className="container">
-      <div className="page-header" style={{ marginTop: 32 }}>
-        <h1>💼 My Portfolio</h1>
-        <p>Your token holdings, active listings, and sell management.</p>
+    <div className="container reveal">
+      <div className="page-header">
+        <div className="page-header-row">
+          <div>
+            <h1>My <span className="accent">portfolio</span></h1>
+            <p>Token holdings, active listings, and resale management for every property you own a slice of.</p>
+          </div>
+          <Link to="/" className="btn btn-ghost btn-sm">
+            <Icon name="search" size={12} /> Browse marketplace
+          </Link>
+        </div>
       </div>
 
-      {!account && (
-        <div className="banner banner-info" style={{ marginBottom: 24 }}>
-          <span>🔌</span>
-          <span>
-            Connect MetaMask to see your holdings and manage listings.{" "}
-            <button onClick={connect} style={{ background: "none", border: "none", color: "inherit", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
-              Connect now →
-            </button>
-          </span>
+      {loading ? (
+        <div style={{ display: "grid", gap: 16 }}>
+          {[0, 1].map((i) => <div key={i} className="skeleton" style={{ height: 280 }} />)}
         </div>
-      )}
-
-      {account && holdings.length === 0 ? (
+      ) : holdings.length === 0 ? (
         <div className="empty-state">
-          <div className="icon">📭</div>
+          <span className="emoji"><Icon name="briefcase" size={28} /></span>
           <h3>No holdings yet</h3>
-          <p>Buy some property tokens to see them here.</p>
-          <button className="btn btn-primary" style={{ marginTop: 20 }} onClick={() => navigate("/")}>
-            Browse Properties →
+          <p>Buy your first property tokens to start earning rent and trading on the secondary market.</p>
+          <button className="btn btn-primary mt-6" onClick={() => navigate("/")}>
+            Browse properties <Icon name="arrowRight" size={13} />
           </button>
         </div>
-      ) : !account ? null : (
-        holdings.map((h) => (
-          <HoldingCard key={h.propId} holding={h} fmtUsdc={fmtUsdc} fmtProp={fmtProp} fmtAddr={fmtAddr} onRefresh={load}
-            getPropertyContracts={getPropertyContracts} />
-        ))
+      ) : (
+        <div style={{ display: "grid", gap: 20 }}>
+          {holdings.map((h) => (
+            <HoldingCard
+              key={h.propId}
+              holding={h}
+              fmtUsdc={fmtUsdc}
+              fmtProp={fmtProp}
+              onRefresh={load}
+              ugfExecute={ugfExecute}
+              isUGFEnabled={isUGFEnabled}
+              logTx={logTx}
+              getPropertyContracts={getPropertyContracts}
+              toast={toast}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
-function HoldingCard({ holding, fmtUsdc, fmtProp, fmtAddr, onRefresh, getPropertyContracts }) {
-  const { prop, balance, pricePerToken, myListings } = holding;
+function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, isUGFEnabled, logTx, getPropertyContracts, toast }) {
+  const { prop, balance, pricePerToken, myListings, propId } = holding;
   const [listAmount, setListAmount] = useState("");
-  const [listPrice, setListPrice]   = useState("");
-  const [txStatus, setTxStatus]     = useState(null);
-  const [txMsg, setTxMsg]           = useState("");
+  const [listPrice, setListPrice] = useState("");
+  const [busy, setBusy] = useState(null);
 
   const pct = ((Number(ethers.formatEther(balance)) / 100) * 100).toFixed(1);
 
-  function getRwContracts() {
+  function getRw() {
     return getPropertyContracts({
       propertyToken: prop.propertyToken,
       rentalDistribution: prop.rentalDistribution,
@@ -125,100 +140,143 @@ function HoldingCard({ holding, fmtUsdc, fmtProp, fmtAddr, onRefresh, getPropert
   }
 
   async function handleCreateListing() {
-    const amount   = BigInt(listAmount);
+    if (!listAmount || !listPrice) return;
+    const amount = BigInt(Math.floor(Number(listAmount)));
     const priceVal = BigInt(Math.floor(parseFloat(listPrice) * 1e6));
-    setTxStatus("pending"); setTxMsg("Approving token transfer…");
+    setBusy("create");
     try {
-      const { token, market } = getRwContracts();
+      const { token } = getRw();
+      toast.info("Approving tokens…", { msg: "First of two confirmations." });
       await (await token.approve(prop.marketplace, amount * BigInt(1e18))).wait();
-      setTxMsg("Creating listing…");
-      await (await market.createListing(amount, priceVal)).wait();
-      setTxStatus("success"); setTxMsg("Listing created!");
+
+      const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "createListing", [amount, priceVal]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+
+      logTx({
+        txHash, type: "listing",
+        propertyId: propId,
+        amount: parseFloat(listAmount) * parseFloat(listPrice),
+        tokenAmount: Number(amount),
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+      });
+
+      toast.success("Listing live", { msg: `${listAmount} PROP @ ${listPrice} USDC each.` });
       setListAmount(""); setListPrice("");
       onRefresh();
     } catch (e) {
-      setTxStatus("error"); setTxMsg(e.reason || e.message || "Failed");
+      toast.error("Listing failed", { msg: (e.reason || e.message || "").slice(0, 160) });
+    } finally {
+      setBusy(null);
     }
   }
 
   async function handleCancelListing(listingId) {
-    setTxStatus("pending"); setTxMsg("Cancelling listing…");
+    setBusy(`cancel-${listingId}`);
     try {
-      const { market } = getRwContracts();
-      await (await market.cancelListing(listingId)).wait();
-      setTxStatus("success"); setTxMsg("Listing cancelled.");
+      const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "cancelListing", [listingId]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+
+      logTx({
+        txHash, type: "cancel",
+        propertyId: propId,
+        amount: 0,
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+      });
+
+      toast.success("Listing cancelled");
       onRefresh();
     } catch (e) {
-      setTxStatus("error"); setTxMsg(e.reason || e.message || "Failed");
+      toast.error("Cancel failed", { msg: (e.reason || e.message || "").slice(0, 160) });
+    } finally {
+      setBusy(null);
     }
   }
 
   return (
-    <div className="card" style={{ marginBottom: 24 }}>
+    <div className="card card-elevated">
       <div className="card-body">
-        <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
+        {/* Header row */}
+        <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 18 }}>
           <div>
-            <h2 style={{ fontSize: 22, fontWeight: 700 }}>{prop.name}</h2>
-            <p className="text-muted text-sm">📍 {prop.location}</p>
+            <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.01em" }}>{prop.name}</h2>
+            <div className="text-xs text-muted" style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+              <Icon name="pin" size={12} /> {prop.location}
+            </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div className="stat-value success" style={{ fontSize: 28 }}>{fmtProp(balance)} PROP</div>
-            <div className="text-muted text-sm">{pct}% ownership</div>
+            <div className="stat-value success" style={{ fontSize: 26 }}>{fmtProp(balance)} <span style={{ color: "var(--fg-muted)", fontSize: 13 }}>PROP</span></div>
+            <div className="text-xs text-muted">{pct}% ownership · price now {fmtUsdc(pricePerToken)}</div>
           </div>
         </div>
 
-        <div style={{ marginBottom: 20 }}>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${pct}%` }} />
-          </div>
+        <div className="progress-bar" style={{ marginBottom: 22 }}>
+          <div className="progress-fill" style={{ width: `${pct}%` }} />
         </div>
 
-        {txStatus && (
-          <div className={`banner banner-${txStatus === "success" ? "success" : txStatus === "pending" ? "info" : "danger"}`} style={{ marginBottom: 16 }}>
-            {txStatus === "pending" && <div className="spinner" style={{ width: 14, height: 14, flexShrink: 0 }} />}
-            <span>{txMsg}</span>
-          </div>
-        )}
-
-        {/* Create Listing */}
-        <div style={{ background: "var(--bg-elevated)", borderRadius: "var(--radius-md)", padding: 20, marginBottom: 16 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 14 }}>📤 Create Sell Listing</h3>
-          <div className="flex gap-12" style={{ flexWrap: "wrap" }}>
-            <div className="form-group" style={{ flex: 1, minWidth: 120 }}>
+        {/* Create listing */}
+        <div style={{
+          padding: 18,
+          background: "var(--bg-elevated)",
+          borderRadius: "var(--radius-md)",
+          border: "1px solid var(--border)",
+          marginBottom: 16,
+        }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+            <Icon name="send" size={14} className="text-accent" /> Create sell listing
+          </h3>
+          <div className="flex gap-3 items-end flex-wrap">
+            <div className="form-group" style={{ flex: 1, minWidth: 140 }}>
               <label className="form-label">Tokens to sell</label>
               <input className="form-input" type="number" min="1" placeholder="5"
-                value={listAmount} onChange={e => setListAmount(e.target.value)} />
+                value={listAmount} onChange={(e) => setListAmount(e.target.value)} />
             </div>
-            <div className="form-group" style={{ flex: 1, minWidth: 140 }}>
-              <label className="form-label">Price per token (USDC)</label>
-              <input className="form-input" type="number" min="0.01" step="0.01" placeholder="12.00"
-                value={listPrice} onChange={e => setListPrice(e.target.value)} />
+            <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
+              <label className="form-label">Price / token (USDC)</label>
+              <div className="form-input-prefix">
+                <span className="prefix">$</span>
+                <input className="form-input" type="number" min="0.01" step="0.01" placeholder="12.00"
+                  value={listPrice} onChange={(e) => setListPrice(e.target.value)} />
+              </div>
             </div>
-            <div style={{ paddingTop: 24 }}>
-              <button className="btn btn-primary" onClick={handleCreateListing}
-                disabled={!listAmount || !listPrice || txStatus === "pending"}>
-                List for Sale
-              </button>
-            </div>
+            <button
+              className="btn btn-primary"
+              onClick={handleCreateListing}
+              disabled={!listAmount || !listPrice || busy === "create"}
+            >
+              {busy === "create" ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Listing…</> : <><Icon name="bolt" size={13} /> List for sale</>}
+            </button>
           </div>
+          <div style={{ marginTop: 12 }}><UGFBadge /></div>
         </div>
 
+        {/* My active listings */}
         {myListings.length > 0 && (
           <div>
-            <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>📋 My Active Listings</h3>
-            <div className="table-wrap">
+            <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "var(--fg-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <Icon name="list" size={12} style={{ verticalAlign: -2, marginRight: 6 }} /> My active listings
+            </h3>
+            <div className="table-wrap" style={{ background: "var(--bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
               <table>
-                <thead><tr><th>Tokens</th><th>Price / Token</th><th>Total Ask</th><th>Action</th></tr></thead>
+                <thead>
+                  <tr><th>Tokens</th><th>Price / token</th><th>Total ask</th><th aria-label="Action" /></tr>
+                </thead>
                 <tbody>
-                  {myListings.map(l => {
+                  {myListings.map((l) => {
                     const total = (l.amount * l.price) / BigInt(1e18);
+                    const id = `cancel-${l.listingId}`;
                     return (
                       <tr key={l.listingId}>
                         <td><span className="badge badge-accent">{fmtProp(l.amount)}</span></td>
                         <td>{fmtUsdc(l.price)}</td>
-                        <td style={{ fontWeight: 700, color: "var(--gold)" }}>{fmtUsdc(total)}</td>
+                        <td className="font-bold" style={{ color: "var(--amber-400)" }}>{fmtUsdc(total)}</td>
                         <td>
-                          <button className="btn btn-danger btn-sm" onClick={() => handleCancelListing(l.listingId)}>Cancel</button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleCancelListing(l.listingId)}
+                            disabled={busy === id}
+                          >
+                            {busy === id ? <span className="spinner" style={{ width: 11, height: 11, borderWidth: 1.5 }} /> : <><Icon name="close" size={11} /> Cancel</>}
+                          </button>
                         </td>
                       </tr>
                     );

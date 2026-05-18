@@ -41,6 +41,7 @@
 - Team ownership, project board, deployment URLs are still unknown for the most part. Persons A/B/C/D are role placeholders in `implementation_plan.md`.
 - Each teammate still needs to run `graphify codex install` once locally; `.codex/hooks.json` is intentionally not shared.
 - On this machine, `graphify` is not on PATH. Use `uvx --from graphifyy graphify.exe query|path|explain|update` as the working fallback.
+- On this machine, Graphify Codex integration is installed and auto-runs via local `.codex/hooks.json` (machine-specific; not committed).
 - Teammates must run `cd backend && npm install` after cloning.
 - Frontend currently does not call backend API endpoints. Will start in Phase 5C.
 - After meaningful work, every agent must append a session entry to `CLAUDE.md` and update this file. Stale flags break the next agent's planning.

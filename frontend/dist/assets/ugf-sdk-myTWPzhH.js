@@ -1,0 +1,1 @@
+var e={};throw Error(`Could not resolve "@mysten/sui/jsonRpc" imported by "@tychilabs/ugf-sdk". Is it installed?`);export{e as default};

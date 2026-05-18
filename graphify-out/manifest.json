@@ -70,13 +70,13 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\App.jsx": {
-    "mtime": 1779101019.2242427,
-    "ast_hash": "aa504d7a3a1526bee621f12be6f4b35f",
+    "mtime": 1779105197.4199667,
+    "ast_hash": "9aa3e50839aeb3f8b42934faf6be79ce",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\main.jsx": {
-    "mtime": 1779101019.226492,
-    "ast_hash": "e30dd3cdb9d003db6d78c3839ed73afd",
+    "mtime": 1779105197.4199667,
+    "ast_hash": "ed1e502cb1bc5039d704031fd76969e3",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\config\\contracts.js": {
@@ -90,23 +90,23 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Dividends.jsx": {
-    "mtime": 1779101019.2275002,
-    "ast_hash": "8b8bb92eb0ea20c35e7ea81e6b69cad0",
+    "mtime": 1779105482.653614,
+    "ast_hash": "30fa1a8a39052bc3ea8f03a43f23d550",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Home.jsx": {
-    "mtime": 1779101019.2275002,
-    "ast_hash": "c8340b9d33a6ecda1c22135fa4cd3e7e",
+    "mtime": 1779105165.5551186,
+    "ast_hash": "464b5478b63985cab265e5e260ae0610",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Portfolio.jsx": {
-    "mtime": 1779101019.2275002,
-    "ast_hash": "91dc2338b877e45c745100ba26cf6ef9",
+    "mtime": 1779105425.8792531,
+    "ast_hash": "1ecaabf20096906676c9434b1bc5bd7f",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\Property.jsx": {
-    "mtime": 1779101019.2275002,
-    "ast_hash": "c63cd36e506d425dbb604e9a4c01b849",
+    "mtime": 1779105399.784427,
+    "ast_hash": "46f7bc4976bdb0a7fda72992eb497f6e",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\scripts\\deploy.js": {
@@ -540,13 +540,13 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\AGENTS.md": {
-    "mtime": 1779101019.202844,
-    "ast_hash": "c406bbd3a19cf211b11b82a390fc92f6",
+    "mtime": 1779105365.7648556,
+    "ast_hash": "8db0bc72adbfd32e39d22f2bd544c703",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\CLAUDE.md": {
-    "mtime": 1779101019.203346,
-    "ast_hash": "2200902dcbfe00d653d9fec30c2ad1e1",
+    "mtime": 1779105660.9576776,
+    "ast_hash": "3c3aa83fce1d87addbd6e0319fb3a126",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\HACKATHON_PLAN.txt": {
@@ -590,18 +590,18 @@
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\index.html": {
-    "mtime": 1779101019.2242427,
-    "ast_hash": "3a53953b882cf6b13a8f0a6e9bf5c4fb",
+    "mtime": 1779105498.009188,
+    "ast_hash": "50f4dde998d1ea88214b56787be3aed2",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\memory\\decisions.md": {
-    "mtime": 1779102434.8570573,
-    "ast_hash": "0b28787cf2d0ef833493d052a2a2a572",
+    "mtime": 1779105634.3779886,
+    "ast_hash": "a91a3fdda978fb5d598e3fbc59af668a",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\memory\\flags.md": {
-    "mtime": 1779102434.8591385,
-    "ast_hash": "0ccaae02035801ca314b35ccb2321ecc",
+    "mtime": 1779105647.088631,
+    "ast_hash": "5a13a17c900f60ea4a743df39484a5b8",
     "semantic_hash": ""
   },
   "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\CLAUDE.md": {
@@ -1082,6 +1082,71 @@
   "D:\\college\\Projects\\RealChain\\Real-Chain\\ui-ux-pro-max-skill\\screenshots\\website.png": {
     "mtime": 1779101813.0914462,
     "ast_hash": "e31f3d6be53491d545dbfad528e7fa7b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\.codex\\hooks.json": {
+    "mtime": 1779104687.5085595,
+    "ast_hash": "ab3fba57f16c671bd1626f854000ac61",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\ActivityFeed.jsx": {
+    "mtime": 1779104910.922855,
+    "ast_hash": "45ac51a34ba75fb528116deb2707160e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\ConnectGate.jsx": {
+    "mtime": 1779104928.5194676,
+    "ast_hash": "c4ee920815d4008ee5e8ccc7c001cb0b",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\CostBanner.jsx": {
+    "mtime": 1779104892.0779915,
+    "ast_hash": "5773013e05e4f2b738100de8c7617404",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\FaucetPanel.jsx": {
+    "mtime": 1779104925.5113416,
+    "ast_hash": "a78f9ec2a44cad7ccd0a7c865530960f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\Icon.jsx": {
+    "mtime": 1779104647.3598442,
+    "ast_hash": "4124d1d3b2c7dfaad0ff8d0538385191",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\Logo.jsx": {
+    "mtime": 1779104657.0209255,
+    "ast_hash": "e2fe2671f587334abb8eb7aa8bc2e2e4",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\Switch.jsx": {
+    "mtime": 1779104879.130314,
+    "ast_hash": "02f925f90f70f84d1d402123830e64cd",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\Toast.jsx": {
+    "mtime": 1779104847.6288795,
+    "ast_hash": "46f8f1e30811d30b5b8ec9995e6fc69e",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\components\\UGFBadge.jsx": {
+    "mtime": 1779104867.2351644,
+    "ast_hash": "2338ff9d398387829d590f704184ed8f",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\context\\UGFContext.jsx": {
+    "mtime": 1779104863.74677,
+    "ast_hash": "094d6b8761baecfc68f8cbba4d22d192",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\InvestorDashboard.jsx": {
+    "mtime": 1779104978.410623,
+    "ast_hash": "cdaba4745daf45c873060900814e90fd",
+    "semantic_hash": ""
+  },
+  "D:\\college\\Projects\\RealChain\\Real-Chain\\frontend\\src\\pages\\OwnerDashboard.jsx": {
+    "mtime": 1779105114.1504376,
+    "ast_hash": "3a32b0411a157411ce9846815ddb53a7",
     "semantic_hash": ""
   }
 }

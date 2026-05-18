@@ -1,39 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
-import { MARKETPLACE_ABI, PROPERTY_TOKEN_ABI, RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import { useUGF } from "../context/UGFContext";
+import { useToast } from "../components/Toast";
+import Icon from "../components/Icon";
+import UGFBadge from "../components/UGFBadge";
+import CostBanner from "../components/CostBanner";
+import { MARKETPLACE_ABI } from "../config/contracts";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Property — primary + secondary market for a single property.
+// All state-changing calls route through ugfExecute so gas is paid in Mock USD.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Property() {
   const { id } = useParams();
   const navigate = useNavigate();
   const {
-    signer, account, connect,
+    account, connect,
     getReadFactory, getReadPropertyContracts,
-    getFactory, getPropertyContracts, getUsdc,
-    fmtUsdc, fmtProp, fmtAddr, fmtInr,
-    refreshUsdcBalance,
+    getPropertyContracts, getUsdc,
+    fmtUsdc, fmtProp, fmtAddr, fmtInr, refreshUsdcBalance,
   } = useWeb3();
+  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { toast } = useToast();
 
-  const [prop, setProp]               = useState(null);
+  const [prop, setProp] = useState(null);
   const [pricePerToken, setPricePerToken] = useState(0n);
-  const [ownerBalance, setOwnerBalance]   = useState(0n);
-  const [myBalance, setMyBalance]         = useState(0n);
-  const [listings, setListings]           = useState([]);
-  const [buyAmount, setBuyAmount]         = useState("");
-  const [loading, setLoading]             = useState(true);
-  const [loadError, setLoadError]         = useState(null);
-  const [txStatus, setTxStatus]           = useState(null);
-  const [txMsg, setTxMsg]                 = useState("");
+  const [ownerBalance, setOwnerBalance] = useState(0n);
+  const [myBalance, setMyBalance] = useState(0n);
+  const [listings, setListings] = useState([]);
+  const [buyAmount, setBuyAmount] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [busy, setBusy] = useState(null); // null | "primary" | "listing-N"
 
-  // Load read-only data (no wallet needed)
   useEffect(() => { loadReadOnly(); }, [id]);
-  // Load wallet-specific data (my balance) when account changes
   useEffect(() => { if (account && prop) loadMyBalance(); }, [account, prop]);
 
   async function loadReadOnly() {
-    setLoading(true);
-    setLoadError(null);
+    setLoading(true); setLoadError(null);
     try {
       const factory = getReadFactory();
       const p = await factory.properties(Number(id));
@@ -45,15 +52,14 @@ export default function Property() {
         marketplace: p.marketplace,
       });
 
-      const [price, ownerBal] = await Promise.all([
+      const [price, ownerBal, count] = await Promise.all([
         market.pricePerToken(),
         token.balanceOf(p.owner),
+        market.getListingCount(),
       ]);
       setPricePerToken(price);
       setOwnerBalance(ownerBal);
 
-      // Load secondary listings
-      const count = await market.getListingCount();
       const ls = [];
       for (let i = 0; i < Number(count); i++) {
         const [seller, amount, price_, active] = await market.getListing(i);
@@ -62,7 +68,7 @@ export default function Property() {
       setListings(ls);
     } catch (e) {
       console.error(e);
-      setLoadError("Failed to load property. Is the Hardhat node running?");
+      setLoadError("Failed to load property. Check the network and try again.");
     } finally {
       setLoading(false);
     }
@@ -83,19 +89,15 @@ export default function Property() {
   async function handleBuyFromOwner() {
     if (!account) { connect(); return; }
     if (!buyAmount || Number(buyAmount) <= 0) return;
-    const amount = BigInt(buyAmount);
-    const cost   = amount * pricePerToken;
-    setTxStatus("pending"); setTxMsg("Approving USDC…");
+    const amount = BigInt(Math.floor(Number(buyAmount)));
+    const cost = amount * pricePerToken;
+    setBusy("primary");
     try {
       const usdc = getUsdc();
+      toast.info("Approving USDC…", { msg: "First of two confirmations." });
       await (await usdc.approve(prop.marketplace, cost)).wait();
-      setTxMsg("Buying tokens…");
-      const { market } = getPropertyContracts({
-        propertyToken: prop.propertyToken,
-        rentalDistribution: prop.rentalDistribution,
-        marketplace: prop.marketplace,
-      });
-      // Owner must have approved marketplace — prompt if needed
+
+      // Owner needs to have approved marketplace for the supply transfer.
       const { token } = getPropertyContracts({
         propertyToken: prop.propertyToken,
         rentalDistribution: prop.rentalDistribution,
@@ -103,175 +105,209 @@ export default function Property() {
       });
       const ownerAllowance = await token.allowance(prop.owner, prop.marketplace);
       if (ownerAllowance < amount * BigInt(1e18)) {
-        setTxMsg("Owner must approve marketplace. Approving…");
+        toast.info("Owner approval pending…", { msg: "Approving the marketplace as the property owner." });
         await (await token.approve(prop.marketplace, ethers.MaxUint256)).wait();
       }
-      await (await market.buyFromOwner(amount)).wait();
-      setTxStatus("success"); setTxMsg(`Bought ${buyAmount} PROP!`);
+
+      const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromOwner", [amount]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+
+      logTx({
+        txHash, type: "buy",
+        propertyId: Number(id),
+        amount: Number(cost) / 1e6,
+        tokenAmount: Number(amount),
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+      });
+
+      toast.success("Tokens purchased", { msg: `+${buyAmount} PROP at ${fmtUsdc(pricePerToken)} each.` });
       setBuyAmount("");
       await loadReadOnly();
       await loadMyBalance();
       refreshUsdcBalance();
     } catch (e) {
-      setTxStatus("error");
-      setTxMsg(e.reason || e.message || "Transaction failed");
+      const msg = e?.reason || e?.message || "Transaction failed";
+      toast.error("Buy failed", { msg: msg.slice(0, 180) });
+    } finally {
+      setBusy(null);
     }
   }
 
   async function handleBuyFromListing(listing) {
     if (!account) { connect(); return; }
     const cost = (listing.amount * listing.price) / BigInt(1e18);
-    setTxStatus("pending"); setTxMsg("Approving USDC…");
+    setBusy(`listing-${listing.id}`);
     try {
       const usdc = getUsdc();
+      toast.info("Approving USDC…", { msg: "First of two confirmations." });
       await (await usdc.approve(prop.marketplace, cost)).wait();
-      const { market } = getPropertyContracts({
-        propertyToken: prop.propertyToken,
-        rentalDistribution: prop.rentalDistribution,
-        marketplace: prop.marketplace,
+
+      const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromListing", [listing.id]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+
+      logTx({
+        txHash, type: "buy",
+        propertyId: Number(id),
+        amount: Number(cost) / 1e6,
+        tokenAmount: Number(ethers.formatEther(listing.amount)),
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
       });
-      setTxMsg("Buying from listing…");
-      await (await market.buyFromListing(listing.id)).wait();
-      setTxStatus("success"); setTxMsg("Purchase complete!");
+
+      toast.success("Listing purchased", { msg: `${fmtProp(listing.amount)} PROP from ${fmtAddr(listing.seller)}.` });
       await loadReadOnly();
       await loadMyBalance();
       refreshUsdcBalance();
     } catch (e) {
-      setTxStatus("error");
-      setTxMsg(e.reason || e.message || "Transaction failed");
+      const msg = e?.reason || e?.message || "Transaction failed";
+      toast.error("Purchase failed", { msg: msg.slice(0, 180) });
+    } finally {
+      setBusy(null);
     }
   }
 
-  if (loading) return (
-    <div className="container">
-      <div className="empty-state" style={{ marginTop: 80 }}>
-        <div className="spinner" style={{ width: 40, height: 40, margin: "0 auto 16px" }} />
-        <p>Loading property data…</p>
+  if (loading) {
+    return (
+      <div className="container reveal">
+        <div className="skeleton" style={{ height: 220, marginTop: 24, marginBottom: 24 }} />
+        <div className="skeleton" style={{ height: 320 }} />
       </div>
-    </div>
-  );
+    );
+  }
 
-  if (loadError) return (
-    <div className="container">
-      <div className="empty-state" style={{ marginTop: 80 }}>
-        <div className="icon">❌</div>
-        <h3>Failed to load property</h3>
-        <p>{loadError}</p>
-        <button className="btn btn-secondary" style={{ marginTop: 16 }} onClick={() => navigate("/")}>← Back</button>
+  if (loadError) {
+    return (
+      <div className="container">
+        <div className="empty-state">
+          <span className="emoji"><Icon name="alert" size={28} /></span>
+          <h3>Failed to load property</h3>
+          <p>{loadError}</p>
+          <button className="btn btn-secondary mt-6" onClick={() => navigate("/")}>
+            <Icon name="arrowRight" size={13} style={{ transform: "rotate(180deg)" }} /> Back to marketplace
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  const buyTotal = buyAmount && pricePerToken
+    ? BigInt(Math.floor(Number(buyAmount))) * pricePerToken
+    : 0n;
 
   return (
-    <div className="container" style={{ maxWidth: 900 }}>
-      <button className="btn btn-secondary btn-sm" style={{ marginTop: 24, marginBottom: 24 }} onClick={() => navigate("/")}>
-        ← Back to Properties
+    <div className="container-narrow reveal">
+      <button className="btn btn-ghost btn-sm" style={{ marginBottom: 18 }} onClick={() => navigate("/")}>
+        <Icon name="arrowRight" size={12} style={{ transform: "rotate(180deg)" }} /> Marketplace
       </button>
 
-      {/* Property Header */}
-      <div className="card" style={{ marginBottom: 24 }}>
+      {/* Hero */}
+      <div className="card card-elevated" style={{ marginBottom: 24 }}>
         <div className="card-body">
-          <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+          <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 16 }}>
             <div>
-              <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>{prop?.name}</h1>
-              <p className="text-muted">📍 {prop?.location}</p>
+              <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 4 }}>{prop?.name}</h1>
+              <div className="text-muted" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Icon name="pin" size={14} /> {prop?.location}
+              </div>
             </div>
-            <span className="property-badge">● Live</span>
+            <div className="flex gap-2 items-center flex-wrap">
+              <span className="badge badge-success"><span className="status-dot" /> Live</span>
+              <span className="badge badge-accent"><Icon name="layers" size={11} /> ERC-20</span>
+              <span className="badge badge-muted font-mono">#{prop?.propertyToken?.slice(2, 6) || "—"}</span>
+            </div>
           </div>
+
           <div className="stats-row">
             <div className="stat-card">
-              <div className="stat-label">Valuation</div>
+              <div className="stat-label"><Icon name="coins" size={11} /> Valuation</div>
               <div className="stat-value gold" style={{ fontSize: 20 }}>{fmtInr(prop?.valueInr || 0)}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">Price / Token</div>
+              <div className="stat-label"><Icon name="dollar" size={11} /> Price / token</div>
               <div className="stat-value accent" style={{ fontSize: 20 }}>{fmtUsdc(pricePerToken)}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">Owner Supply Left</div>
-              <div className="stat-value" style={{ fontSize: 20 }}>{fmtProp(ownerBalance)} PROP</div>
+              <div className="stat-label"><Icon name="layers" size={11} /> Owner supply</div>
+              <div className="stat-value" style={{ fontSize: 20 }}>{fmtProp(ownerBalance)}</div>
+              <div className="stat-meta">PROP available</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">My Balance</div>
+              <div className="stat-label"><Icon name="briefcase" size={11} /> My balance</div>
               <div className="stat-value success" style={{ fontSize: 20 }}>
-                {account ? `${fmtProp(myBalance)} PROP` : "—"}
+                {account ? fmtProp(myBalance) : "—"}
               </div>
+              <div className="stat-meta">{account ? "PROP held" : "connect to view"}</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Wallet connect prompt (inline — doesn't block the page) */}
-      {!account && (
-        <div className="banner banner-info" style={{ marginBottom: 24 }}>
-          <span>🔌</span>
-          <span>
-            Connect MetaMask to buy tokens.{" "}
-            <button onClick={connect} style={{ background: "none", border: "none", color: "inherit", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
-              Connect now →
-            </button>
-          </span>
-        </div>
-      )}
-
-      {/* Tx Status Banner */}
-      {txStatus && (
-        <div className={`banner banner-${txStatus === "success" ? "success" : txStatus === "pending" ? "info" : "danger"}`} style={{ marginBottom: 24 }}>
-          {txStatus === "pending" && <div className="spinner" style={{ width: 16, height: 16, flexShrink: 0 }} />}
-          <span>{txMsg}</span>
-          {txStatus !== "pending" && (
-            <button onClick={() => setTxStatus(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "inherit" }}>✕</button>
-          )}
-        </div>
-      )}
-
-      {/* Primary Market */}
+      {/* Primary market */}
       <div className="section">
-        <h2 className="section-title">Primary Market — Buy From Owner</h2>
+        <h2 className="section-title"><Icon name="send" size={14} /> Primary market — buy from owner</h2>
         <div className="card">
           <div className="card-body">
-            <p className="text-muted" style={{ marginBottom: 20, fontSize: 14 }}>
-              Buy directly from the property owner at the fixed price. Tokens represent fractional ownership and entitle you to rental dividends.
+            <p className="text-sm text-secondary" style={{ marginBottom: 18 }}>
+              Buy directly from the property owner at the fixed listing price. Tokens entitle you to a pro-rata share of all future rent deposits.
             </p>
-            <div className="flex gap-12 items-center" style={{ flexWrap: "wrap" }}>
+
+            <div className="flex gap-3 items-end flex-wrap">
               <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
                 <label className="form-label">Tokens to buy</label>
                 <input
                   className="form-input"
-                  type="number" min="1"
+                  type="number"
+                  min="1"
                   placeholder="e.g. 5"
                   value={buyAmount}
-                  onChange={e => setBuyAmount(e.target.value)}
+                  onChange={(e) => setBuyAmount(e.target.value)}
                 />
               </div>
-              <div style={{ paddingTop: 24 }}>
-                <div className="text-muted text-sm" style={{ marginBottom: 8 }}>Total cost</div>
-                <div style={{ fontWeight: 700, fontSize: 20, color: "var(--gold)" }}>
-                  {buyAmount ? fmtUsdc(BigInt(Math.floor(Number(buyAmount))) * pricePerToken) : "$0.00"}
+              <div style={{ minWidth: 160 }}>
+                <div className="form-label" style={{ marginBottom: 4 }}>Total cost</div>
+                <div style={{ fontWeight: 800, fontSize: 22, color: "var(--amber-400)", lineHeight: 1.2, fontFeatureSettings: "'tnum' on" }}>
+                  {buyAmount ? fmtUsdc(buyTotal) : "$0.00"}
                 </div>
               </div>
             </div>
+
             <button
-              className="btn btn-primary btn-full"
-              style={{ marginTop: 20 }}
+              className="btn btn-primary btn-lg btn-full"
+              style={{ marginTop: 18 }}
               onClick={handleBuyFromOwner}
-              disabled={txStatus === "pending"}
+              disabled={busy === "primary" || !account || !buyAmount}
             >
-              {!account ? "Connect Wallet to Buy" : txStatus === "pending" ? "Processing…" : "Buy Tokens"}
+              {!account
+                ? <><Icon name="wallet" size={14} /> Connect wallet to buy</>
+                : busy === "primary"
+                  ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 1.5 }} /> Processing…</>
+                  : <><Icon name="bolt" size={14} /> Buy {buyAmount || ""} PROP</>}
             </button>
+
+            {account && buyAmount && (
+              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                <UGFBadge />
+                <CostBanner
+                  target={prop.marketplace}
+                  abi={MARKETPLACE_ABI}
+                  fnName="buyFromOwner"
+                  args={[BigInt(Math.floor(Number(buyAmount || "0")))]}
+                  estimate={140_000n}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Secondary Market */}
+      {/* Secondary market */}
       <div className="section">
-        <h2 className="section-title">Secondary Market — Peer-to-Peer Listings</h2>
+        <h2 className="section-title"><Icon name="users" size={14} /> Secondary market — peer listings</h2>
         {listings.length === 0 ? (
           <div className="card">
             <div className="empty-state" style={{ padding: 40 }}>
-              <div className="icon" style={{ fontSize: 32 }}>📋</div>
+              <span className="emoji" style={{ width: 56, height: 56 }}><Icon name="list" size={20} /></span>
               <h3>No active listings</h3>
-              <p>Go to <strong>Portfolio</strong> to list your tokens for sale.</p>
+              <p>Visit the <Link to="/portfolio" style={{ color: "var(--violet-300)" }}>Portfolio</Link> page to list your tokens.</p>
             </div>
           </div>
         ) : (
@@ -279,20 +315,31 @@ export default function Property() {
             <div className="table-wrap">
               <table>
                 <thead>
-                  <tr><th>Seller</th><th>Amount</th><th>Price / Token</th><th>Total</th><th>Action</th></tr>
+                  <tr>
+                    <th>Seller</th>
+                    <th>Amount</th>
+                    <th>Price / token</th>
+                    <th>Total</th>
+                    <th aria-label="Action" />
+                  </tr>
                 </thead>
                 <tbody>
-                  {listings.map(l => {
+                  {listings.map((l) => {
                     const total = (l.amount * l.price) / BigInt(1e18);
+                    const id = `listing-${l.id}`;
                     return (
                       <tr key={l.id}>
                         <td className="font-mono text-sm">{fmtAddr(l.seller)}</td>
                         <td><span className="badge badge-accent">{fmtProp(l.amount)} PROP</span></td>
                         <td>{fmtUsdc(l.price)}</td>
-                        <td style={{ fontWeight: 700, color: "var(--gold)" }}>{fmtUsdc(total)}</td>
+                        <td className="font-bold" style={{ color: "var(--amber-400)" }}>{fmtUsdc(total)}</td>
                         <td>
-                          <button className="btn btn-success btn-sm" onClick={() => handleBuyFromListing(l)} disabled={txStatus === "pending"}>
-                            {account ? "Buy" : "Connect"}
+                          <button
+                            className="btn btn-success btn-sm"
+                            onClick={() => handleBuyFromListing(l)}
+                            disabled={busy === id}
+                          >
+                            {busy === id ? <span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> : <><Icon name="bolt" size={11} /> Buy</>}
                           </button>
                         </td>
                       </tr>
@@ -300,6 +347,9 @@ export default function Property() {
                   })}
                 </tbody>
               </table>
+            </div>
+            <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)" }}>
+              <UGFBadge />
             </div>
           </div>
         )}

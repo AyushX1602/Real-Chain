@@ -1,20 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
+import { useUGF } from "../context/UGFContext";
+import { useToast } from "../components/Toast";
+import Icon from "../components/Icon";
+import UGFBadge from "../components/UGFBadge";
+import ConnectGate from "../components/ConnectGate";
 import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 
-export default function Dividends() {
-  const { account, connect, getReadFactory, getReadPropertyContracts, getPropertyContracts, getUsdc, fmtUsdc, fmtProp, refreshUsdcBalance } = useWeb3();
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading]       = useState(true);
+// ─────────────────────────────────────────────────────────────────────────────
+// "Claim Rent" page — granular per-property view (replaces the old Dividends).
+// Route stays /dividends so old links still resolve (per Requirement 11.2).
+// All visible labels read "Claim Rent" / "Rent" — Requirement 11.1.
+// ─────────────────────────────────────────────────────────────────────────────
 
-  useEffect(() => { load(); }, [account]);
+export default function Dividends() {
+  const { account, getReadFactory, getReadPropertyContracts, getUsdc, fmtUsdc, fmtProp, refreshUsdcBalance } = useWeb3();
+  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { toast } = useToast();
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { if (account) load(); else { setLoading(false); setProperties([]); } }, [account]);
 
   async function load() {
     setLoading(true);
     try {
       const factory = getReadFactory();
-      const count   = Number(await factory.getPropertiesCount());
+      const count = Number(await factory.getPropertiesCount());
       const ps = [];
       for (let i = 0; i < count; i++) {
         const p = await factory.properties(i);
@@ -28,29 +42,25 @@ export default function Dividends() {
         const epochs = [];
         for (let j = 0; j < epochCount; j++) {
           const [total, , ts] = await rental.getEpoch(j);
-          let isClaimed = false;
-          if (account) isClaimed = await rental.claimed(j, account);
+          const isClaimed = await rental.claimed(j, account);
           epochs.push({ id: j, total, ts: Number(ts), isClaimed });
         }
 
-        let pending = 0n;
-        let balance = 0n;
-        if (account) {
-          [pending, balance] = await Promise.all([
-            rental.pendingDividends(account),
-            token.balanceOf(account),
-          ]);
-        }
+        const [pending, balance] = await Promise.all([
+          rental.pendingDividends(account),
+          token.balanceOf(account),
+        ]);
 
         ps.push({
           propId: i, prop: p, pending, balance,
           epochCount, epochs,
-          isOwner: account && p.owner.toLowerCase() === account.toLowerCase(),
+          isOwner: p.owner.toLowerCase() === account.toLowerCase(),
         });
       }
       setProperties(ps);
     } catch (e) {
       console.error(e);
+      toast.error("Could not load rent history", { msg: "Check the network and try again." });
     } finally {
       setLoading(false);
     }
@@ -58,197 +68,221 @@ export default function Dividends() {
 
   const totalPending = properties.reduce((s, p) => s + p.pending, 0n);
 
-  if (loading) return (
-    <div className="container">
-      <div className="empty-state" style={{ marginTop: 64 }}>
-        <div className="spinner" style={{ width: 36, height: 36, margin: "0 auto 16px" }} />
-        <p>Loading dividend data…</p>
-      </div>
-    </div>
-  );
+  if (!account) {
+    return (
+      <ConnectGate
+        title="Connect to claim your rent"
+        message="Sign in with MetaMask to see pending rent across every property you hold tokens for."
+      />
+    );
+  }
 
   return (
-    <div className="container">
-      <div className="page-header" style={{ marginTop: 32 }}>
-        <h1>💰 Dividends</h1>
-        <p>Claim your proportional share of rental income. Calculated from your token balance at the time of each deposit.</p>
-      </div>
-
-      {/* Global pending */}
-      <div className="card" style={{ marginBottom: 32, background: "linear-gradient(135deg, rgba(124,110,250,0.1), rgba(245,158,11,0.08))", border: "1px solid rgba(124,110,250,0.2)" }}>
-        <div className="card-body" style={{ textAlign: "center", padding: 32 }}>
-          <div className="stat-label" style={{ marginBottom: 8, fontSize: 14 }}>Total Pending Dividends</div>
-          <div style={{ fontSize: 48, fontWeight: 800, color: "var(--gold)", marginBottom: 4 }}>
-            {account ? fmtUsdc(totalPending) : "—"}
+    <div className="container reveal">
+      <div className="page-header">
+        <div className="page-header-row">
+          <div>
+            <h1>Claim <span className="accent">rent</span></h1>
+            <p>Per-property breakdown of every rent epoch — claim individually or use the dashboard hero for one-tap claim-all.</p>
           </div>
-          <div className="text-muted text-sm">Across {properties.length} properties</div>
+          <Link to="/investor" className="btn btn-secondary btn-sm">
+            <Icon name="grid" size={12} /> One-tap claim-all <Icon name="arrowRight" size={11} />
+          </Link>
         </div>
       </div>
 
-      {!account && (
-        <div className="banner banner-info" style={{ marginBottom: 24 }}>
-          <span>🔌</span>
-          <span>
-            Connect MetaMask to see your pending dividends and claim them.{" "}
-            <button onClick={connect} style={{ background: "none", border: "none", color: "inherit", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
-              Connect now →
-            </button>
-          </span>
+      {/* Hero KPI */}
+      <div className="hero-kpi" style={{ marginBottom: 32 }}>
+        <div className="hero-kpi-label">Total pending rent</div>
+        <div className="hero-kpi-value">{fmtUsdc(totalPending)}</div>
+        <div className="hero-kpi-meta">Across {properties.length} {properties.length === 1 ? "property" : "properties"}</div>
+      </div>
+
+      {loading ? (
+        <div style={{ display: "grid", gap: 16 }}>
+          {[0, 1].map((i) => <div key={i} className="skeleton" style={{ height: 240 }} />)}
         </div>
-      )}
-
-      {properties.map(p => (
-        <PropertyDividendCard key={p.propId} data={p} fmtUsdc={fmtUsdc} fmtProp={fmtProp}
-          getPropertyContracts={getPropertyContracts} getUsdc={getUsdc}
-          onRefresh={load} refreshUsdcBalance={refreshUsdcBalance} account={account} />
-      ))}
-
-      {properties.length === 0 && (
+      ) : properties.length === 0 ? (
         <div className="empty-state">
-          <div className="icon">📭</div>
-          <h3>No properties found</h3>
-          <p>Deploy contracts and create properties first.</p>
+          <span className="emoji"><Icon name="receipt" size={28} /></span>
+          <h3>No properties yet</h3>
+          <p>Once a property is deployed and you hold tokens, rent will show up here.</p>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 18 }}>
+          {properties.map((p) => (
+            <RentCard
+              key={p.propId}
+              data={p}
+              fmtUsdc={fmtUsdc}
+              fmtProp={fmtProp}
+              ugfExecute={ugfExecute}
+              isUGFEnabled={isUGFEnabled}
+              logTx={logTx}
+              getUsdc={getUsdc}
+              onRefresh={load}
+              refreshUsdcBalance={refreshUsdcBalance}
+              toast={toast}
+            />
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-function PropertyDividendCard({ data, fmtUsdc, fmtProp, getPropertyContracts, getUsdc, onRefresh, refreshUsdcBalance, account }) {
-  const { prop, balance, pending, epochCount, epochs, isOwner } = data;
-  const [txStatus, setTxStatus]     = useState(null);
-  const [txMsg, setTxMsg]           = useState("");
+function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, isUGFEnabled, logTx, getUsdc, onRefresh, refreshUsdcBalance, toast }) {
+  const { prop, balance, pending, epochCount, epochs, isOwner, propId } = data;
+  const [busy, setBusy] = useState(null); // null | "claim" | "deposit"
   const [depositAmt, setDepositAmt] = useState("");
+  const hasPending = pending > 0n;
 
-  function getRw() {
-    return getPropertyContracts({
-      propertyToken: prop.propertyToken,
-      rentalDistribution: prop.rentalDistribution,
-      marketplace: prop.marketplace,
-    });
-  }
-
-  async function handleClaimAll() {
-    setTxStatus("pending"); setTxMsg("Claiming dividends…");
+  async function handleClaim() {
+    setBusy("claim");
     try {
-      const { rental } = getRw();
-      await (await rental.claimAll()).wait();
-      setTxStatus("success"); setTxMsg(`Claimed ${fmtUsdc(pending)} USDC!`);
+      const receipt = await ugfExecute(prop.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "claimAll", []);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+      logTx({
+        txHash, type: "claim",
+        propertyId: propId,
+        amount: Number(pending) / 1e6,
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+      });
+      toast.success("Rent claimed", { msg: `${fmtUsdc(pending)} arrived in your wallet.` });
       onRefresh(); refreshUsdcBalance();
     } catch (e) {
-      setTxStatus("error"); setTxMsg(e.reason || e.message || "Claim failed");
+      toast.error("Claim failed", { msg: (e.reason || e.message || "").slice(0, 180) });
+    } finally {
+      setBusy(null);
     }
   }
 
   async function handleDeposit() {
+    if (!depositAmt) return;
     const amt = BigInt(Math.floor(parseFloat(depositAmt) * 1e6));
-    setTxStatus("pending"); setTxMsg("Approving USDC…");
+    setBusy("deposit");
     try {
       const usdc = getUsdc();
+      toast.info("Approving USDC…", { msg: "First of two confirmations." });
       await (await usdc.approve(prop.rentalDistribution, amt)).wait();
-      setTxMsg("Depositing rental income…");
-      const { rental } = getRw();
-      await (await rental.depositRental(amt)).wait();
-      setTxStatus("success"); setTxMsg(`Deposited ${fmtUsdc(amt)}!`);
-      setDepositAmt(""); onRefresh();
+
+      const receipt = await ugfExecute(prop.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [amt]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+      logTx({
+        txHash, type: "deposit",
+        propertyId: propId,
+        amount: parseFloat(depositAmt),
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+      });
+      toast.success("Rent deposited", { msg: `${fmtUsdc(amt)} added to a new epoch.` });
+      setDepositAmt("");
+      onRefresh();
     } catch (e) {
-      setTxStatus("error"); setTxMsg(e.reason || e.message || "Deposit failed");
+      toast.error("Deposit failed", { msg: (e.reason || e.message || "").slice(0, 180) });
+    } finally {
+      setBusy(null);
     }
   }
 
   return (
-    <div className="card" style={{ marginBottom: 24 }}>
+    <div className="card card-elevated">
       <div className="card-body">
         {/* Header */}
-        <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
+        <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 16 }}>
           <div>
-            <h2 style={{ fontSize: 20, fontWeight: 700 }}>{prop.name}</h2>
-            <p className="text-muted text-sm">📍 {prop.location}</p>
+            <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em" }}>{prop.name}</h2>
+            <div className="text-xs text-muted" style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+              <Icon name="pin" size={12} /> {prop.location}
+            </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--gold)" }}>
-              {account ? fmtUsdc(pending) : "—"}
+            <div style={{ fontSize: 22, fontWeight: 800, color: hasPending ? "var(--amber-400)" : "var(--fg-muted)", letterSpacing: "-0.01em", fontFeatureSettings: "'tnum' on" }}>
+              {fmtUsdc(pending)}
             </div>
-            <div className="text-sm text-muted">pending</div>
+            <div className="text-xs text-muted">pending</div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="stats-row" style={{ marginBottom: 20 }}>
+        {/* Quick stats */}
+        <div className="stats-row" style={{ marginBottom: 16 }}>
           <div className="stat-card">
-            <div className="stat-label">My Tokens</div>
-            <div className="stat-value accent" style={{ fontSize: 20 }}>{account ? fmtProp(balance) : "—"}</div>
+            <div className="stat-label">My tokens</div>
+            <div className="stat-value accent" style={{ fontSize: 18 }}>{fmtProp(balance)}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Total Epochs</div>
-            <div className="stat-value" style={{ fontSize: 20 }}>{epochCount}</div>
+            <div className="stat-label">Total epochs</div>
+            <div className="stat-value" style={{ fontSize: 18 }}>{epochCount}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">Claimable</div>
-            <div className="stat-value success" style={{ fontSize: 20 }}>
-              {account ? fmtUsdc(pending) : "—"}
-            </div>
+            <div className="stat-label">Claimable now</div>
+            <div className="stat-value gold" style={{ fontSize: 18 }}>{fmtUsdc(pending)}</div>
           </div>
         </div>
 
-        {/* Tx Banner */}
-        {txStatus && (
-          <div className={`banner banner-${txStatus === "success" ? "success" : txStatus === "pending" ? "info" : "danger"}`} style={{ marginBottom: 16 }}>
-            {txStatus === "pending" && <div className="spinner" style={{ width: 14, height: 14, flexShrink: 0 }} />}
-            <span>{txMsg}</span>
+        {/* Claim CTA */}
+        {hasPending && (
+          <div className="flex items-center gap-3 flex-wrap" style={{ marginBottom: 16 }}>
+            <button className="btn btn-primary" onClick={handleClaim} disabled={busy === "claim"}>
+              {busy === "claim"
+                ? <><span className="spinner" style={{ width: 13, height: 13, borderWidth: 1.5 }} /> Claiming…</>
+                : <><Icon name="bolt" size={13} /> Claim {fmtUsdc(pending)}</>}
+            </button>
+            <UGFBadge />
           </div>
         )}
 
-        {/* Claim button */}
-        {account && pending > 0n && (
-          <button className="btn btn-primary btn-full" style={{ marginBottom: 20 }}
-            onClick={handleClaimAll} disabled={txStatus === "pending"}>
-            💰 Claim All — {fmtUsdc(pending)}
-          </button>
-        )}
-
-        {/* Owner: Deposit Rental */}
+        {/* Owner-only deposit */}
         {isOwner && (
-          <div style={{ background: "var(--bg-elevated)", borderRadius: "var(--radius-md)", padding: 16, marginBottom: 20 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>🏦 Deposit Rental Income (Owner Only)</h3>
-            <div className="flex gap-12 items-center">
-              <div className="form-group" style={{ flex: 1 }}>
+          <div style={{
+            padding: 16,
+            background: "var(--bg-elevated)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border)",
+            marginBottom: 16,
+          }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon name="star" size={12} className="text-gold" /> Owner — deposit rent
+            </h3>
+            <div className="flex gap-3 items-end flex-wrap">
+              <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
                 <label className="form-label">USDC amount</label>
-                <input className="form-input" type="number" min="1" step="0.01" placeholder="500.00"
-                  value={depositAmt} onChange={e => setDepositAmt(e.target.value)} />
+                <div className="form-input-prefix">
+                  <span className="prefix">$</span>
+                  <input className="form-input" type="number" min="0" step="0.01" placeholder="500.00"
+                    value={depositAmt} onChange={(e) => setDepositAmt(e.target.value)} />
+                </div>
               </div>
-              <div style={{ paddingTop: 24 }}>
-                <button className="btn btn-secondary" onClick={handleDeposit}
-                  disabled={!depositAmt || txStatus === "pending"}>Deposit</button>
-              </div>
+              <button className="btn btn-secondary" onClick={handleDeposit} disabled={!depositAmt || busy === "deposit"}>
+                {busy === "deposit" ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Depositing…</> : <>Deposit</>}
+              </button>
             </div>
           </div>
         )}
 
-        {/* Epoch History */}
+        {/* Epoch history */}
         {epochCount > 0 && (
           <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>📊 Epoch History</h3>
-            <div className="table-wrap">
+            <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: "var(--fg-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <Icon name="history" size={12} style={{ verticalAlign: -2, marginRight: 6 }} /> Rent history
+            </h3>
+            <div className="table-wrap" style={{ background: "var(--bg-elevated)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
               <table>
                 <thead>
-                  <tr><th>#</th><th>Deposit Amount</th><th>Date</th><th>Status</th></tr>
+                  <tr><th>#</th><th>Amount</th><th>Date</th><th>Status</th></tr>
                 </thead>
                 <tbody>
-                  {epochs.map(e => (
+                  {epochs.map((e) => (
                     <tr key={e.id}>
                       <td className="text-muted text-sm">#{e.id}</td>
-                      <td style={{ fontWeight: 600 }}>{fmtUsdc(e.total)}</td>
+                      <td className="font-bold" style={{ color: "var(--amber-400)" }}>{fmtUsdc(e.total)}</td>
                       <td className="text-muted text-sm">
                         {new Date(e.ts * 1000).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
                       <td>
-                        {!account ? (
-                          <span className="badge badge-muted">—</span>
-                        ) : balance === 0n ? (
-                          <span className="badge badge-muted">No Holdings</span>
+                        {balance === 0n ? (
+                          <span className="badge badge-muted">No holdings</span>
                         ) : e.isClaimed ? (
-                          <span className="badge badge-success">✓ Claimed</span>
+                          <span className="badge badge-success"><Icon name="check" size={10} /> Claimed</span>
                         ) : (
                           <span className="badge badge-gold">Pending</span>
                         )}
