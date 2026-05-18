@@ -530,27 +530,40 @@ function HeroIllustration() {
         <rect x="345" y="265" width="20" height="30" rx="3" />
         <rect x="380" y="265" width="20" height="30" rx="3" />
       </g>
+      {/* Dollar coin — clean canonical $ symbol on lime, with Positivus border */}
       <g className="lp-hero-dollar">
-        <circle cx="465" cy="240" r="60" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
-        <text x="465" y="252" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontWeight="700" fontSize="36" fill="#191A23">$</text>
+        <circle cx="465" cy="240" r="60" fill="#B9FF66" stroke="#191A23" strokeWidth="2.5" />
+        {/* Inner ring for depth */}
+        <circle cx="465" cy="240" r="50" fill="none" stroke="#191A23" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.45" />
+        {/* The $ glyph drawn as paths — vertical stem plus stylised S curves */}
+        <path
+          d="M465 207 L465 273"
+          stroke="#191A23"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M481 222 Q 481 213 472 213 L 458 213 Q 449 213 449 222 Q 449 231 458 231 L 472 231 Q 481 231 481 240 Q 481 249 472 249 L 458 249 Q 449 249 449 240"
+          fill="none"
+          stroke="#191A23"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </g>
+
+      {/* Ethereum mark — canonical double-pyramid diamond, six faces */}
       <g className="lp-hero-eth">
-        <circle cx="510" cy="340" r="36" fill="#191A23" />
-        {/* Ethereum diamond logo, centered at (510, 340) */}
-        <g fill="#B9FF66">
-          {/* Upper-left face */}
-          <polygon points="510,318 494,340 510,332" opacity="0.7" />
-          {/* Upper-right face */}
-          <polygon points="510,318 526,340 510,332" />
-          {/* Lower-left face (below middle) */}
-          <polygon points="510,332 494,340 510,348" />
-          {/* Lower-right face (below middle) */}
-          <polygon points="510,332 526,340 510,348" opacity="0.85" />
-          {/* Bottom triangle, left half */}
-          <polygon points="510,352 494,343 510,362" opacity="0.7" />
-          {/* Bottom triangle, right half */}
-          <polygon points="510,352 526,343 510,362" />
-        </g>
+        <circle cx="510" cy="340" r="40" fill="#191A23" stroke="#191A23" strokeWidth="2" />
+        {/* Upper pyramid (apex at the top) — left face slightly muted, right face solid */}
+        <polygon points="510,313 493,343 510,333"          fill="#B9FF66" opacity="0.65" />
+        <polygon points="510,313 527,343 510,333"          fill="#B9FF66" />
+        {/* Middle band — the iconic break at the diamond's waist, both sides */}
+        <polygon points="493,343 510,333 510,353"          fill="#B9FF66" opacity="0.85" />
+        <polygon points="527,343 510,333 510,353"          fill="#B9FF66" opacity="0.55" />
+        {/* Lower pyramid (apex pointing down) — same left/right shading */}
+        <polygon points="493,347 510,357 510,372"          fill="#B9FF66" opacity="0.65" />
+        <polygon points="527,347 510,357 510,372"          fill="#B9FF66" />
       </g>
       <rect x="0" y="395" width="600" height="6" fill="#191A23" />
     </svg>
