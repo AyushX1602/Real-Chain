@@ -3,5 +3,8 @@
   "distributionMode": "v1",
   "mockUsdc": "0xc90610277191F7Dbe7Ddf18319Bd28D3aAAe9a38",
   "factory": "0xa8bb0D4923C1aBB9294cBc115c6FF81B2DaC0168",
-  "deployedAt": "2026-05-18T09:39:24.370Z"
+  "deployedAt": "2026-05-18T09:39:24.370Z",
+  "demoInvestor": "0x25e6f47Fbf5a4Fc83dE6C5D6a5dF3247Ee71c08F",
+  "demoOwner": "0xa7Fa1328E32a69C6989C4956D9C7e1f088fbBC3b",
+  "seededAt": "2026-05-18T09:57:52.649Z"
 }
