@@ -1505,19 +1505,22 @@ tr:hover td { background: var(--positivus-grey-warm); }
   will-change: transform;
 }
 @keyframes ethFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%      { transform: translateY(-10px) rotate(-3deg); }
+  0%   { transform: translateY(0)     rotate(0deg); }
+  50%  { transform: translateY(-14px) rotate(-6deg); }
+  100% { transform: translateY(0)     rotate(0deg); }
 }
 
 .lp-hero-dollar {
   transform-box: fill-box;
   transform-origin: center;
-  animation: dollarPulse 2.4s ease-in-out infinite;
+  animation: dollarFloat 4.2s ease-in-out infinite;
+  animation-delay: 0.4s;
   will-change: transform;
 }
-@keyframes dollarPulse {
-  0%, 100% { transform: scale(1)    translateY(0); }
-  50%      { transform: scale(1.06) translateY(-4px); }
+@keyframes dollarFloat {
+  0%   { transform: translateY(0)     scale(1)    rotate(0deg); }
+  50%  { transform: translateY(-10px) scale(1.04) rotate(4deg); }
+  100% { transform: translateY(0)     scale(1)    rotate(0deg); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
