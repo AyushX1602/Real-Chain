@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import { useWeb3 } from "./context/Web3Context";
 import { useUGF } from "./context/UGFContext";
@@ -33,6 +33,29 @@ function Navbar() {
   const { isUGFEnabled, setUGFEnabled } = useUGF();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const settingsWrapRef = useRef(null);
+
+  // Close the settings popover when the user clicks outside of it. Using a
+  // document-level mousedown listener instead of the gear button's onBlur is
+  // important — onBlur was firing when focus moved into form controls inside
+  // the popover (selects, inputs), which closed the popover on first click.
+  useEffect(() => {
+    if (!settingsOpen) return undefined;
+    function handleDocMouseDown(e) {
+      if (settingsWrapRef.current && !settingsWrapRef.current.contains(e.target)) {
+        setSettingsOpen(false);
+      }
+    }
+    function handleEsc(e) {
+      if (e.key === "Escape") setSettingsOpen(false);
+    }
+    document.addEventListener("mousedown", handleDocMouseDown);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleDocMouseDown);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [settingsOpen]);
 
   // Persist the connected wallet to the backend (best-effort, non-blocking).
   useEffect(() => {
@@ -95,17 +118,12 @@ function Navbar() {
               </button>
             )}
 
-            <div style={{ position: "relative" }}>
+            <div ref={settingsWrapRef} style={{ position: "relative" }}>
               <button
                 className="icon-btn"
                 aria-label="Settings"
                 aria-expanded={settingsOpen}
                 onClick={() => setSettingsOpen((s) => !s)}
-                onBlur={(e) => {
-                  if (!e.currentTarget.parentNode.contains(e.relatedTarget)) {
-                    setTimeout(() => setSettingsOpen(false), 120);
-                  }
-                }}
               >
                 <Icon name="settings" size={18} />
               </button>
@@ -153,7 +171,6 @@ function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
       role="dialog"
       aria-label="Settings"
       className="settings-popover"
-      onMouseDown={(e) => e.preventDefault()}
     >
       <div className="settings-section-head">Demo controls</div>
 
