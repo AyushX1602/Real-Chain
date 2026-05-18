@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
 import { useWeb3 } from "../context/Web3Context";
 import Icon from "../components/Icon";
 import Logo from "../components/Logo";
@@ -216,6 +217,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── Tech stack breakdown ─────────────────────────────────────────── */}
+      <TechStackSection />
+
       {/* ── CTA banner ───────────────────────────────────────────────────── */}
       <section className="section">
         <div className="lp-cta">
@@ -239,6 +243,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ── Project architecture ─────────────────────────────────────────── */}
+      <ArchitectureSection />
 
       {/* ── Stats — pulled live from /api/transactions/stats ─────────────── */}
       {stats && (
@@ -270,6 +277,9 @@ export default function Landing() {
           </div>
         </section>
       )}
+
+      {/* ── Features gallery ─────────────────────────────────────────────── */}
+      <FeaturesGallerySection />
 
       {/* ── Recent activity preview — only renders when real rows exist ──── */}
       {recent.length > 0 && (
@@ -313,6 +323,9 @@ export default function Landing() {
           </div>
         </section>
       )}
+
+      {/* ── Animated workflow ────────────────────────────────────────────── */}
+      <AnimatedWorkflowSection />
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="section" id="how-it-works">
@@ -583,6 +596,606 @@ function IlluAnalytics() {
       <circle cx="95" cy="95" r="4" fill="#191A23" />
       <circle cx="130" cy="55" r="4" fill="#191A23" />
       <circle cx="160" cy="70" r="4" fill="#191A23" />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Framer Motion helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+// <Reveal> — generic scroll-triggered fade + slide-up. Honours
+// prefers-reduced-motion automatically.
+function Reveal({ children, delay = 0, y = 24, className = "", as = "div" }) {
+  const reduce = useReducedMotion();
+  const Component = motion[as] || motion.div;
+  return (
+    <Component
+      className={className}
+      initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </Component>
+  );
+}
+
+// <Stagger> — wraps a list and staggers its children's entrance.
+function Stagger({ children, delay = 0, stagger = 0.08, className = "" }) {
+  const reduce = useReducedMotion();
+  if (reduce) {
+    return <div className={className}>{children}</div>;
+  }
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-80px" }}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: stagger, delayChildren: delay } },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const STAGGER_ITEM = {
+  hidden:  { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// <FloatIcon> — wraps any icon/logo with an organic floating loop. Each
+// instance picks its own duration/delay/amplitude so a row of icons never
+// looks synchronized.
+function FloatIcon({ children, duration = 3.4, delay = 0, amplitude = 6, rotate = 2, className = "" }) {
+  const reduce = useReducedMotion();
+  if (reduce) {
+    return <span className={`lp-float ${className}`}>{children}</span>;
+  }
+  return (
+    <motion.span
+      className={`lp-float ${className}`}
+      animate={{
+        y: [0, -amplitude, 0, amplitude * 0.5, 0],
+        rotate: [0, -rotate, 0, rotate, 0],
+      }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. Tech stack breakdown
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TECH_GROUPS = [
+  {
+    title: "Frontend",
+    tone: "green",
+    items: [
+      { name: "React 18",          why: "Battle-tested component model and concurrent rendering for instant role-aware UI updates.", icon: <TechReact /> },
+      { name: "Vite 8",            why: "Sub-second cold start and HMR keeps the wallet/contract iteration loop tight.",            icon: <TechVite /> },
+      { name: "React Router 6",    why: "Declarative routing for the public landing plus the role-specific dApp shell.",            icon: <TechRouter /> },
+      { name: "Framer Motion",     why: "Production-grade animation primitives that respect reduced-motion out of the box.",         icon: <TechFramer /> },
+      { name: "Space Grotesk",     why: "Distinctive geometric type that holds up at hero weights and at body sizes alike.",         icon: <TechType /> },
+    ],
+  },
+  {
+    title: "Smart contracts",
+    tone: "grey",
+    items: [
+      { name: "Solidity 0.8.28",   why: "Latest stable compiler with built-in overflow checks for safety-critical financial logic.",  icon: <TechSolidity /> },
+      { name: "OpenZeppelin 5.6",  why: "Audited base contracts (ERC20Votes, AccessControl) so we don't roll our own primitives.",   icon: <TechOZ /> },
+      { name: "Hardhat",           why: "Local chain, fixtures, console.log, and one of the deepest plugin ecosystems for EVM dev.", icon: <TechHardhat /> },
+      { name: "Ethers.js 6",       why: "Typed, promise-first contract bindings with robust BigInt handling for token math.",        icon: <TechEthers /> },
+    ],
+  },
+  {
+    title: "Backend & data",
+    tone: "dark",
+    items: [
+      { name: "Node 20 + Express", why: "Familiar JS runtime end-to-end; Express keeps the REST surface minimal and inspectable.",   icon: <TechNode /> },
+      { name: "MongoDB + Mongoose",  why: "Document model fits transaction logs and user profiles without schema migrations.",       icon: <TechMongo /> },
+      { name: "Morgan + CORS",     why: "Zero-config request logging and locked-down cross-origin defaults for the dev loop.",        icon: <TechExpress /> },
+    ],
+  },
+  {
+    title: "Web3 & infrastructure",
+    tone: "green",
+    items: [
+      { name: "Universal Gas Framework", why: "Lets investors pay gas in TYI_MOCK_USD instead of native ETH — the demo's centerpiece.", icon: <TechUgf /> },
+      { name: "Base Sepolia",      why: "OP-stack L2 with cheap, fast finality and a generous testnet faucet for hackathon demos.",  icon: <TechBase /> },
+      { name: "MetaMask",          why: "Default user wallet across browsers; ethers' BrowserProvider makes integration trivial.",   icon: <TechMetaMask /> },
+      { name: "USDC (mock)",       why: "Six-decimal stablecoin pattern matches production accounting without real custody risk.",   icon: <TechUsdc /> },
+    ],
+  },
+];
+
+function TechStackSection() {
+  return (
+    <section className="section" id="tech-stack">
+      <Reveal>
+        <div className="lp-section-head">
+          <h2 className="lp-section-title">Tech stack</h2>
+          <p className="lp-section-sub">
+            Every dependency earns its place. Here's what powers RealChain
+            and why we picked it over the obvious alternatives.
+          </p>
+        </div>
+      </Reveal>
+
+      <Stagger className="lp-tech-grid">
+        {TECH_GROUPS.map((group, gi) => (
+          <motion.div key={group.title} className={`lp-tech-card is-${group.tone}`} variants={STAGGER_ITEM}>
+            <h3 className="lp-tech-card-title">{group.title}</h3>
+            <ul className="lp-tech-list">
+              {group.items.map((item, ii) => (
+                <li className="lp-tech-item" key={item.name}>
+                  <FloatIcon
+                    duration={3.2 + ((gi + ii) % 5) * 0.35}
+                    delay={(ii * 0.18 + gi * 0.12) % 1.6}
+                    amplitude={5 + ((gi + ii) % 3)}
+                    rotate={2 + ((ii + gi) % 3)}
+                    className="lp-tech-icon"
+                  >
+                    {item.icon}
+                  </FloatIcon>
+                  <div className="lp-tech-text">
+                    <div className="lp-tech-name">{item.name}</div>
+                    <div className="lp-tech-why">{item.why}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ))}
+      </Stagger>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. Project architecture
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ARCH_LAYERS = [
+  {
+    label: "Client",
+    color: "green",
+    items: [
+      { node: "frontend/src/pages",      hint: "Landing, Marketplace, Property, Portfolio, Dividends, Owner, Investor" },
+      { node: "frontend/src/components", hint: "Icon, Logo, ActivityFeed, FaucetPanel, CostBanner, UGFBadge, Toast, Switch" },
+      { node: "frontend/src/context",    hint: "Web3Context · UGFContext" },
+      { node: "frontend/src/config",     hint: "Network constants · ABIs · BACKEND_URL" },
+    ],
+  },
+  {
+    label: "API",
+    color: "grey",
+    items: [
+      { node: "backend/server.js",        hint: "Express bootstrap, CORS, Morgan, Mongo connect" },
+      { node: "backend/routes",           hint: "/api/properties · /api/transactions · /api/users · /api/faucet" },
+      { node: "backend/middleware/db.js", hint: "requireDb gate — graceful 503 when Mongo is offline" },
+      { node: "backend/models",           hint: "Property · Transaction · User (Mongoose schemas)" },
+    ],
+  },
+  {
+    label: "Chain",
+    color: "dark",
+    items: [
+      { node: "PropertyFactory.sol",       hint: "Deploys the per-property contract trio and registers it" },
+      { node: "PropertyToken.sol",         hint: "ERC20Votes share token with snapshot-safe balances" },
+      { node: "RentalDistribution.sol",    hint: "Epoch-based pro-rata rent distribution (V1 default)" },
+      { node: "Marketplace.sol",           hint: "Primary + secondary sales in USDC, owner-funded supply" },
+      { node: "MockUSDC.sol",              hint: "6-decimal settlement token for rent + purchases" },
+    ],
+  },
+];
+
+function ArchitectureSection() {
+  return (
+    <section className="section" id="architecture">
+      <Reveal>
+        <div className="lp-section-head">
+          <h2 className="lp-section-title">Architecture</h2>
+          <p className="lp-section-sub">
+            Three crisp layers — the React client talks to the Express API and
+            to Base Sepolia in parallel. The chain is the source of truth; the
+            backend caches, logs, and aggregates.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05}>
+        <div className="lp-arch-card">
+          {ARCH_LAYERS.map((layer, li) => (
+            <Stagger key={layer.label} className={`lp-arch-layer is-${layer.color}`} delay={li * 0.08}>
+              <motion.div className="lp-arch-layer-head" variants={STAGGER_ITEM}>
+                <span className="lp-arch-tag">{layer.label}</span>
+              </motion.div>
+              <div className="lp-arch-nodes">
+                {layer.items.map((it) => (
+                  <motion.div className="lp-arch-node" key={it.node} variants={STAGGER_ITEM}>
+                    <code className="lp-arch-node-name">{it.node}</code>
+                    <span className="lp-arch-node-hint">{it.hint}</span>
+                  </motion.div>
+                ))}
+              </div>
+              {li < ARCH_LAYERS.length - 1 && (
+                <div className="lp-arch-flow" aria-hidden="true">
+                  <ArchArrow />
+                </div>
+              )}
+            </Stagger>
+          ))}
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function ArchArrow() {
+  return (
+    <svg viewBox="0 0 24 60" width="24" height="60" aria-hidden="true">
+      <path d="M12 2 V52" stroke="#191A23" strokeWidth="2" strokeLinecap="round" />
+      <path d="M5 45 L12 56 L19 45" stroke="#191A23" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. Features gallery
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FEATURE_TABS = [
+  {
+    key: "investor",
+    label: "Investor",
+    items: [
+      { title: "Marketplace browse",       href: "/marketplace", desc: "Read-only property catalog with on-chain valuations and live ERC-20 supply.", icon: "building" },
+      { title: "One-tap claim-all",        href: "/investor",    desc: "Hero CTA on the investor dashboard claims pending rent across every holding.", icon: "bolt" },
+      { title: "Per-property claim",       href: "/dividends",   desc: "Granular epoch history with individual claim buttons and status badges.",      icon: "coins" },
+      { title: "Portfolio listings",       href: "/portfolio",   desc: "List and cancel sales on the secondary market without leaving the dApp.",      icon: "briefcase" },
+    ],
+  },
+  {
+    key: "owner",
+    label: "Owner",
+    items: [
+      { title: "Property mint",            href: "/owner",       desc: "Tokenize a new property in one form: name, location, valuation, price.",       icon: "plus" },
+      { title: "Rent deposit",             href: "/owner",       desc: "Drop USDC into the rental contract; epochs are auto-snapshotted.",             icon: "send" },
+      { title: "Owner KPIs",               href: "/owner",       desc: "Total deposited, epoch count, owner-held supply at a glance.",                 icon: "trending" },
+      { title: "Recent epoch table",       href: "/owner",       desc: "Last five epochs per property with date, amount, and status.",                 icon: "history" },
+    ],
+  },
+  {
+    key: "shared",
+    label: "Shared",
+    items: [
+      { title: "UGF gasless mode",         href: "/dividends",   desc: "Every state-changing call routes through UGF — settle gas in Mock USD.",       icon: "drop" },
+      { title: "UGF on/off toggle",        href: "/dividends",   desc: "Settings popover lets judges flip the switch and see the failure mode live.",  icon: "settings" },
+      { title: "Cost banner",              href: "/marketplace", desc: "Side-by-side ETH vs UGF cost comparison renders before each call.",            icon: "info" },
+      { title: "Faucet helper",            href: "/marketplace", desc: "Three-tile panel mints test USDC and links the UGF Mock-USD faucet.",          icon: "faucet" },
+      { title: "Live activity feed",       href: "/marketplace", desc: "Right-rail pane polls /api/transactions every 8s; all backend-driven.",        icon: "history" },
+      { title: "Toast system",             href: "/marketplace", desc: "Polite, accessible non-blocking notifications via aria-live.",                  icon: "info" },
+      { title: "Connect gate",             href: "/portfolio",   desc: "Full-page prompt for routes that need a wallet, with one-click reconnect.",     icon: "wallet" },
+      { title: "Network detection",        href: "/marketplace", desc: "Wrong-network banner switches MetaMask to the configured chain id in one tap.", icon: "alert" },
+    ],
+  },
+];
+
+function FeaturesGallerySection() {
+  const [active, setActive] = useState("investor");
+  const activeGroup = FEATURE_TABS.find((g) => g.key === active) || FEATURE_TABS[0];
+
+  return (
+    <section className="section" id="features">
+      <Reveal>
+        <div className="lp-section-head">
+          <h2 className="lp-section-title">Features</h2>
+          <p className="lp-section-sub">
+            Every screen shipped, grouped by audience. Tap a tab to see what
+            ships for investors, owners, and the shared dApp shell.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05}>
+        <div className="lp-feature-tabs" role="tablist" aria-label="Feature audiences">
+          {FEATURE_TABS.map((g) => (
+            <button
+              key={g.key}
+              role="tab"
+              aria-selected={active === g.key}
+              className={`lp-feature-tab ${active === g.key ? "is-active" : ""}`}
+              onClick={() => setActive(g.key)}
+            >
+              {g.label}
+              <span className="lp-feature-tab-count">{g.items.length}</span>
+            </button>
+          ))}
+        </div>
+      </Reveal>
+
+      <Stagger className="lp-feature-grid">
+        {activeGroup.items.map((item, i) => (
+          <motion.div key={`${activeGroup.key}-${item.title}`} variants={STAGGER_ITEM}>
+            <Link to={item.href} className="lp-feature-card">
+              <FloatIcon
+                duration={3.4 + (i % 4) * 0.4}
+                delay={(i * 0.22) % 1.4}
+                amplitude={5 + (i % 3)}
+                rotate={2 + (i % 2)}
+                className="lp-feature-icon"
+              >
+                <span className="lp-feature-icon-inner"><Icon name={item.icon} size={22} /></span>
+              </FloatIcon>
+              <div className="lp-feature-card-body">
+                <h4 className="lp-feature-card-title">{item.title}</h4>
+                <p className="lp-feature-card-desc">{item.desc}</p>
+              </div>
+              <span className="lp-feature-card-arrow" aria-hidden="true">
+                <Icon name="arrowRight" size={14} />
+              </span>
+            </Link>
+          </motion.div>
+        ))}
+      </Stagger>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. Animated workflow
+// ─────────────────────────────────────────────────────────────────────────────
+
+const WORKFLOW_STEPS = [
+  {
+    label: "Wallet",
+    title: "Connect MetaMask",
+    desc: "MetaMask + ethers BrowserProvider hand the connected address to Web3Context. Role detection runs against on-chain ownership.",
+    icon: "wallet",
+  },
+  {
+    label: "Chain",
+    title: "Read on-chain state",
+    desc: "Read-only ethers provider hits PropertyFactory and per-property contracts. No MetaMask popup needed for browsing.",
+    icon: "globe",
+  },
+  {
+    label: "Action",
+    title: "Click claim or buy",
+    desc: "UI calls UGFContext.ugfExecute, which encodes the call and passes it to the UGF SDK or signer.sendTransaction fallback.",
+    icon: "bolt",
+  },
+  {
+    label: "UGF",
+    title: "Pay gas in Mock USD",
+    desc: "UGF quotes the route, settles gas in TYI_MOCK_USD, and submits the sponsored transaction. Investor's ETH balance never moves.",
+    icon: "drop",
+  },
+  {
+    label: "Settlement",
+    title: "USDC lands on-chain",
+    desc: "RentalDistribution releases the pro-rata share; Marketplace transfers the tokens. Receipt is awaited on the read provider.",
+    icon: "coins",
+  },
+  {
+    label: "Backend",
+    title: "Log + aggregate",
+    desc: "Frontend POSTs the receipt to /api/transactions. The activity feed and global stats refresh on the next poll.",
+    icon: "history",
+  },
+];
+
+function AnimatedWorkflowSection() {
+  const reduce = useReducedMotion();
+
+  return (
+    <section className="section" id="workflow">
+      <Reveal>
+        <div className="lp-section-head">
+          <h2 className="lp-section-title">End-to-end flow</h2>
+          <p className="lp-section-sub">
+            From "open the app" to "USDC in your wallet" — six steps with no
+            ETH ever leaving the user's wallet. Every arrow on the diagram
+            below is wired by code in this repo.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05}>
+        <div className="lp-workflow">
+          <motion.div
+            className="lp-workflow-line"
+            initial={reduce ? { scaleX: 1 } : { scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            aria-hidden="true"
+          />
+          <Stagger className="lp-workflow-row" stagger={0.12}>
+            {WORKFLOW_STEPS.map((step, i) => (
+              <motion.div className="lp-workflow-node" key={step.title} variants={STAGGER_ITEM}>
+                <FloatIcon
+                  duration={3.6 + (i % 4) * 0.45}
+                  delay={(i * 0.25) % 1.5}
+                  amplitude={6 + (i % 3)}
+                  rotate={3}
+                  className="lp-workflow-bubble"
+                >
+                  <span className="lp-workflow-step">{String(i + 1).padStart(2, "0")}</span>
+                  <Icon name={step.icon} size={18} />
+                </FloatIcon>
+                <div className="lp-workflow-tag">{step.label}</div>
+                <h4 className="lp-workflow-title">{step.title}</h4>
+                <p className="lp-workflow-desc">{step.desc}</p>
+              </motion.div>
+            ))}
+          </Stagger>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tech stack icons — all lime/black/grey, sized to ~36px so they read as a
+// single visual family with the rest of the page.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ICON_SIZE = 38;
+
+function tw() { return ICON_SIZE; }
+function th() { return ICON_SIZE; }
+
+function TechReact() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="3" fill="#191A23" />
+      <g fill="none" stroke="#191A23" strokeWidth="1.6">
+        <ellipse cx="20" cy="20" rx="17" ry="6.8" />
+        <ellipse cx="20" cy="20" rx="17" ry="6.8" transform="rotate(60 20 20)" />
+        <ellipse cx="20" cy="20" rx="17" ry="6.8" transform="rotate(120 20 20)" />
+      </g>
+    </svg>
+  );
+}
+function TechVite() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M3 8 L20 36 L37 8 Z" fill="#B9FF66" stroke="#191A23" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M14 14 Q20 22 16 30 Q24 24 28 14 Q22 18 14 14 Z" fill="#191A23" />
+    </svg>
+  );
+}
+function TechRouter() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="10" cy="10" r="4" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <circle cx="30" cy="10" r="4" fill="#191A23" />
+      <circle cx="20" cy="30" r="4" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <path d="M10 14 L20 26 M30 14 L20 26" stroke="#191A23" strokeWidth="2" />
+    </svg>
+  );
+}
+function TechFramer() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M8 4 H32 V16 H20 L32 28 H20 V40 L8 28 V16 L20 16 L8 4 Z" fill="#B9FF66" stroke="#191A23" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function TechType() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="3" y="6" width="34" height="28" rx="4" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <text x="20" y="27" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700" fontSize="20" fill="#191A23">Aa</text>
+    </svg>
+  );
+}
+function TechSolidity() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <polygon points="20,3 32,12 20,21 8,12" fill="#191A23" />
+      <polygon points="20,21 32,30 20,37 8,30" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <polygon points="14,16 26,16 20,21" fill="#B9FF66" />
+      <polygon points="14,26 26,26 20,21" fill="#191A23" />
+    </svg>
+  );
+}
+function TechOZ() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M20 3 L34 9 V21 Q34 31 20 37 Q6 31 6 21 V9 Z" fill="#B9FF66" stroke="#191A23" strokeWidth="2" strokeLinejoin="round" />
+      <circle cx="20" cy="19" r="5" fill="none" stroke="#191A23" strokeWidth="2.2" />
+      <rect x="16" y="19" width="8" height="9" fill="#191A23" rx="1.5" />
+    </svg>
+  );
+}
+function TechHardhat() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M3 28 Q20 12 37 28 Z" fill="#191A23" />
+      <rect x="6" y="27" width="28" height="6" fill="#B9FF66" stroke="#191A23" strokeWidth="2" rx="2" />
+      <circle cx="14" cy="22" r="1.5" fill="#B9FF66" />
+      <circle cx="26" cy="22" r="1.5" fill="#B9FF66" />
+    </svg>
+  );
+}
+function TechEthers() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <polygon points="20,3 33,20 20,28 7,20" fill="#191A23" />
+      <polygon points="20,30 33,22 20,37 7,22" fill="#191A23" opacity="0.7" />
+    </svg>
+  );
+}
+function TechNode() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <polygon points="20,3 35,11 35,29 20,37 5,29 5,11" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <text x="20" y="25" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700" fontSize="11" fill="#191A23">node</text>
+    </svg>
+  );
+}
+function TechMongo() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M20 3 Q26 14 26 22 Q26 30 20 37 Q14 30 14 22 Q14 14 20 3 Z" fill="#B9FF66" stroke="#191A23" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M20 5 V37" stroke="#191A23" strokeWidth="1.8" />
+    </svg>
+  );
+}
+function TechExpress() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="3" y="3" width="34" height="34" rx="6" fill="#191A23" />
+      <text x="20" y="26" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700" fontSize="14" fill="#B9FF66">{"</>"}</text>
+    </svg>
+  );
+}
+function TechUgf() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M20 4 L8 22 L20 22 L14 36 L32 18 L20 18 Z" fill="#B9FF66" stroke="#191A23" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function TechBase() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="16" fill="#191A23" />
+      <path d="M20 8 A12 12 0 1 1 8.5 16 H22 V24 H8.5 A12 12 0 0 1 20 32 Z" fill="#B9FF66" />
+    </svg>
+  );
+}
+function TechMetaMask() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M5 8 L18 13 L20 18 L22 13 L35 8 L33 22 L36 30 L28 33 L23 30 L20 30 L17 30 L12 33 L4 30 L7 22 Z" fill="#B9FF66" stroke="#191A23" strokeWidth="2" strokeLinejoin="round" />
+      <circle cx="14" cy="20" r="2" fill="#191A23" />
+      <circle cx="26" cy="20" r="2" fill="#191A23" />
+    </svg>
+  );
+}
+function TechUsdc() {
+  return (
+    <svg width={tw()} height={th()} viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="16" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
+      <text x="20" y="25" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700" fontSize="13" fill="#191A23">USDC</text>
     </svg>
   );
 }
