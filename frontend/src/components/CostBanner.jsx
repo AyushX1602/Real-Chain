@@ -80,10 +80,11 @@ export default function CostBanner({ target, abi, fnName, args = [], value = 0n,
           <Icon name="bolt" size={12} /> With UGF
         </div>
         <div className="cost-value tabular">
-          {ugfCost != null ? fmt(ugfCost) : ethCost != null ? `≈ $${(ethCost * 0.012).toFixed(2)}` : "—"}
+          {ugfCost != null ? fmt(ugfCost) : "—"}
         </div>
         <div className="cost-meta">
           <Icon name="check" size={11} /> paid in Mock USD
+          {ugfCost == null && <span className="text-muted"> · estimate unavailable</span>}
         </div>
       </div>
     </div>

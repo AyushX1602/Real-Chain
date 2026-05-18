@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "./Icon";
 import { BACKEND_URL } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ActivityFeed — right-rail panel that polls /api/transactions every 8s.
-// Degrades gracefully: shows "feed offline" inline if backend unreachable.
+// Pulls real transactions from the Express backend. When the backend is
+// unreachable or returns nothing, renders a clean empty state — no fake data.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const POLL_MS = 8000;
@@ -43,7 +44,7 @@ function avatarKind(type) {
 
 function fmtAmount(amount) {
   const n = Number(amount);
-  if (!Number.isFinite(n)) return amount;
+  if (!Number.isFinite(n)) return "$0.00";
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 1_000)     return `$${(n / 1_000).toFixed(2)}K`;
   return `$${n.toFixed(2)}`;
@@ -68,6 +69,7 @@ export default function ActivityFeed() {
         setStatus("online");
       } catch (_) {
         if (!alive) return;
+        setItems([]);
         setStatus("offline");
       } finally {
         if (alive) timer = setTimeout(fetchOnce, POLL_MS);
@@ -78,9 +80,6 @@ export default function ActivityFeed() {
     return () => { alive = false; if (timer) clearTimeout(timer); };
   }, []);
 
-  const sample = useMemo(() => SAMPLE_FEED, []);
-  const display = items.length > 0 ? items : (status === "offline" ? sample : []);
-
   return (
     <aside className="activity-card" aria-label="Live activity feed">
       <div className="activity-head">
@@ -89,26 +88,36 @@ export default function ActivityFeed() {
           Live activity
         </h3>
         {status === "offline" ? (
-          <span className="badge badge-muted" title="Backend unreachable — showing sample data">
-            <Icon name="info" size={11} /> demo
+          <span className="badge badge-danger" title="Backend unreachable">
+            <Icon name="alert" size={11} /> offline
           </span>
         ) : status === "online" ? (
           <span className="badge badge-success">
             <Icon name="check" size={11} /> online
           </span>
         ) : (
-          <span className="badge badge-muted"><span className="spinner" style={{ width: 11, height: 11, borderWidth: 1.5 }} /></span>
+          <span className="badge badge-muted">
+            <span className="spinner" style={{ width: 11, height: 11, borderWidth: 1.5 }} />
+          </span>
         )}
       </div>
 
       <div className="activity-list">
-        {display.length === 0 ? (
+        {items.length === 0 ? (
           <div className="activity-empty">
             <Icon name="history" size={28} style={{ opacity: 0.4, marginBottom: 8 }} />
-            <div>No transactions yet</div>
-            <div style={{ fontSize: 12, marginTop: 4 }}>Claim some rent to kick things off.</div>
+            <div>
+              {status === "offline"
+                ? "Activity feed unavailable"
+                : "No transactions yet"}
+            </div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>
+              {status === "offline"
+                ? "Start the backend at " + BACKEND_URL + " to see live activity."
+                : "Claim, buy, or deposit rent to see it appear here."}
+            </div>
           </div>
-        ) : display.slice(0, 10).map((t, i) => {
+        ) : items.slice(0, 10).map((t, i) => {
           const type = t.type || "claim";
           const verb = VERB[type] || "did";
           const isUgf = (t.gasMethod || t.method) === "ugf";
@@ -142,12 +151,3 @@ export default function ActivityFeed() {
     </aside>
   );
 }
-
-// Stable demo data so the panel never looks empty during the pitch.
-const SAMPLE_FEED = [
-  { from: "0xa7Fa1328a934c83bdf8a30dd71d3aA8c12bd9bc3b", type: "claim",   amount: 300.00, gasMethod: "ugf", createdAt: new Date(Date.now() - 35_000).toISOString() },
-  { from: "0xC4f9fE3742F4a55a6e9F2dD5f1bdc9dB5e8b9dC1c", type: "buy",     amount: 60.00,  gasMethod: "ugf", createdAt: new Date(Date.now() - 4 * 60_000).toISOString() },
-  { from: "0x9F4adC3c982AaB1f2e35aF4b2C9bdfaB8c4f5Ec3D", type: "deposit", amount: 1000.0, gasMethod: "ugf", createdAt: new Date(Date.now() - 12 * 60_000).toISOString() },
-  { from: "0x21e90a1C5f6dC4b3aF34d66cF7e1aDc4b89E5fA21", type: "claim",   amount: 87.45,  gasMethod: "eth", createdAt: new Date(Date.now() - 28 * 60_000).toISOString() },
-  { from: "0x8B17e0F9b9C4dEa1a02C3D9f1E2b4Ad5cF6A7B8C9", type: "claim",   amount: 142.10, gasMethod: "ugf", createdAt: new Date(Date.now() - 47 * 60_000).toISOString() },
-];

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useWeb3 } from "../context/Web3Context";
 import Icon from "../components/Icon";
 import Logo from "../components/Logo";
-import { BACKEND_URL } from "../config/contracts";
+import { BACKEND_URL, NETWORK_CHAIN_ID } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Landing — Positivus-styled marketing page for RealChain.
@@ -12,20 +12,32 @@ import { BACKEND_URL } from "../config/contracts";
 //   https://www.figma.com/community/file/1230604708032389430
 // Coded reference: https://github.com/zakariamouhid/positivus-from-figma
 //
-// Sections: hero · trust strip · services · CTA · how-it-works · stats · footer
-// All backend endpoints are wired:
-//   - GET /api/health         — backend status pill in the trust strip
-//   - GET /api/transactions/stats — global stats banner
-//   - POST /api/users/connect — when user clicks "Connect wallet"
+// Every counter, label, and status indicator is sourced from a real provider:
+//   - Network label & status: NETWORK_CHAIN_ID + Web3Context.nodeOnline
+//   - API status:               GET /api/health
+//   - Live counters:            on-chain factory.getPropertiesCount()
+//                               + GET /api/transactions/stats
+//   - Stats section:            GET /api/transactions/stats
+//   - Recent activity preview:  GET /api/transactions?limit=5
+//   - Subscribe form:           native mailto: handoff (no fake handler)
+//   - User upsert:              POST /api/users/connect on wallet connect
 // ─────────────────────────────────────────────────────────────────────────────
 
+const NETWORK_LABEL = {
+  31337:    "Hardhat local",
+  11155111: "Ethereum Sepolia",
+  84532:    "Base Sepolia",
+};
+
 export default function Landing() {
-  const { account, connect, connecting, roleHint } = useWeb3();
+  const { account, connect, connecting, roleHint, nodeOnline, chainId, isCorrectNetwork, getReadFactory } = useWeb3();
   const [openStep, setOpenStep] = useState(0);
   const [backendOnline, setBackendOnline] = useState(null);
   const [stats, setStats] = useState(null);
+  const [propertyCount, setPropertyCount] = useState(null);
+  const [recent, setRecent] = useState([]);
 
-  // Keep the public landing in sync with the backend's reality.
+  // ── Backend health, stats and recent activity ──────────────────────────────
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -45,22 +57,76 @@ export default function Landing() {
         if (alive) setStats(data);
       } catch { /* feed offline — non-fatal */ }
     })();
+    (async () => {
+      try {
+        const r = await fetch(`${BACKEND_URL}/api/transactions?limit=5`);
+        if (!r.ok) return;
+        const data = await r.json();
+        if (!alive) return;
+        const list = Array.isArray(data) ? data : (data.transactions || data.items || []);
+        setRecent(list);
+      } catch { /* non-fatal */ }
+    })();
     return () => { alive = false; };
   }, []);
 
-  // Persist the wallet on first connect so the backend has a record.
-  async function handleConnect() {
-    await connect();
-  }
+  // ── On-chain property count for the live counters strip ────────────────────
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const factory = getReadFactory();
+        const c = Number(await factory.getPropertiesCount());
+        if (alive) setPropertyCount(c);
+      } catch (_) {
+        if (alive) setPropertyCount(null);
+      }
+    })();
+    return () => { alive = false; };
+  }, [getReadFactory]);
 
+  // ── Persist the connected wallet to the backend ────────────────────────────
   useEffect(() => {
     if (!account) return;
     fetch(`${BACKEND_URL}/api/users/connect`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wallet: account, role: roleHint || "unknown" }),
-    }).catch(() => { /* silent — backend may be offline */ });
+      body: JSON.stringify({ wallet: account, role: (roleHint || "unknown").toLowerCase() }),
+    }).catch(() => { /* backend may be offline */ });
   }, [account, roleHint]);
+
+  const networkName = NETWORK_LABEL[NETWORK_CHAIN_ID] || `Chain ${NETWORK_CHAIN_ID}`;
+  const networkOk = nodeOnline === true && (account ? isCorrectNetwork : true);
+
+  // Counters strip is computed entirely from real sources.
+  const counters = useMemo(() => [
+    {
+      label: "Properties on-chain",
+      value: propertyCount == null ? "—" : String(propertyCount),
+      icon: "building",
+      source: "factory.getPropertiesCount()",
+    },
+    {
+      label: "Transactions logged",
+      value: stats?.totalTransactions == null ? "—" : String(stats.totalTransactions),
+      icon: "history",
+      source: "/api/transactions/stats",
+    },
+    {
+      label: "Gasless via UGF",
+      value: stats?.ugfTransactions == null ? "—" : String(stats.ugfTransactions),
+      icon: "bolt",
+      source: "/api/transactions/stats",
+    },
+    {
+      label: "Rent claimed (USDC)",
+      value: stats?.totalClaimed == null
+        ? "—"
+        : `$${Number(stats.totalClaimed).toLocaleString("en-US", { maximumFractionDigits: 2 })}`,
+      icon: "coins",
+      source: "/api/transactions/stats",
+    },
+  ], [propertyCount, stats]);
 
   return (
     <div className="container reveal">
@@ -81,8 +147,8 @@ export default function Landing() {
                 Open marketplace <Icon name="arrowRight" size={16} />
               </Link>
             ) : (
-              <button className="btn btn-primary btn-xl" onClick={handleConnect} disabled={connecting}>
-                {connecting ? "Connecting…" : "Book a connection"}
+              <button className="btn btn-primary btn-xl" onClick={connect} disabled={connecting}>
+                {connecting ? "Connecting…" : "Connect wallet"}
               </button>
             )}
             <a href="#how-it-works" className="btn btn-secondary btn-xl">How it works</a>
@@ -93,31 +159,41 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Trust / status strip ─────────────────────────────────────────── */}
+      {/* ── Trust / status strip — every value is dynamic ────────────────── */}
       <div className="trust-strip">
         <span className="item">
-          <span className="status-dot" /> <strong>Base Sepolia</strong> testnet
-        </span>
-        <span className="item">
-          <Icon name="shield" size={14} /> <strong>Audit-ready</strong> contracts
-        </span>
-        <span className="item">
-          <Icon name="bolt" size={14} /> <strong>Gasless</strong> via UGF
+          <span className="status-dot" style={networkOk ? null : { background: "var(--red-500)" }} />
+          <strong>{networkName}</strong>
+          {nodeOnline === false ? " · offline" : account && !isCorrectNetwork ? " · wrong network" : ""}
         </span>
         <span className="item">
           <Icon name="globe" size={14} />
-          <strong>API</strong> {backendOnline === null ? "checking…" : backendOnline ? "online" : "offline"}
+          <strong>API</strong>
+          {backendOnline === null ? " checking…" : backendOnline ? " online" : " offline"}
         </span>
+        {account ? (
+          <span className="item">
+            <Icon name="wallet" size={14} />
+            <strong>Wallet</strong> {roleHint || "connected"}
+          </span>
+        ) : (
+          <span className="item">
+            <Icon name="wallet" size={14} />
+            <strong>Wallet</strong> not connected
+          </span>
+        )}
       </div>
 
-      {/* ── Logos (mock partners) ────────────────────────────────────────── */}
+      {/* ── Live counters strip (replaces the previous "logos" row) ──────── */}
       <div className="lp-logos">
-        <div className="lp-logo"><Logo size={24} showWordmark={false} /> Base</div>
-        <div className="lp-logo"><Icon name="bolt" size={20} /> UGF</div>
-        <div className="lp-logo"><Icon name="layers" size={20} /> ERC-20</div>
-        <div className="lp-logo"><Icon name="dollar" size={20} /> USDC</div>
-        <div className="lp-logo"><Icon name="shield" size={20} /> OpenZeppelin</div>
-        <div className="lp-logo"><Icon name="globe" size={20} /> MongoDB</div>
+        {counters.map((c) => (
+          <div className="lp-counter" key={c.label} title={`Source: ${c.source}`}>
+            <span className="lp-counter-label">
+              <Icon name={c.icon} size={14} /> {c.label}
+            </span>
+            <span className="lp-counter-value">{c.value}</span>
+          </div>
+        ))}
       </div>
 
       {/* ── Services / what we do ────────────────────────────────────────── */}
@@ -131,48 +207,12 @@ export default function Landing() {
         </div>
 
         <div className="lp-service-grid">
-          <ServiceCard
-            tone="grey"
-            titleA="Fractional"
-            titleB="ownership"
-            href="/marketplace"
-            illustration={<IlluTokens />}
-          />
-          <ServiceCard
-            tone="green"
-            titleA="USDC rent"
-            titleB="distributions"
-            href="/dividends"
-            illustration={<IlluRent />}
-          />
-          <ServiceCard
-            tone="dark"
-            titleA="Zero-ETH"
-            titleB="gasless claims"
-            href="/dividends"
-            illustration={<IlluUgf />}
-          />
-          <ServiceCard
-            tone="grey"
-            titleA="Secondary"
-            titleB="marketplace"
-            href="/portfolio"
-            illustration={<IlluMarket />}
-          />
-          <ServiceCard
-            tone="green"
-            titleA="Owner"
-            titleB="control room"
-            href="/owner"
-            illustration={<IlluOwner />}
-          />
-          <ServiceCard
-            tone="dark"
-            titleA="Activity"
-            titleB="and analytics"
-            href="/portfolio"
-            illustration={<IlluAnalytics />}
-          />
+          <ServiceCard tone="grey"  titleA="Fractional"  titleB="ownership"        href="/marketplace" illustration={<IlluTokens />} />
+          <ServiceCard tone="green" titleA="USDC rent"   titleB="distributions"    href="/dividends"   illustration={<IlluRent />} />
+          <ServiceCard tone="dark"  titleA="Zero-ETH"    titleB="gasless claims"   href="/dividends"   illustration={<IlluUgf />} />
+          <ServiceCard tone="grey"  titleA="Secondary"   titleB="marketplace"      href="/portfolio"   illustration={<IlluMarket />} />
+          <ServiceCard tone="green" titleA="Owner"       titleB="control room"     href="/owner"       illustration={<IlluOwner />} />
+          <ServiceCard tone="dark"  titleA="Activity"    titleB="and analytics"    href="/portfolio"   illustration={<IlluAnalytics />} />
         </div>
       </section>
 
@@ -184,11 +224,11 @@ export default function Landing() {
               Let's open your zero-ETH portfolio
             </h3>
             <p className="lp-cta-sub">
-              Connect MetaMask, switch to Base Sepolia, and claim your first
+              Connect MetaMask, switch to {networkName}, and claim your first
               rent in under a minute. No native gas required.
             </p>
             <div className="flex gap-3 flex-wrap" style={{ marginTop: "var(--space-6)" }}>
-              <button className="btn btn-primary btn-lg" onClick={handleConnect} disabled={connecting || !!account}>
+              <button className="btn btn-primary btn-lg" onClick={connect} disabled={connecting || !!account}>
                 {account ? "Wallet connected" : connecting ? "Connecting…" : "Connect wallet"}
               </button>
               <Link to="/marketplace" className="btn btn-secondary btn-lg">Browse properties</Link>
@@ -231,7 +271,50 @@ export default function Landing() {
         </section>
       )}
 
-      {/* ── How it works (Process accordion) ─────────────────────────────── */}
+      {/* ── Recent activity preview — only renders when real rows exist ──── */}
+      {recent.length > 0 && (
+        <section className="section">
+          <div className="lp-section-head">
+            <h2 className="lp-section-title">Recent activity</h2>
+            <p className="lp-section-sub">
+              The five most recent transactions logged through the backend.
+              Visit the marketplace for the full live feed.
+            </p>
+          </div>
+          <div className="card card-elevated">
+            <div className="table-wrap" style={{ border: "none" }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>Amount</th>
+                    <th>Gas</th>
+                    <th>When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent.map((t, i) => (
+                    <tr key={t.txHash || t._id || i}>
+                      <td><span className="badge badge-muted">{t.type}</span></td>
+                      <td className="font-mono text-sm">{t.from ? `${t.from.slice(0, 6)}…${t.from.slice(-4)}` : "—"}</td>
+                      <td className="font-bold">${Number(t.amount || 0).toFixed(2)}</td>
+                      <td>
+                        <span className={`badge ${t.gasMethod === "ugf" ? "badge-accent" : "badge-muted"}`}>
+                          {t.gasMethod === "ugf" ? "gasless" : "ETH"}
+                        </span>
+                      </td>
+                      <td className="text-muted text-sm">{t.createdAt ? new Date(t.createdAt).toLocaleString() : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="section" id="how-it-works">
         <div className="lp-section-head">
           <h2 className="lp-section-title">How it works</h2>
@@ -269,25 +352,25 @@ export default function Landing() {
 
         <div className="lp-footer-grid">
           <div>
-            <h4>Contact us</h4>
+            <h4>Status</h4>
             <div className="lp-footer-contact">
-              <p><strong>Network:</strong> Base Sepolia (chain id 84532)</p>
-              <p><strong>API:</strong> {BACKEND_URL}</p>
+              <p><strong>Network:</strong> {networkName} (chain id {NETWORK_CHAIN_ID})</p>
+              <p><strong>API:</strong> {BACKEND_URL} · {backendOnline === null ? "checking…" : backendOnline ? "online" : "offline"}</p>
               <p><strong>License:</strong> design CC BY 4.0 — Positivus by Olga</p>
             </div>
           </div>
 
           <div>
-            <h4>Stay updated</h4>
+            <h4>Get in touch</h4>
+            {/* Native mailto handoff — no fake submit handler. */}
             <form
               className="lp-footer-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                /* placeholder — backend has no /api/subscribe yet */
-              }}
+              action="mailto:hello@realchain.local"
+              method="post"
+              encType="text/plain"
             >
-              <input type="email" placeholder="Email" aria-label="Email" />
-              <button type="submit" className="btn btn-gold">Subscribe</button>
+              <input type="email" name="email" placeholder="your@email.com" aria-label="Your email" required />
+              <button type="submit" className="btn btn-gold">Email us</button>
             </form>
           </div>
         </div>
@@ -364,16 +447,14 @@ function ProcessStep({ num, title, body, isOpen, onToggle }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Inline SVG illustrations — simple geometric shapes in Positivus's vocabulary
-// (lime + black + grey) so we don't depend on the original PNG asset pack.
+// Inline SVG illustrations — geometric shapes in the Positivus vocabulary
+// (lime + black + grey). No raster assets, no external dependencies.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function HeroIllustration() {
   return (
     <svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tokenized buildings">
-      {/* sky / backdrop */}
       <rect x="0" y="0" width="600" height="460" fill="none" />
-      {/* Big lime building */}
       <rect x="80" y="120" width="180" height="280" fill="#B9FF66" stroke="#191A23" strokeWidth="2" rx="14" />
       <g fill="#191A23">
         <rect x="100" y="150" width="30" height="30" rx="4" />
@@ -390,7 +471,6 @@ function HeroIllustration() {
         <rect x="200" y="300" width="30" height="30" rx="4" />
         <rect x="148" y="350" width="34" height="50" rx="4" />
       </g>
-      {/* Tall black tower */}
       <rect x="290" y="60" width="130" height="340" fill="#191A23" rx="14" />
       <g fill="#B9FF66">
         <rect x="310" y="85" width="20" height="30" rx="3" />
@@ -409,7 +489,6 @@ function HeroIllustration() {
         <rect x="345" y="265" width="20" height="30" rx="3" />
         <rect x="380" y="265" width="20" height="30" rx="3" />
       </g>
-      {/* Token coins */}
       <g>
         <circle cx="465" cy="240" r="60" fill="#B9FF66" stroke="#191A23" strokeWidth="2" />
         <text x="465" y="252" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontWeight="700" fontSize="36" fill="#191A23">$</text>
@@ -418,7 +497,6 @@ function HeroIllustration() {
         <circle cx="510" cy="340" r="36" fill="#191A23" />
         <text x="510" y="350" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontWeight="700" fontSize="22" fill="#B9FF66">P</text>
       </g>
-      {/* Ground */}
       <rect x="0" y="395" width="600" height="6" fill="#191A23" />
     </svg>
   );

@@ -1151,23 +1151,39 @@ tr:hover td { background: var(--positivus-grey-warm); }
 
 .lp-logos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: var(--space-6);
-  align-items: center;
-  padding: var(--space-8) 0;
-  border-top: 1px solid #ECECEC;
-  border-bottom: 1px solid #ECECEC;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  align-items: stretch;
+  padding: var(--space-6) 0;
   margin-top: var(--space-10);
 }
-.lp-logo {
+.lp-counter {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-5) var(--space-6);
+  background: var(--positivus-grey);
+  border: 1px solid var(--positivus-black);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-offset-sm);
+}
+.lp-counter-label {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
   color: var(--positivus-black);
-  font-size: var(--text-md);
+  opacity: 0.75;
   font-weight: 500;
-  opacity: 0.7;
+}
+.lp-counter-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--positivus-black);
+  letter-spacing: var(--tracking-tight);
+  font-feature-settings: 'tnum' on, 'lnum' on;
 }
 
 .lp-section-head {

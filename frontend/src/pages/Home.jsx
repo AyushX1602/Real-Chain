@@ -14,7 +14,7 @@ import FaucetPanel from "../components/FaucetPanel";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const { account, connect, getReadFactory, fmtInr, nodeOnline, usdcBalance, roleHint } = useWeb3();
+  const { account, connect, getReadFactory, getReadPropertyContracts, fmtInr, fmtProp, nodeOnline, usdcBalance, roleHint } = useWeb3();
   const [props, setProps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
@@ -30,7 +30,18 @@ export default function Home() {
       const list = [];
       for (let i = 0; i < count; i++) {
         const p = await factory.properties(i);
-        list.push({ id: i, ...p });
+        // Pull the real ERC-20 supply from the property's token contract so
+        // we never display an assumed "100 PROP" placeholder.
+        let totalSupply = null;
+        try {
+          const { token } = getReadPropertyContracts({
+            propertyToken: p.propertyToken,
+            rentalDistribution: p.rentalDistribution,
+            marketplace: p.marketplace,
+          });
+          totalSupply = await token.totalSupply();
+        } catch (_) { /* keep null — we'll render a dash */ }
+        list.push({ id: i, ...p, totalSupply });
       }
       setProps(list);
     } catch (e) {
@@ -110,7 +121,7 @@ export default function Home() {
             ) : (
               <div className="property-grid">
                 {props.map((p) => (
-                  <PropertyCard key={p.id} property={p} fmtInr={fmtInr}
+                  <PropertyCard key={p.id} property={p} fmtInr={fmtInr} fmtProp={fmtProp}
                     onView={() => navigate(`/property/${p.id}`)} />
                 ))}
               </div>
@@ -124,12 +135,17 @@ export default function Home() {
   );
 }
 
-function PropertyCard({ property, onView, fmtInr }) {
+function PropertyCard({ property, onView, fmtInr, fmtProp }) {
   const isCoastal = (property.location || "").toLowerCase().includes("goa")
     || (property.location || "").toLowerCase().includes("beach");
   const isMetro   = (property.location || "").toLowerCase().includes("mumbai")
     || (property.location || "").toLowerCase().includes("delhi")
     || (property.location || "").toLowerCase().includes("bangalore");
+
+  // Real on-chain supply pulled in load(); render a dash if the read failed.
+  const supplyLabel = property.totalSupply != null
+    ? `${fmtProp(property.totalSupply)} PROP`
+    : "—";
 
   return (
     <article className="card property-card" onClick={onView} role="button" tabIndex={0}
@@ -157,7 +173,7 @@ function PropertyCard({ property, onView, fmtInr }) {
           </div>
           <div style={{ background: "var(--positivus-white)", border: "1px solid var(--positivus-black)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
             <div className="stat-label" style={{ fontSize: 11, marginBottom: 2 }}>Supply</div>
-            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--positivus-black)" }}>100 PROP</div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--positivus-black)" }}>{supplyLabel}</div>
           </div>
         </div>
 
