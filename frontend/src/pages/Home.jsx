@@ -7,9 +7,10 @@ import ActivityFeed from "../components/ActivityFeed";
 import FaucetPanel from "../components/FaucetPanel";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Home — dual-mode landing.
-//   Non-connected: hero pitch + 3 feature pills + CTA.
-//   Connected:     marketplace grid + activity rail + role nav.
+// Home — RealChain marketplace.
+// Cold-start no longer renders a landing page here; that lives in Landing.jsx
+// at the "/" route. This page assumes the user has either connected their
+// wallet or is browsing the public on-chain catalog read-only.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -40,23 +41,24 @@ export default function Home() {
     }
   }
 
-  // Cold-start: not connected → landing
-  if (!account) return <Landing connect={connect} />;
-
   return (
     <div className="container reveal">
-      {/* Welcome strip */}
       <div className="page-header">
         <div className="page-header-row">
           <div>
             <h1>Tokenized <span className="accent">real estate</span> marketplace</h1>
             <p>Buy fractional ownership, earn USDC rent, and trade anytime — gas paid in Mock USD via UGF.</p>
           </div>
-          <div className="flex gap-2 flex-wrap items-center">
+          <div className="flex gap-3 flex-wrap items-center">
             <span className={`badge ${nodeOnline ? "badge-success" : "badge-danger"}`}>
               <span className="status-dot" /> {nodeOnline ? "Network online" : "Network offline"}
             </span>
-            {roleHint && (
+            {!account && (
+              <button className="btn btn-primary btn-sm" onClick={connect}>
+                <Icon name="wallet" size={12} /> Connect wallet
+              </button>
+            )}
+            {account && roleHint && (
               <Link to={roleHint === "Owner" ? "/owner" : "/investor"} className="btn btn-secondary btn-sm">
                 <Icon name={roleHint === "Owner" ? "star" : "users"} size={12} /> Open dashboard <Icon name="arrowRight" size={11} />
               </Link>
@@ -65,17 +67,15 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Show faucet panel when wallet is bare or user clicked */}
-      {(showFaucet || (Number(usdcBalance) === 0 && roleHint === "Investor")) && (
+      {(showFaucet || (account && Number(usdcBalance) === 0 && roleHint === "Investor")) && (
         <div style={{ marginBottom: 32 }}>
           <FaucetPanel onClose={() => setShowFaucet(false)} />
         </div>
       )}
 
-      {/* Two-column layout */}
       <div className="layout-two-col">
         <div>
-          {!showFaucet && Number(usdcBalance) === 0 && (
+          {!showFaucet && account && Number(usdcBalance) === 0 && (
             <div className="banner banner-info" style={{ marginBottom: 24 }}>
               <Icon name="info" size={16} style={{ flexShrink: 0, marginTop: 1 }} />
               <span>
@@ -99,7 +99,7 @@ export default function Home() {
             <h2 className="section-title"><Icon name="building" size={14} /> Available properties</h2>
             {loading ? (
               <div className="property-grid">
-                {[0, 1, 2].map((i) => <div key={i} className="skeleton" style={{ height: 320 }} />)}
+                {[0, 1, 2].map((i) => <div key={i} className="skeleton" style={{ height: 360 }} />)}
               </div>
             ) : props.length === 0 ? (
               <div className="empty-state">
@@ -124,81 +124,6 @@ export default function Home() {
   );
 }
 
-// ── Landing (cold-start) ─────────────────────────────────────────────────────
-
-function Landing({ connect }) {
-  return (
-    <div className="container">
-      <section className="hero-landing reveal">
-        <div className="hero-eyebrow">
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <Icon name="bolt" size={11} />
-            UGF Hackathon · Track 3
-          </span>
-          <span style={{ width: 4, height: 4, borderRadius: 99, background: "currentColor", opacity: 0.5 }} />
-          <span>Base Sepolia</span>
-        </div>
-
-        <h1 className="hero-headline">
-          Claim your rent.<br />
-          <span className="accent">Never touch ETH.</span>
-        </h1>
-
-        <p className="hero-sub">
-          RealChain turns property rent into one-tap USDC dividends. The Universal Gas
-          Framework settles your transaction fees in Mock USD — so you can claim, buy,
-          and trade with zero ETH in your wallet.
-        </p>
-
-        <div className="hero-cta-row">
-          <button className="btn btn-primary btn-xl" onClick={connect}>
-            <Icon name="wallet" size={16} /> Connect wallet
-          </button>
-          <a href="#features" className="btn btn-secondary btn-xl">
-            How it works <Icon name="arrowDown" size={14} />
-          </a>
-        </div>
-
-        <div className="trust-strip">
-          <span className="item"><Icon name="shield" size={12} /> <strong>Audit-ready</strong> contracts</span>
-          <span className="item"><Icon name="bolt" size={12} /> <strong>Gasless</strong> transactions</span>
-          <span className="item"><Icon name="globe" size={12} /> <strong>Open</strong> source</span>
-        </div>
-
-        <div className="hero-features" id="features">
-          <FeatureCard
-            icon="bolt"
-            title="Zero-ETH claim"
-            body="Investors with empty ETH balances click one button and rent USDC lands in their wallet. UGF wraps every state-changing call."
-          />
-          <FeatureCard
-            icon="layers"
-            title="Fractional ownership"
-            body="Each property mints 100 PROP tokens. Buy in, hold for rent, or list on the secondary market — all on-chain, all transparent."
-          />
-          <FeatureCard
-            icon="coins"
-            title="USDC rent flow"
-            body="Owners deposit rent in USDC; smart contracts split it pro-rata to every token holder. Claim anytime, gas-free."
-          />
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function FeatureCard({ icon, title, body }) {
-  return (
-    <div className="hero-feature">
-      <div className="icon-wrap"><Icon name={icon} size={20} /></div>
-      <h3>{title}</h3>
-      <p>{body}</p>
-    </div>
-  );
-}
-
-// ── Property card ────────────────────────────────────────────────────────────
-
 function PropertyCard({ property, onView, fmtInr }) {
   const isCoastal = (property.location || "").toLowerCase().includes("goa")
     || (property.location || "").toLowerCase().includes("beach");
@@ -220,19 +145,19 @@ function PropertyCard({ property, onView, fmtInr }) {
           </div>
         </div>
 
-        <h3 style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em" }}>{property.name}</h3>
-        <div className="text-xs text-muted" style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+        <h3 style={{ fontSize: 22, fontWeight: 500, letterSpacing: "-0.01em" }}>{property.name}</h3>
+        <div className="text-sm text-muted" style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
           <Icon name="pin" size={12} /> {property.location}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 18, marginBottom: 18 }}>
-          <div style={{ background: "var(--bg-elevated)", borderRadius: "var(--radius-sm)", padding: "10px 12px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 18, marginBottom: 18 }}>
+          <div style={{ background: "var(--positivus-white)", border: "1px solid var(--positivus-black)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
             <div className="stat-label" style={{ fontSize: 11, marginBottom: 2 }}>Valuation</div>
-            <div style={{ fontWeight: 700, fontSize: 14, color: "var(--amber-400)" }}>{fmtInr(property.valueInr)}</div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--positivus-black)" }}>{fmtInr(property.valueInr)}</div>
           </div>
-          <div style={{ background: "var(--bg-elevated)", borderRadius: "var(--radius-sm)", padding: "10px 12px" }}>
+          <div style={{ background: "var(--positivus-white)", border: "1px solid var(--positivus-black)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
             <div className="stat-label" style={{ fontSize: 11, marginBottom: 2 }}>Supply</div>
-            <div style={{ fontWeight: 700, fontSize: 14, color: "var(--violet-300)" }}>100 PROP</div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--positivus-black)" }}>100 PROP</div>
           </div>
         </div>
 

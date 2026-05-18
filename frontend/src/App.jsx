@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import { useWeb3 } from "./context/Web3Context";
 import { useUGF } from "./context/UGFContext";
-import { useToast } from "./components/Toast";
 import Icon from "./components/Icon";
 import Logo from "./components/Logo";
 import Switch from "./components/Switch";
+import { BACKEND_URL } from "./config/contracts";
+
+import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import Property from "./pages/Property";
 import Portfolio from "./pages/Portfolio";
@@ -14,8 +16,9 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Navbar — role-aware navigation, UGF settings popover, wallet chip.
-// Hides primary nav on mobile (<880px) — see index.css responsive rules.
+// Navbar — Positivus-style: white bar, black text, lime accent, rounded buttons.
+// Wallet connect now also pings POST /api/users/connect so the backend has a
+// row even before the user ever logs a transaction.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Navbar() {
@@ -26,6 +29,16 @@ function Navbar() {
   const { isUGFEnabled, setUGFEnabled } = useUGF();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
+
+  // Persist the connected wallet to the backend (best-effort, non-blocking).
+  useEffect(() => {
+    if (!account) return;
+    fetch(`${BACKEND_URL}/api/users/connect`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet: account, role: (roleHint || "unknown").toLowerCase() }),
+    }).catch(() => { /* backend may be offline */ });
+  }, [account, roleHint]);
 
   async function handleSwitch() {
     setSwitching(true);
@@ -38,35 +51,32 @@ function Navbar() {
     <>
       <nav className="navbar">
         <div className="navbar-inner">
-          {/* Logo */}
           <NavLink to="/" aria-label="RealChain home">
-            <Logo size={32} />
+            <Logo size={36} />
           </NavLink>
 
-          {/* Primary nav */}
           <div className="navbar-nav" role="navigation" aria-label="Primary">
-            <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-              <Icon name="home" size={14} /> Marketplace
+            <NavLink to="/marketplace" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+              Marketplace
             </NavLink>
             {account && (
               <NavLink to={dashboardHref} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-                <Icon name="grid" size={14} /> Dashboard
+                Dashboard
               </NavLink>
             )}
             <NavLink to="/portfolio" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-              <Icon name="briefcase" size={14} /> Portfolio
+              Portfolio
             </NavLink>
             <NavLink to="/dividends" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-              <Icon name="coins" size={14} /> Claim Rent
+              Claim rent
             </NavLink>
           </div>
 
-          {/* Actions */}
           <div className="navbar-actions">
             {account && (
               <span className="usdc-chip" title="Mock USDC balance">
                 <span className="dot" />
-                ${usdcBalance} <span style={{ opacity: 0.7 }}>USDC</span>
+                ${usdcBalance} USDC
               </span>
             )}
             {account && roleHint && roleHint !== "Unknown" && (
@@ -80,7 +90,6 @@ function Navbar() {
               </button>
             )}
 
-            {/* Settings */}
             <div style={{ position: "relative" }}>
               <button
                 className="icon-btn"
@@ -93,12 +102,11 @@ function Navbar() {
                   }
                 }}
               >
-                <Icon name="settings" size={16} />
+                <Icon name="settings" size={18} />
               </button>
               {settingsOpen && <SettingsPopover isUGFEnabled={isUGFEnabled} setUGFEnabled={setUGFEnabled} onClose={() => setSettingsOpen(false)} />}
             </div>
 
-            {/* Wallet */}
             <button
               className={`btn-wallet ${account ? "connected" : ""}`}
               onClick={connect}
@@ -131,48 +139,45 @@ function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
         position: "absolute",
         top: "calc(100% + 8px)",
         right: 0,
-        minWidth: 280,
-        background: "rgba(20, 20, 31, 0.96)",
-        border: "1px solid var(--border-strong)",
+        minWidth: 300,
+        background: "var(--positivus-white)",
+        border: "1px solid var(--positivus-black)",
         borderRadius: "var(--radius-lg)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        boxShadow: "var(--shadow-lg)",
-        padding: 16,
+        boxShadow: "var(--shadow-offset-sm)",
+        padding: 20,
         zIndex: "var(--z-modal)",
       }}
-      onMouseDown={(e) => e.preventDefault() /* keep focus */}
+      onMouseDown={(e) => e.preventDefault()}
     >
-      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: "var(--fg-muted)", textTransform: "uppercase", marginBottom: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", color: "var(--positivus-black)", textTransform: "uppercase", marginBottom: 14 }}>
         Demo controls
       </div>
 
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: 12,
-        background: "var(--bg-elevated)",
-        border: "1px solid var(--border)",
+        padding: 14,
+        background: "var(--positivus-grey)",
+        border: "1px solid var(--positivus-black)",
         borderRadius: "var(--radius-md)",
         gap: 12,
       }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>
-            <Icon name="bolt" size={12} className="text-accent" />
-            UGF gasless mode
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>
+            <Icon name="bolt" size={12} /> UGF gasless mode
           </div>
-          <div style={{ fontSize: 11, color: "var(--fg-muted)", lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.4 }}>
             {isUGFEnabled ? "Gas paid in Mock USD" : "Gas paid in ETH (will fail with 0 ETH)"}
           </div>
         </div>
         <Switch checked={isUGFEnabled} onChange={setUGFEnabled} id="ugf-toggle" />
       </div>
 
-      <div style={{ marginTop: 12, fontSize: 11, color: "var(--fg-muted)", lineHeight: 1.5, display: "flex", alignItems: "flex-start", gap: 6 }}>
+      <div style={{ marginTop: 12, fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.5, display: "flex", alignItems: "flex-start", gap: 6 }}>
         <Icon name="info" size={12} />
         <span>Toggle off to demonstrate the failure mode without UGF on a wallet with no ETH.</span>
       </div>
 
-      <button className="btn btn-ghost btn-sm full-width" style={{ marginTop: 12 }} onClick={onClose}>Close</button>
+      <button className="btn btn-ghost btn-sm full-width" style={{ marginTop: 14 }} onClick={onClose}>Close</button>
     </div>
   );
 }
@@ -180,11 +185,11 @@ function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
 function ErrorBanner({ error }) {
   return (
     <div role="alert" style={{
-      background: "rgba(239,68,68,0.10)",
-      borderBottom: "1px solid rgba(239,68,68,0.32)",
-      padding: "10px 24px",
-      fontSize: 13,
-      color: "var(--red-400)",
+      background: "var(--danger-soft)",
+      borderBottom: "1px solid var(--red-500)",
+      padding: "12px 24px",
+      fontSize: 14,
+      color: "var(--red-500)",
       display: "flex", alignItems: "center", gap: 12, justifyContent: "center",
     }}>
       <Icon name="alert" size={14} />
@@ -206,7 +211,8 @@ export default function App() {
       <Navbar />
       <main className="page-content">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/marketplace" element={<Home />} />
           <Route path="/owner" element={<OwnerDashboard />} />
           <Route path="/investor" element={<InvestorDashboard />} />
           <Route path="/property/:id" element={<Property />} />

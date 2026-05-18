@@ -26,6 +26,8 @@ const { requireDb } = require("./middleware/db");
 app.use("/api/properties", requireDb, require("./routes/properties"));
 app.use("/api/transactions", requireDb, require("./routes/transactions"));
 app.use("/api/users", requireDb, require("./routes/users"));
+// Faucet doesn't depend on MongoDB — it's a direct on-chain mint.
+app.use("/api/faucet", require("./routes/faucet"));
 
 // Health check
 app.get("/api/health", (req, res) => {
