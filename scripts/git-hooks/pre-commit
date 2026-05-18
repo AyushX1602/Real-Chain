@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+#
+# Graphify pre-commit hook — refreshes graphify-out/ before each commit so
+# the committed graph snapshot reflects the source tree being committed.
+#
+# Install once per clone:
+#   git config core.hooksPath scripts/git-hooks
+#
+# Bypass with the standard --no-verify flag if you ever need to.
+
+set -e
+
+# Prefer the project's npm script wrapper, but fall back to uvx directly.
+if command -v npm >/dev/null 2>&1 && [ -f package.json ]; then
+  npm run --silent graphify:update >/dev/null 2>&1 || true
+elif command -v uvx >/dev/null 2>&1; then
+  uvx --from graphifyy graphify.exe update . >/dev/null 2>&1 || true
+fi
+
+# Stage any updates Graphify produced under graphify-out/.
+if [ -d graphify-out ]; then
+  git add graphify-out 2>/dev/null || true
+fi
+
+exit 0

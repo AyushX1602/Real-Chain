@@ -12,7 +12,13 @@
     "seed:base": "hardhat run scripts/seedDemo.js --network baseSepolia",
     "simulate": "hardhat run scripts/simulate.js --network localhost",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev"
+    "dev:backend": "cd backend && npm run dev",
+    "graphify:update": "uvx --from graphifyy graphify.exe update .",
+    "graphify:update:force": "uvx --from graphifyy graphify.exe update . --force",
+    "graphify:watch": "uvx --from graphifyy graphify.exe watch .",
+    "graphify:query": "uvx --from graphifyy graphify.exe query",
+    "graphify:explain": "uvx --from graphifyy graphify.exe explain",
+    "graphify:path": "uvx --from graphifyy graphify.exe path"
   },
   "keywords": [],
   "author": "",
