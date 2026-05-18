@@ -356,7 +356,6 @@ export default function Landing() {
             <div className="lp-footer-contact">
               <p><strong>Network:</strong> {networkName} (chain id {NETWORK_CHAIN_ID})</p>
               <p><strong>API:</strong> {BACKEND_URL} · {backendOnline === null ? "checking…" : backendOnline ? "online" : "offline"}</p>
-              <p><strong>License:</strong> design CC BY 4.0 — Positivus by Olga</p>
             </div>
           </div>
 
@@ -377,12 +376,6 @@ export default function Landing() {
 
         <div className="lp-footer-bottom">
           <span>© {new Date().getFullYear()} RealChain — UGF Hackathon submission.</span>
-          <span>
-            Design adapted from{" "}
-            <a href="https://www.figma.com/community/file/1230604708032389430/positivus-landing-page-design" target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
-              Positivus by Olga
-            </a>
-          </span>
         </div>
       </footer>
     </div>

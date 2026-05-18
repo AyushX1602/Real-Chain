@@ -1,0 +1,50 @@
+RealChain
+==========
+
+This product includes design work derived from third-party sources.
+The notices below are required by the licenses of those works.
+
+
+─────────────────────────────────────────────────────────────────────
+Positivus Landing Page Design
+─────────────────────────────────────────────────────────────────────
+
+Portions of the visual design used in the RealChain frontend
+(color palette, typography choices, card and section composition,
+button shapes, and section layouts) are adapted from:
+
+    Positivus Landing Page Design
+    by Olga (@olgaaverchenko)
+    https://www.figma.com/community/file/1230604708032389430/positivus-landing-page-design
+
+A coded reference implementation by zakariamouhid was also consulted:
+
+    https://github.com/zakariamouhid/positivus-from-figma
+
+The original work is licensed under the Creative Commons Attribution
+4.0 International License (CC BY 4.0):
+
+    https://creativecommons.org/licenses/by/4.0/
+
+Changes made by RealChain
+-------------------------
+- Reimplemented from scratch in React + Vite + plain JavaScript
+  (the original is Next.js + TypeScript + Tailwind CSS).
+- Adapted the marketing-agency content surface to a tokenized real
+  estate dApp (services, CTA, "how it works", footer all rewritten).
+- Replaced the original raster illustrations with hand-built inline
+  SVGs that match RealChain's domain.
+- Combined the design with RealChain's existing Web3/UGF wiring,
+  routing, and dApp pages.
+
+This NOTICE file satisfies the attribution requirement of CC BY 4.0
+for the Positivus design.
+
+
+─────────────────────────────────────────────────────────────────────
+Other dependencies
+─────────────────────────────────────────────────────────────────────
+
+Code dependencies are licensed under their respective licenses; see
+each package's LICENSE file or the package.json files in this repo
+for details.
