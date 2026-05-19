@@ -94,6 +94,18 @@ export function Web3Provider({ children }) {
   }, []);
 
   // ── Connect MetaMask ─────────────────────────────────────────────────────────
+  const hydrateWallet = useCallback(async (ethereum = window.ethereum) => {
+    const _provider = new ethers.BrowserProvider(ethereum);
+    const _signer   = await _provider.getSigner();
+    const _account  = await _signer.getAddress();
+    const _network  = await _provider.getNetwork();
+    setProvider(_provider);
+    setSigner(_signer);
+    setAccount(_account);
+    setChainId(Number(_network.chainId));
+    return { provider: _provider, signer: _signer, account: _account, chainId: Number(_network.chainId) };
+  }, []);
+
   const connect = useCallback(async () => {
     setError(null);
     if (!window.ethereum) {
@@ -103,21 +115,29 @@ export function Web3Provider({ children }) {
     try {
       setConnecting(true);
       await window.ethereum.request({ method: "eth_requestAccounts" });
-      const _provider = new ethers.BrowserProvider(window.ethereum);
-      const _signer   = await _provider.getSigner();
-      const _account  = await _signer.getAddress();
-      const _network  = await _provider.getNetwork();
-      setProvider(_provider);
-      setSigner(_signer);
-      setAccount(_account);
-      setChainId(Number(_network.chainId));
+      await hydrateWallet(window.ethereum);
     } catch (e) {
       if (e?.code === 4001) return; // User rejected — not an error
       setError(e.message || "Connection failed");
     } finally {
       setConnecting(false);
     }
-  }, []);
+  }, [hydrateWallet]);
+
+  useEffect(() => {
+    if (!window.ethereum) return undefined;
+    let alive = true;
+    (async () => {
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (!alive || !accounts?.length) return;
+        await hydrateWallet(window.ethereum);
+      } catch {
+        // Silent restore failure should not block read-only browsing.
+      }
+    })();
+    return () => { alive = false; };
+  }, [hydrateWallet]);
 
   // ── Switch MetaMask to configured project network ─────────────────────────
   const switchToExpectedNetwork = useCallback(async () => {
@@ -153,7 +173,7 @@ export function Web3Provider({ children }) {
 
       // Refresh signer/account/network state after successful switch
       if (window.ethereum.selectedAddress) {
-        await connect();
+        await hydrateWallet(window.ethereum);
       } else {
         const _provider = new ethers.BrowserProvider(window.ethereum);
         const _network  = await _provider.getNetwork();
@@ -165,7 +185,7 @@ export function Web3Provider({ children }) {
       setError(e.message || "Failed to switch network");
       return false;
     }
-  }, [connect]);
+  }, [hydrateWallet]);
 
   // ── Prompt MetaMask account picker for role switching in demos ───────────
   const switchAccount = useCallback(async () => {
@@ -181,14 +201,14 @@ export function Web3Provider({ children }) {
         params: [{ eth_accounts: {} }],
       });
 
-      await connect();
+      await hydrateWallet(window.ethereum);
       return true;
     } catch (e) {
       if (e?.code === 4001) return; // User cancelled — not an error
       setError(e.message || "Failed to switch account");
       return false;
     }
-  }, [connect]);
+  }, [hydrateWallet]);
 
   // ── Fetch USDC balance ───────────────────────────────────────────────────────
   const refreshUsdcBalance = useCallback(async () => {
@@ -247,11 +267,14 @@ export function Web3Provider({ children }) {
     if (!window.ethereum) return;
     const onAccounts = (accounts) => {
       if (accounts.length === 0) {
+        setProvider(null);
         setAccount(null);
         setSigner(null);
+        setChainId(null);
+        setUsdcBalance("0");
         setRoleHint(null);
       }
-      else connect();
+      else hydrateWallet(window.ethereum).catch((e) => setError(e.message || "Connection failed"));
     };
     const onChain = (id) => setChainId(parseInt(id, 16));
     window.ethereum.on("accountsChanged", onAccounts);
@@ -260,7 +283,7 @@ export function Web3Provider({ children }) {
       window.ethereum.removeListener("accountsChanged", onAccounts);
       window.ethereum.removeListener("chainChanged", onChain);
     };
-  }, [connect]);
+  }, [hydrateWallet]);
 
   // ── Contract getters (read-write — requires MetaMask) ───────────────────────
   const getFactory = () =>

@@ -804,3 +804,36 @@ mode only half-applied.
 - `npm.cmd run build` from `frontend/` passes; Vite still emits only the
   existing large-chunk warning.
 - `graphify update .` completed and refreshed `graphify-out/`.
+
+## Session - Email/password auth + rent payer role (2026-05-19)
+
+### What changed
+- Added `backend/models/AuthUser.js` and extended `backend/routes/auth.js`
+  with `/api/auth/signup`, `/api/auth/login`, and `/api/auth/me`.
+  Email/password accounts are separate from wallet-indexed `User` rows.
+- JWTs are HS256 signed with `JWT_SECRET` (dev fallback for local use only);
+  passwords are hashed with Node `crypto.scryptSync`.
+- Added `frontend/src/context/AuthContext.jsx` and wrapped the React app in
+  `AuthProvider`.
+- Added `frontend/src/pages/AuthPage.jsx` for login/signup with two roles:
+  `owner` and `tenant` ("Rent payer").
+- Added `frontend/src/pages/TenantDashboard.jsx`; rent payers can select a
+  property, connect a wallet, transfer MockUSDC to the owner wallet, and see
+  session receipts.
+- Navbar and landing hero now expose login/signup, show the active email role,
+  and route Dashboard to `/owner` or `/tenant` when an email session exists.
+- `Web3Context.jsx` now restores authorized MetaMask sessions on refresh using
+  `eth_accounts`, fixing the wallet disconnect-on-reload issue.
+- `.env.example` gained `JWT_SECRET=`.
+
+### Verification
+- `npm.cmd run build` from `frontend/` passes; Vite still emits the existing
+  large-chunk warning.
+- Backend auth smoke check passes with `node -e "require('./models/AuthUser');
+  require('./routes/auth'); console.log('auth route loaded')"`.
+
+### Follow-up
+- Manual browser smoke test still needed with MongoDB online: signup/login for
+  both roles, reload JWT restore, wallet reload restore, and tenant MockUSDC
+  payment.
+- Set a real `JWT_SECRET` before any shared deployment.

@@ -32,6 +32,11 @@
 - 60-90 sec pitch video - Phase 6C. Not started.
 - Live demo URL on Vercel/Netlify - Phase 6D. Not started.
 
+## Open - Auth / rent-payer flow
+- Email/password auth now exists (`/api/auth/signup`, `/login`, `/me`) but needs a manual browser smoke test with MongoDB online: create owner, create rent-payer, reload, verify JWT restore and role redirects.
+- `JWT_SECRET` is blank in `.env.example`; set a long random secret before any shared deployment. The backend has a dev fallback only for local work.
+- The rent-payer dashboard transfers MockUSDC directly to the selected property owner and logs it as a `deposit` activity. It does not call `RentalDistribution.depositRental()`, which is still owner-only by contract design.
+
 ## Risks (need a decision, not just a task)
 - **Two "Mock USD" tokens** - our `MockUSDC` is rent settlement; UGF's `TYI_MOCK_USD` is gas settlement. This is decided, but UI copy must keep the distinction sharp.
 - **Settlement-token swap** - if anyone points the RealChain contracts at UGF's `TYI_MOCK_USD` for rent settlement, the UI/accounting story becomes inconsistent. Do not do this without team sign-off.

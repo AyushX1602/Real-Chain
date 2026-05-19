@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, useInView, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
 import { useWeb3 } from "../context/Web3Context";
 import { usePrivyEmbeddedSignIn } from "../context/PrivyBridge";
 import Icon from "../components/Icon";
@@ -34,6 +35,7 @@ const NETWORK_LABEL = {
 
 export default function Landing() {
   const { account, connect, connecting, roleHint, nodeOnline, chainId, isCorrectNetwork, getReadFactory } = useWeb3();
+  const { user: authUser, dashboardForRole } = useAuth();
   // Tier 3 / 6.1 — embedded wallet onboarding. `enabled` is false (and the
   // button hidden) unless VITE_PRIVY_APP_ID is set in .env.
   const privy = usePrivyEmbeddedSignIn();
@@ -139,8 +141,10 @@ export default function Landing() {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <HeroSection
         account={account}
+        authUser={authUser}
         connect={connect}
         connecting={connecting}
+        dashboardForRole={dashboardForRole}
         networkName={networkName}
         privy={privy}
       />
@@ -411,7 +415,7 @@ const HERO_TITLE_PARTS = [
   { text: "claim" },
 ];
 
-function HeroSection({ account, connect, connecting, networkName, privy }) {
+function HeroSection({ account, authUser, connect, connecting, dashboardForRole, networkName, privy }) {
   const reduce = useReducedMotion();
   const stageRef = useRef(null);
   // Parallax offsets are kept in CSS variables on the stage element so the
@@ -511,13 +515,27 @@ function HeroSection({ account, connect, connecting, networkName, privy }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.85, duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            {account ? (
-              <Link to="/marketplace" className="btn btn-primary btn-xl lp-cta-connect">
-                Open marketplace <Icon name="arrowRight" size={16} />
+            {authUser ? (
+              <Link to={dashboardForRole(authUser.role)} className="btn btn-primary btn-xl lp-cta-connect">
+                Open dashboard <Icon name="arrowRight" size={16} />
               </Link>
             ) : (
-              <button className="btn btn-primary btn-xl lp-cta-connect" onClick={connect} disabled={connecting}>
-                {connecting ? "Connecting…" : "Connect wallet"}
+              <Link to="/signup" className="btn btn-primary btn-xl lp-cta-connect">
+                Create account <Icon name="arrowRight" size={16} />
+              </Link>
+            )}
+            {authUser ? (
+              <Link to="/marketplace" className="btn btn-secondary btn-xl">
+                Marketplace
+              </Link>
+            ) : (
+              <Link to="/login" className="btn btn-secondary btn-xl">
+                Log in
+              </Link>
+            )}
+            {!account && (
+              <button className="btn btn-ghost btn-xl" onClick={connect} disabled={connecting}>
+                {connecting ? "Connecting..." : "Connect wallet"}
               </button>
             )}
             {/* Tier 3 / 6.1 — Privy email/social sign-in. Renders only when

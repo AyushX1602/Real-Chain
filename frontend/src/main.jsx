@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { UGFProvider } from "@tychilabs/react-ugf";
 import App from "./App";
+import { AuthProvider } from "./context/AuthContext";
 import { Web3Provider } from "./context/Web3Context";
 import { UGFContextProvider } from "./context/UGFContext";
 import { SmartAgentProvider } from "./context/SmartAgentContext";
@@ -37,18 +38,20 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <PrivyShell>
         <UGFProvider mode="testnet">
           <BrowserRouter>
-            <Web3Provider>
-              <UGFContextProvider>
-                <SmartAgentProvider>
-                  <ToastProvider>
-                    <AgentProvider>
-                      <ToastBridge />
-                      <App />
-                    </AgentProvider>
-                  </ToastProvider>
-                </SmartAgentProvider>
-              </UGFContextProvider>
-            </Web3Provider>
+            <AuthProvider>
+              <Web3Provider>
+                <UGFContextProvider>
+                  <SmartAgentProvider>
+                    <ToastProvider>
+                      <AgentProvider>
+                        <ToastBridge />
+                        <App />
+                      </AgentProvider>
+                    </ToastProvider>
+                  </SmartAgentProvider>
+                </UGFContextProvider>
+              </Web3Provider>
+            </AuthProvider>
           </BrowserRouter>
         </UGFProvider>
       </PrivyShell>

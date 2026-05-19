@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Routes, Route, NavLink, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import { useWeb3 } from "./context/Web3Context";
 import { useUGF } from "./context/UGFContext";
 import { useSmartAgent, AGENT_PROVIDERS } from "./context/SmartAgentContext";
@@ -11,12 +12,14 @@ import GasIndicator from "./components/GasIndicator";
 import { BACKEND_URL } from "./config/contracts";
 
 import Landing from "./pages/Landing";
+import AuthPage from "./pages/AuthPage";
 import Home from "./pages/Home";
 import Property from "./pages/Property";
 import Portfolio from "./pages/Portfolio";
 import Dividends from "./pages/Dividends";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
+import TenantDashboard from "./pages/TenantDashboard";
 import Watchlist from "./pages/Watchlist";
 import Analytics from "./pages/Analytics";
 import Activity from "./pages/Activity";
@@ -28,6 +31,7 @@ import Activity from "./pages/Activity";
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Navbar() {
+  const { user: authUser, isAuthenticated, logout, dashboardForRole } = useAuth();
   const {
     account, usdcBalance, connecting, connect, error, fmtAddr,
     isCorrectNetwork, roleHint, switchToExpectedNetwork,
@@ -74,7 +78,10 @@ function Navbar() {
     try { await switchToExpectedNetwork(); } finally { setSwitching(false); }
   }
 
-  const dashboardHref = roleHint === "Owner" ? "/owner" : "/investor";
+  const dashboardHref = isAuthenticated
+    ? dashboardForRole(authUser?.role)
+    : roleHint === "Owner" ? "/owner" : "/investor";
+  const authRoleLabel = authUser?.role === "tenant" ? "Rent payer" : "Owner";
 
   return (
     <>
@@ -88,7 +95,7 @@ function Navbar() {
             <NavLink to="/marketplace" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
               Marketplace
             </NavLink>
-            {account && (
+            {(account || isAuthenticated) && (
               <NavLink to={dashboardHref} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
                 Dashboard
               </NavLink>
@@ -113,6 +120,21 @@ function Navbar() {
               <span className={`role-badge ${roleHint === "Owner" ? "is-owner" : "is-investor"}`}>
                 <Icon name={roleHint === "Owner" ? "star" : "users"} size={11} /> {roleHint}
               </span>
+            )}
+            {isAuthenticated ? (
+              <>
+                <span className={`role-badge ${authUser?.role === "owner" ? "is-owner" : "is-investor"}`} title={authUser?.email}>
+                  <Icon name={authUser?.role === "owner" ? "building" : "receipt"} size={11} /> {authRoleLabel}
+                </span>
+                <button className="icon-btn" onClick={logout} aria-label="Log out">
+                  <Icon name="logout" size={16} />
+                </button>
+              </>
+            ) : (
+              <div className="auth-nav-actions">
+                <NavLink to="/login" className="btn btn-ghost btn-sm">Log in</NavLink>
+                <NavLink to="/signup" className="btn btn-secondary btn-sm">Sign up</NavLink>
+              </div>
             )}
             {!isCorrectNetwork && account && (
               <button className="btn btn-secondary btn-sm" onClick={handleSwitch} disabled={switching}>
@@ -344,9 +366,12 @@ export default function App() {
       <main className="page-content">
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<AuthPage mode="login" />} />
+          <Route path="/signup" element={<AuthPage mode="signup" />} />
           <Route path="/marketplace" element={<Home />} />
           <Route path="/owner" element={<OwnerDashboard />} />
           <Route path="/investor" element={<InvestorDashboard />} />
+          <Route path="/tenant" element={<TenantDashboard />} />
           <Route path="/property/:id" element={<Property />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/dividends" element={<Dividends />} />

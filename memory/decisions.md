@@ -110,3 +110,28 @@ Privy is optional, so the app should still build and boot when no
 **Implementation**: `frontend/src/context/PrivyBridge.jsx` caches the dynamic
 import promise, stores the loaded module in React state, and keeps rendering
 children unchanged until the optional provider is available.
+
+## 2026-05-19 - Email/password auth stays separate from wallet profiles
+
+**Decision**: Implement basic email/password auth in a new
+`backend/models/AuthUser.js` collection and expose JWT login/signup via
+`/api/auth`, rather than overloading the existing wallet-indexed `User` model.
+
+**Rationale**: The existing `User` model is keyed by wallet address and feeds
+on-chain dashboard/activity stats. Email accounts can exist before a wallet is
+connected, so a separate auth model avoids Mongo unique-index migration risk
+and keeps wallet analytics untouched.
+
+**Implementation**: Passwords are hashed with Node `crypto.scryptSync`; JWTs
+are signed as HS256 using `JWT_SECRET` with a dev fallback. Frontend session
+state lives in `frontend/src/context/AuthContext.jsx`, and roles map to
+`owner -> /owner` and `tenant -> /tenant`.
+
+## 2026-05-19 - Wallet refresh restores authorized MetaMask sessions
+
+**Decision**: `Web3Context` now calls `eth_accounts` on load and hydrates the
+provider/signer/account when MetaMask has already authorized the site.
+
+**Rationale**: A connected wallet was dropping out of React state after browser
+refresh even though MetaMask still knew the site permission. Silent restore
+keeps the dashboard connected without prompting users again.
