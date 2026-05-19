@@ -3370,3 +3370,366 @@ tr:hover td { background: var(--positivus-grey-warm); }
 .sp-compact-row:last-child { border-bottom: 0; }
 .sp-compact-row:hover { background: #f9f9f9; }
 .sp-compact-row.is-highlight { background: #B9FF66; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Hero redesign — full-viewport, ambient orbs, parallax coins, staggered
+   word entrance, micro-animated illustration.
+   The signature `.lp-hero-stage` selector is shared with the original; the
+   `--living` modifier opts into the new behaviour without breaking the older
+   styles further up the file.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.lp-hero-stage--living {
+  /* Edge-to-edge canvas — break out of the .container's inline padding */
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: 0;
+  margin-bottom: var(--space-12);
+  min-height: 100vh;
+  padding: clamp(24px, 6vh, 64px) clamp(24px, 6vw, 80px);
+  border: none;
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(185, 255, 102, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(196, 248, 140, 0.4) 0%, transparent 55%),
+    linear-gradient(180deg, #FAFFF1 0%, #FFFFFF 60%, #F3F3F3 100%);
+  box-shadow: none;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  /* Default parallax variables — overridden by JS on mousemove */
+  --hero-px-eth-x: 0px;
+  --hero-px-eth-y: 0px;
+  --hero-px-usdc-x: 0px;
+  --hero-px-usdc-y: 0px;
+}
+
+/* Push the larger orbs harder than the original — heavier blur, wider drift */
+.lp-hero-orb--xl {
+  filter: blur(80px);
+  opacity: 0.25;
+}
+.lp-hero-orb--xl.is-warm {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, #B9FF66 0%, rgba(185, 255, 102, 0) 72%);
+  top: 60%; right: 10%;
+  animation: lpOrbDrift 18s ease-in-out infinite;
+  animation-delay: -9s;
+  opacity: 0.22;
+}
+
+/* Hero inner block — flex layout, bigger gap, centred vertically */
+.lp-hero--living {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+@media (max-width: 980px) {
+  .lp-hero--living { flex-direction: column; align-items: stretch; gap: 32px; }
+}
+
+/* Translucent text plate — frosted, no hard offset shadow on the new variant */
+.lp-hero-text--living {
+  flex: 1.1;
+  max-width: 640px;
+  padding: clamp(28px, 4vw, 48px);
+  border-radius: 24px;
+  border: 1px solid rgba(25, 26, 35, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24px 60px rgba(25, 26, 35, 0.08);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lp-hero-text--living {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+  }
+}
+
+/* Pulsing zero-ETH eyebrow */
+.lp-hero-eyebrow--zero[data-pulse] {
+  position: relative;
+  background: rgba(185, 255, 102, 0.18);
+  border-color: rgba(25, 26, 35, 0.25);
+  animation: lpEyebrowGlow 2.4s ease-in-out infinite;
+}
+@keyframes lpEyebrowGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(185, 255, 102, 0.0); }
+  50%      { box-shadow: 0 0 0 8px rgba(185, 255, 102, 0.18); }
+}
+
+/* Staggered word reveal — each word is a motion.span; this scopes spacing */
+.lp-hero-title--staggered {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: clamp(44px, 6vw, 68px);
+  line-height: 1.04;
+  margin-bottom: var(--space-5);
+}
+.lp-hero-title--staggered .hl-word { display: inline-block; }
+.lp-hero-title--staggered .hl-word .hl {
+  /* Inherit the existing chip styling; rotation handled by parent rule. */
+}
+.lp-hero-word { display: inline-block; }
+
+/* Illustration plate — borderless on the new variant, just frosted */
+.lp-hero-illu--living {
+  position: relative;
+  flex: 1;
+  min-height: clamp(360px, 50vh, 540px);
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.lp-hero-illu--living::before {
+  /* Soft underlay so the SVG never floats over a fully empty plate */
+  content: "";
+  position: absolute;
+  inset: 8% 6%;
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.55) 0%, transparent 70%);
+  z-index: 0;
+}
+.lp-hero-illu--living .lp-hero-illu-glow {
+  width: 80%;
+  height: 80%;
+  filter: blur(60px);
+  opacity: 0.85;
+}
+
+/* The whole illustration group floats up and down on a 4s loop */
+.lp-hero-illu-float {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  animation: lpHeroFloat 4s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes lpHeroFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+/* Lightning bolt — 8s linear rotation, top-right corner of the illustration */
+.lp-hero-bolt {
+  position: absolute;
+  top: 12%;
+  right: 14%;
+  width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--positivus-green, #B9FF66);
+  border: 1px solid var(--positivus-black, #191A23);
+  box-shadow: 0 4px 0 0 var(--positivus-black, #191A23);
+  color: var(--positivus-black, #191A23);
+  animation: lpBoltSpin 8s linear infinite;
+  z-index: 3;
+}
+@keyframes lpBoltSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Primary USDC dollar — pulse 1 ↔ 1.06 on a 2s ease-in-out loop */
+.lp-hero-dollar--primary {
+  position: absolute;
+  bottom: 16%;
+  left: 12%;
+  width: 64px; height: 64px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 24px; font-weight: 800;
+  color: #FFFFFF;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2775CA 0%, #1E5BAE 100%);
+  border: 1px solid var(--positivus-black, #191A23);
+  box-shadow: 0 4px 0 0 var(--positivus-black, #191A23);
+  animation: lpDollarPulse 2s ease-in-out infinite;
+  z-index: 3;
+}
+@keyframes lpDollarPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+
+/* Orbiting USDC settle coin — a 6s rotation around the primary dollar */
+.lp-hero-orbit {
+  position: absolute;
+  bottom: 16%;
+  left: 12%;
+  width: 64px; height: 64px;
+  pointer-events: none;
+  animation: lpOrbit 6s linear infinite;
+  z-index: 2;
+}
+.lp-hero-orbit-coin {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) translateX(48px);
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 13px; font-weight: 800;
+  color: #FFFFFF;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4D8FE0 0%, #2775CA 100%);
+  border: 1px solid var(--positivus-black, #191A23);
+  box-shadow: 0 2px 0 0 var(--positivus-black, #191A23);
+}
+@keyframes lpOrbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Floating coins (background depth) ───────────────────────────────────── */
+.lp-coin {
+  position: absolute;
+  width: var(--coin-size, 56px);
+  height: var(--coin-size, 56px);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--positivus-black, #191A23);
+  box-shadow: 0 6px 14px rgba(25, 26, 35, 0.18);
+  font-family: var(--font-mono, monospace);
+  font-weight: 800;
+  letter-spacing: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: lpCoinFloat var(--coin-dur, 6s) ease-in-out infinite;
+  animation-delay: var(--coin-delay, 0s);
+  will-change: transform;
+}
+.lp-coin.is-bg { opacity: 0.42; }
+.lp-coin .lp-coin-glyph { position: relative; z-index: 2; }
+
+/* ETH coin — dark hex/diamond badge with Ξ */
+.lp-coin-eth {
+  background: linear-gradient(135deg, #2C2D38 0%, #191A23 50%, #0E0F17 100%);
+  color: #FFFFFF;
+  font-size: calc(var(--coin-size) * 0.5);
+  /* Diamond/hex feel via clip-path (subtle — mostly stays a circle) */
+  border-radius: 50%;
+}
+.lp-coin-eth .lp-coin-shine {
+  position: absolute; inset: -1px;
+  border-radius: 50%;
+  background: conic-gradient(from 90deg, transparent 0deg, rgba(255,255,255,0.18) 60deg, transparent 120deg);
+  mix-blend-mode: screen;
+  animation: lpCoinShimmer 6s linear infinite;
+  animation-delay: var(--coin-delay, 0s);
+  pointer-events: none;
+}
+.lp-coin-eth.pos-top-right    { top: 8%;  right: 6%;  transform: translate(var(--hero-px-eth-x), var(--hero-px-eth-y)); }
+.lp-coin-eth.pos-bottom-left  { bottom: 6%; left: 8%; transform: translate(var(--hero-px-eth-x), var(--hero-px-eth-y)); }
+.lp-coin-eth.pos-mid-left     { top: 42%; left: 4%;   transform: translate(var(--hero-px-eth-x), var(--hero-px-eth-y)); }
+@keyframes lpCoinShimmer {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* USDC coin — blue circular badge with $ */
+.lp-coin-usdc {
+  background: linear-gradient(135deg, #2775CA 0%, #1E5BAE 60%, #143C7A 100%);
+  color: #FFFFFF;
+  font-size: calc(var(--coin-size) * 0.46);
+}
+.lp-coin-usdc .lp-coin-rim {
+  position: absolute; inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(255,255,255,0.0) 0deg, rgba(255,255,255,0.55) 90deg, rgba(255,255,255,0.0) 180deg, rgba(255,255,255,0.0) 360deg);
+  mix-blend-mode: screen;
+  animation: lpCoinShimmer 5s linear infinite;
+  animation-delay: var(--coin-delay, 0s);
+  pointer-events: none;
+}
+.lp-coin-usdc.pos-mid-right   { top: 40%;  right: 22%;  transform: translate(var(--hero-px-usdc-x), var(--hero-px-usdc-y)); }
+.lp-coin-usdc.pos-top-left    { top: 14%;  left: 22%;   transform: translate(var(--hero-px-usdc-x), var(--hero-px-usdc-y)); }
+.lp-coin-usdc.pos-bottom-mid  { bottom: 8%; left: 48%;  transform: translate(var(--hero-px-usdc-x), var(--hero-px-usdc-y)); }
+
+/* Coin float animation — kept in sync with the spec's 5s/6.5s targets */
+@keyframes lpCoinFloat {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -10px; }
+}
+
+/* ── CTA hover states ─────────────────────────────────────────────────────── */
+.lp-cta-connect {
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.lp-cta-connect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(185, 255, 102, 0.55), 5px 5px 0 0 var(--positivus-black, #191A23);
+}
+.lp-cta-howitworks {
+  position: relative;
+  overflow: hidden;
+}
+.lp-cta-shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, transparent 0%, transparent 35%, rgba(185, 255, 102, 0.55) 50%, transparent 65%, transparent 100%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+.lp-cta-howitworks:hover .lp-cta-shimmer {
+  animation: lpShimmerSweep 1.2s ease-out 1;
+}
+@keyframes lpShimmerSweep {
+  to { transform: translateX(110%); }
+}
+
+/* ── Reduced motion: collapse every long-running hero animation ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lp-hero-illu-float,
+  .lp-hero-bolt,
+  .lp-hero-dollar--primary,
+  .lp-hero-orbit,
+  .lp-coin,
+  .lp-coin-eth .lp-coin-shine,
+  .lp-coin-usdc .lp-coin-rim,
+  .lp-hero-eyebrow--zero[data-pulse],
+  .lp-hero-orb--xl {
+    animation: none !important;
+  }
+  .lp-cta-howitworks:hover .lp-cta-shimmer { animation: none !important; transform: translateX(110%); }
+  .lp-hero-stage--living {
+    --hero-px-eth-x: 0px; --hero-px-eth-y: 0px;
+    --hero-px-usdc-x: 0px; --hero-px-usdc-y: 0px;
+  }
+}
+
+/* ── Navbar — push the glass effect harder (kept opt-in via @supports) ──── */
+.navbar {
+  /* Keep the original sticky behaviour; deepen the glass treatment */
+  background: rgba(255, 255, 255, 0.55);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: 0 8px 24px rgba(25, 26, 35, 0.06);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .navbar {
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
