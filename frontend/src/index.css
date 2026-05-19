@@ -3739,3 +3739,611 @@ tr:hover td { background: var(--positivus-grey-warm); }
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Theme tokens — light (Positivus default) and dark (refined fintech).
+   The bootstrap script in index.html sets `data-theme` on <html> before
+   first paint, so consumers always resolve against the correct palette.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root,
+html[data-theme="light"] {
+  --bg-base:        #F5FFF0;
+  --bg-card:        #FFFFFF;
+  --bg-elevated:    #F0FAE8;
+  --text-primary:   #0D0D0D;
+  --text-secondary: #4A5A42;
+  --accent-lime:    #B9FF66;
+  --accent-lime-strong: #B9FF66;
+  --border:         #E0EDD8;
+  --border-strong:  #191A23;
+  --usdc-accent:    #2775CA;
+  --eth-accent:     #191A23;
+  --shadow-color:   rgba(25, 26, 35, 0.10);
+}
+
+/* ── Dark mode — premium fintech palette ─────────────────────────────────────
+   Ground rules I'm following here, learned from the previous attempt:
+     • No green-tint on the base. Pure cool greys read as "premium" while
+       the original swamp-green base felt amateur.
+     • Lime is the accent, not the background. Desaturated to #B7F870 and
+       softened to ~85% opacity for fills, full strength for active states.
+     • Two layers of elevation: --bg-card sits one step above --bg-base,
+       --bg-elevated one step above that. No blur tricks.
+     • Border tokens are split: --border for hairlines on cards, --border-
+       strong for the Positivus signature 1px outlines that survive every
+       dark surface. Both are blue-grey rather than green.
+     • Foreground is Lab-tuned warm white at 92% lightness so type doesn't
+       feel cold-blue. Secondary text drops to a muted slate.                */
+
+html[data-theme="dark"] {
+  --bg-base:        #0B0E12;     /* deep navy-black */
+  --bg-card:        #161A21;     /* card surface */
+  --bg-elevated:    #1E232C;     /* hover / popover */
+  --bg-overlay:     rgba(11, 14, 18, 0.72);
+  --text-primary:   #ECEDEF;     /* warm off-white */
+  --text-secondary: #9AA2B0;     /* muted slate */
+  --text-tertiary:  #6B7280;     /* even quieter */
+  --accent-lime:    #B7F870;     /* slightly desaturated lime */
+  --accent-lime-strong: #C7FF82; /* full-strength accent for active states */
+  --accent-lime-soft: rgba(183, 248, 112, 0.15);
+  --border:         #232830;     /* hairline */
+  --border-strong:  #2D3340;     /* Positivus 1px outline survives dark */
+  --usdc-accent:    #34D399;     /* fintech green for USDC */
+  --eth-accent:     #A78BFA;     /* periwinkle for ETH */
+  --shadow-color:   rgba(0, 0, 0, 0.55);
+
+  /* Rebind the legacy Positivus palette so every consumer flips together
+     without a page-by-page rewrite. The original tokens were:
+       --positivus-green / black / white / grey
+     We map each to the appropriate dark-token equivalent. */
+  --positivus-green:        var(--accent-lime);
+  --positivus-green-hover:  var(--accent-lime-strong);
+  --positivus-black:        var(--border-strong);
+  --positivus-black-hover:  #353B48;
+  --positivus-white:        var(--bg-card);
+  --positivus-grey:         var(--bg-elevated);
+  --positivus-grey-warm:    var(--bg-elevated);
+
+  /* Borders that referenced #ECECEC (light hairline) flip to the dark hairline. */
+  --hairline:               #1E232C;
+
+  color-scheme: dark;
+}
+
+/* Smooth, jank-free theme switch — restricted to the three properties that
+   actually need a transition. box-shadow / filter intentionally omitted. */
+body,
+.navbar,
+.card,
+.card-elevated,
+.stat-card,
+.lp-feature-card,
+.lp-agent-card,
+.surface-glass,
+.btn,
+.form-input,
+.theme-pill {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .navbar,
+  .card,
+  .card-elevated,
+  .stat-card,
+  .lp-feature-card,
+  .lp-agent-card,
+  .surface-glass,
+  .btn,
+  .form-input,
+  .theme-pill { transition: none; }
+}
+
+/* Theme toggle pills inside Settings → Appearance */
+.theme-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.theme-pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 14px;
+  font-size: 13px; font-weight: 600;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+}
+.theme-pill:hover { transform: translateY(-1px); }
+.theme-pill.is-active {
+  background: var(--accent-lime);
+  color: #0D0D0D;
+  font-weight: 700;
+  border-color: var(--accent-lime);
+}
+
+/* ── Dark-mode-only enhancements ──────────────────────────────────────────── */
+
+/* Body baseline — flows through every container that inherits color/bg. */
+html[data-theme="dark"] body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] a { color: var(--accent-lime); }
+html[data-theme="dark"] a:hover { color: var(--accent-lime-strong); }
+
+/* Selection in dark mode — readable lime highlight. */
+html[data-theme="dark"] ::selection {
+  background: var(--accent-lime-soft);
+  color: var(--text-primary);
+}
+
+/* Scrollbar — dark-tuned so the rail doesn't read as a bright stripe. */
+html[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+html[data-theme="dark"] ::-webkit-scrollbar-track    { background: var(--bg-base); }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb    { background: var(--bg-elevated); border-radius: 6px; border: 2px solid var(--bg-base); }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #2D3340; }
+
+/* Navbar: cool-toned glass instead of the swamp-green of the previous attempt. */
+html[data-theme="dark"] .navbar {
+  background: rgba(11, 14, 18, 0.78);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 24px var(--shadow-color);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html[data-theme="dark"] .navbar {
+    background: rgba(11, 14, 18, 0.55);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+  }
+}
+html[data-theme="dark"] .nav-link { color: var(--text-secondary); }
+html[data-theme="dark"] .nav-link:hover { color: var(--text-primary); border-bottom-color: var(--text-secondary); }
+html[data-theme="dark"] .nav-link.active { color: var(--text-primary); border-bottom-color: var(--accent-lime); }
+html[data-theme="dark"] .usdc-chip {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .usdc-chip .dot { background: var(--accent-lime); }
+html[data-theme="dark"] .role-badge { border-color: var(--border-strong); }
+html[data-theme="dark"] .icon-btn { color: var(--text-secondary); }
+html[data-theme="dark"] .icon-btn:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+/* Hero radial — premium midnight wash, no green tint. */
+html[data-theme="dark"] .lp-hero-stage--living {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(183, 248, 112, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(167, 139, 250, 0.10) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, #11151B 0%, #0B0E12 75%);
+}
+html[data-theme="dark"] .lp-hero-grid {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+}
+
+/* Hero text + glass plates */
+html[data-theme="dark"] .lp-hero-text--living,
+html[data-theme="dark"] .surface-glass {
+  background: rgba(22, 26, 33, 0.65);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html[data-theme="dark"] .lp-hero-text--living,
+  html[data-theme="dark"] .surface-glass {
+    background: rgba(22, 26, 33, 0.45);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+  }
+}
+html[data-theme="dark"] .lp-hero-eyebrow {
+  background: rgba(22, 26, 33, 0.7);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .lp-hero-eyebrow--zero[data-pulse] {
+  background: rgba(183, 248, 112, 0.08);
+  border-color: rgba(183, 248, 112, 0.35);
+  color: var(--accent-lime-strong);
+}
+html[data-theme="dark"] .lp-hero-eyebrow-dot {
+  background: var(--accent-lime);
+  border-color: var(--accent-lime);
+  box-shadow: 0 0 12px rgba(183, 248, 112, 0.55);
+}
+
+/* Lime "zero-ETH" highlight chip — neon edge instead of the harsh hard shadow. */
+html[data-theme="dark"] .lp-hero-title .hl,
+html[data-theme="dark"] .lp-hero-title--staggered .hl {
+  background: var(--accent-lime);
+  color: #0B0E12;
+  border-color: var(--accent-lime);
+  box-shadow:
+    0 0 24px rgba(183, 248, 112, 0.45),
+    0 3px 0 0 rgba(0, 0, 0, 0.45);
+}
+html[data-theme="dark"] .lp-hero-sub { color: var(--text-secondary); }
+
+/* Floating coins recolour — fintech green for USDC, periwinkle for ETH. */
+html[data-theme="dark"] .lp-coin-usdc {
+  background: linear-gradient(135deg, #34D399 0%, #1F9D70 60%, #0F6B4A 100%);
+  color: #0B0E12;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  box-shadow: 0 6px 18px rgba(52, 211, 153, 0.18);
+}
+html[data-theme="dark"] .lp-coin-eth {
+  background: linear-gradient(135deg, #A78BFA 0%, #7C5CD8 60%, #4C34A0 100%);
+  color: #0B0E12;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  box-shadow: 0 6px 18px rgba(167, 139, 250, 0.18);
+}
+html[data-theme="dark"] .lp-hero-dollar--primary {
+  background: linear-gradient(135deg, #34D399 0%, #1F9D70 100%);
+  color: #0B0E12;
+  border-color: rgba(52, 211, 153, 0.5);
+}
+html[data-theme="dark"] .lp-hero-orbit-coin {
+  background: linear-gradient(135deg, #34D399 0%, #1F9D70 100%);
+  color: #0B0E12;
+  border-color: rgba(52, 211, 153, 0.5);
+}
+html[data-theme="dark"] .lp-hero-bolt {
+  background: var(--accent-lime);
+  border-color: var(--accent-lime);
+  color: #0B0E12;
+  box-shadow: 0 0 16px rgba(183, 248, 112, 0.45);
+}
+html[data-theme="dark"] .lp-hero-illu-pill {
+  background: rgba(22, 26, 33, 0.85);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .lp-hero-illu-pill.is-bottom {
+  background: rgba(183, 248, 112, 0.18);
+  border-color: rgba(183, 248, 112, 0.4);
+  color: var(--accent-lime-strong);
+}
+
+/* Cards + tables — proper elevation pyramid. */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .card-elevated,
+html[data-theme="dark"] .property-card {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: 5px 5px 0 0 var(--border-strong);
+}
+html[data-theme="dark"] .stat-card {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+html[data-theme="dark"] .table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+html[data-theme="dark"] table thead { background: var(--bg-elevated); }
+html[data-theme="dark"] table th { color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+html[data-theme="dark"] table td { border-bottom: 1px solid var(--border); color: var(--text-primary); }
+html[data-theme="dark"] table tr:hover { background: var(--bg-elevated); }
+
+/* Feature gallery + agent cards */
+html[data-theme="dark"] .lp-feature-card,
+html[data-theme="dark"] .lp-agent-card {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: 5px 5px 0 0 var(--border-strong);
+}
+html[data-theme="dark"] .lp-feature-card:hover,
+html[data-theme="dark"] .lp-agent-card:hover {
+  box-shadow: 7px 7px 0 0 var(--accent-lime);
+}
+html[data-theme="dark"] .lp-feature-card-desc,
+html[data-theme="dark"] .lp-agent-card-lead { color: var(--text-secondary); }
+html[data-theme="dark"] .lp-feature-tab {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+html[data-theme="dark"] .lp-feature-tab.is-active {
+  background: var(--accent-lime);
+  color: #0B0E12;
+  border-color: var(--accent-lime);
+}
+html[data-theme="dark"] .lp-section-title { color: var(--text-primary); }
+html[data-theme="dark"] .lp-section-sub   { color: var(--text-secondary); }
+
+/* Buttons — keep the lime CTA, retune the secondary/ghost variants. */
+html[data-theme="dark"] .btn-primary {
+  background: var(--accent-lime);
+  color: #0B0E12;
+  border: 1px solid var(--accent-lime);
+}
+html[data-theme="dark"] .btn-primary:hover {
+  background: var(--accent-lime-strong);
+  border-color: var(--accent-lime-strong);
+}
+html[data-theme="dark"] .btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+}
+html[data-theme="dark"] .btn-secondary:hover { background: #2D3340; }
+html[data-theme="dark"] .btn-ghost {
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+}
+html[data-theme="dark"] .btn-ghost:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+/* Connect-wallet CTA glow — lime halo over dark fill. */
+html[data-theme="dark"] .lp-cta-connect,
+html[data-theme="dark"] .btn-wallet:not(.connected) {
+  box-shadow: 0 0 24px rgba(183, 248, 112, 0.3), 5px 5px 0 0 var(--border-strong);
+}
+html[data-theme="dark"] .lp-cta-connect:hover {
+  box-shadow: 0 12px 32px rgba(183, 248, 112, 0.55), 5px 5px 0 0 var(--border-strong);
+}
+
+/* Form inputs + popover surfaces */
+html[data-theme="dark"] .form-input {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+}
+html[data-theme="dark"] .form-input:focus { border-color: var(--accent-lime); outline: 2px solid rgba(183, 248, 112, 0.35); outline-offset: 1px; }
+html[data-theme="dark"] .form-input::placeholder { color: var(--text-tertiary); }
+html[data-theme="dark"] .form-label { color: var(--text-secondary); }
+html[data-theme="dark"] .form-input-prefix { background: var(--bg-elevated); border: 1px solid var(--border-strong); }
+html[data-theme="dark"] .form-input-prefix .prefix { color: var(--text-secondary); border-right: 1px solid var(--border); }
+
+html[data-theme="dark"] .settings-popover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 48px var(--shadow-color);
+}
+html[data-theme="dark"] .settings-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+}
+html[data-theme="dark"] .settings-section-head { color: var(--text-secondary); }
+html[data-theme="dark"] .settings-row-title { color: var(--text-primary); }
+html[data-theme="dark"] .settings-row-desc { color: var(--text-secondary); }
+html[data-theme="dark"] .settings-warn {
+  background: rgba(255, 200, 100, 0.08);
+  color: #F4C46B;
+  border: 1px solid rgba(255, 200, 100, 0.3);
+}
+
+/* Theme pill toggle — refined for dark */
+html[data-theme="dark"] .theme-pill {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+}
+html[data-theme="dark"] .theme-pill:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+html[data-theme="dark"] .theme-pill.is-active {
+  background: var(--accent-lime);
+  color: #0B0E12;
+  border-color: var(--accent-lime);
+  box-shadow: 0 0 16px rgba(183, 248, 112, 0.35);
+}
+
+/* Muted text + status text */
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .stat-label,
+html[data-theme="dark"] .text-sm.text-muted,
+html[data-theme="dark"] .text-xs.text-muted { color: var(--text-secondary); }
+html[data-theme="dark"] .stat-value { color: var(--text-primary); }
+html[data-theme="dark"] .stat-value.accent { color: var(--accent-lime); }
+html[data-theme="dark"] .stat-value.gold   { color: #F4C46B; }
+html[data-theme="dark"] .stat-value.success{ color: #34D399; }
+
+/* Banners + alerts */
+html[data-theme="dark"] .banner-info {
+  background: rgba(99, 179, 237, 0.10);
+  color: #93C5FD;
+  border: 1px solid rgba(99, 179, 237, 0.25);
+}
+html[data-theme="dark"] .banner-warn {
+  background: rgba(255, 200, 100, 0.10);
+  color: #F4C46B;
+  border: 1px solid rgba(255, 200, 100, 0.3);
+}
+html[data-theme="dark"] .banner-danger {
+  background: rgba(239, 68, 68, 0.10);
+  color: #FCA5A5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Badges */
+html[data-theme="dark"] .badge { border-color: var(--border-strong); }
+html[data-theme="dark"] .badge-muted    { background: var(--bg-elevated); color: var(--text-secondary); }
+html[data-theme="dark"] .badge-accent   { background: var(--accent-lime); color: #0B0E12; }
+html[data-theme="dark"] .badge-success  { background: rgba(52, 211, 153, 0.15); color: #34D399; border-color: rgba(52, 211, 153, 0.4); }
+html[data-theme="dark"] .badge-danger   { background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.4); }
+html[data-theme="dark"] .badge-gold     { background: rgba(244, 196, 107, 0.15); color: #F4C46B; border-color: rgba(244, 196, 107, 0.4); }
+
+/* Empty states + skeleton */
+html[data-theme="dark"] .empty-state {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .empty-state p { color: var(--text-secondary); }
+html[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 0%, #2A2F38 50%, var(--bg-elevated) 100%);
+}
+
+/* Filter bar */
+html[data-theme="dark"] .filter-bar { background: var(--bg-card); border: 1px solid var(--border); }
+html[data-theme="dark"] .filter-search input,
+html[data-theme="dark"] .chip {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+html[data-theme="dark"] .chip-active { background: var(--accent-lime); color: #0B0E12; border-color: var(--accent-lime); }
+
+/* Trust strip + counters */
+html[data-theme="dark"] .trust-strip,
+html[data-theme="dark"] .lp-logos,
+html[data-theme="dark"] .lp-counter {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .lp-counter-label { color: var(--text-secondary); }
+html[data-theme="dark"] .lp-counter-value { color: var(--text-primary); }
+
+/* Process steps + how-it-works */
+html[data-theme="dark"] .lp-process { border-top: 1px solid var(--border); }
+html[data-theme="dark"] .lp-process > * { border-bottom: 1px solid var(--border); }
+
+/* Footer */
+html[data-theme="dark"] .lp-footer {
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+}
+html[data-theme="dark"] .lp-footer-nav a { color: var(--text-secondary); }
+html[data-theme="dark"] .lp-footer-nav a:hover { color: var(--text-primary); }
+
+/* ── Screen primitives — explicit dark overrides since they hardcode hex. */
+html[data-theme="dark"] .sp-onchain-badge {
+  background: var(--accent-lime);
+  color: #0B0E12;
+  border-color: var(--accent-lime);
+}
+html[data-theme="dark"] .sp-onchain-disabled {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border-color: var(--border);
+  opacity: 0.7;
+}
+html[data-theme="dark"] .sp-gas-badge.is-ugf { background: var(--accent-lime); color: #0B0E12; border-color: var(--accent-lime); }
+html[data-theme="dark"] .sp-gas-badge.is-eth { background: var(--bg-elevated); color: var(--text-primary); border-color: var(--border-strong); }
+html[data-theme="dark"] .sp-contract-method {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+html[data-theme="dark"] .sp-contract-method:hover { background: var(--accent-lime); color: #0B0E12; border-color: var(--accent-lime); }
+html[data-theme="dark"] .sp-fractional-label { color: var(--text-secondary); }
+html[data-theme="dark"] .sp-fractional-supply { color: var(--text-secondary); }
+html[data-theme="dark"] .sp-fractional-divider { color: var(--text-tertiary); }
+html[data-theme="dark"] .sp-fractional-track { background: var(--bg-elevated); border-color: var(--border-strong); }
+html[data-theme="dark"] .sp-fractional-fill { background: var(--accent-lime); border-right-color: var(--border-strong); }
+html[data-theme="dark"] .sp-holder-chip {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+html[data-theme="dark"] .sp-holder-chip.is-unknown { color: var(--text-tertiary); }
+html[data-theme="dark"] .sp-holder-strip-label { color: var(--text-secondary); }
+html[data-theme="dark"] .sp-holder-strip-value { color: var(--text-primary); }
+html[data-theme="dark"] .sp-holder-strip-track { background: var(--bg-elevated); border-color: var(--border-strong); }
+html[data-theme="dark"] .sp-holder-strip-seg { background: var(--accent-lime); border-right-color: var(--border-strong); }
+html[data-theme="dark"] .sp-holder-strip-others { background: var(--bg-elevated); }
+html[data-theme="dark"] .sp-cadence {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+html[data-theme="dark"] .sp-kpi-tile {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: 5px 5px 0 0 var(--border-strong);
+}
+html[data-theme="dark"] .sp-kpi-tile.sp-tone-accent {
+  background: var(--accent-lime);
+  color: #0B0E12;
+  border-color: var(--accent-lime);
+}
+html[data-theme="dark"] .sp-kpi-tile.sp-tone-accent .sp-kpi-label,
+html[data-theme="dark"] .sp-kpi-tile.sp-tone-accent .sp-kpi-source { color: rgba(11, 14, 18, 0.7); }
+html[data-theme="dark"] .sp-kpi-tile.sp-tone-dark {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  box-shadow: 5px 5px 0 0 var(--accent-lime);
+}
+html[data-theme="dark"] .sp-kpi-label  { color: var(--text-secondary); }
+html[data-theme="dark"] .sp-kpi-source { color: var(--text-secondary); border-top-color: var(--border); }
+html[data-theme="dark"] .sp-indexer-status.is-live    { background: var(--accent-lime); color: #0B0E12; border-color: var(--accent-lime); }
+html[data-theme="dark"] .sp-indexer-status.is-offline { background: var(--bg-elevated); color: var(--text-primary); border-color: var(--border-strong); }
+html[data-theme="dark"] .sp-indexer-dot { background: #0B0E12; }
+html[data-theme="dark"] .sp-wallet-short {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+html[data-theme="dark"] .sp-wallet-short.is-link:hover { background: var(--accent-lime); color: #0B0E12; }
+html[data-theme="dark"] .sp-section-band {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+}
+html[data-theme="dark"] .sp-section-band-title { color: var(--text-primary); }
+html[data-theme="dark"] .sp-section-band-meta  { color: var(--text-secondary); }
+html[data-theme="dark"] .sp-tx-flight {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+  box-shadow: 5px 5px 0 0 var(--accent-lime);
+}
+html[data-theme="dark"] .sp-tx-flight .sp-tx-flight-icon { background: var(--accent-lime); color: #0B0E12; }
+html[data-theme="dark"] .sp-compact-row { border-bottom-color: var(--border); }
+html[data-theme="dark"] .sp-compact-row:hover { background: var(--bg-elevated); }
+html[data-theme="dark"] .sp-compact-row.is-highlight { background: rgba(183, 248, 112, 0.15); }
+
+/* Smart agent block on the dashboard */
+html[data-theme="dark"] .agent-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .agent-tag {
+  background: var(--accent-lime);
+  color: #0B0E12;
+  border-color: var(--accent-lime);
+}
+html[data-theme="dark"] .agent-meta { color: var(--text-secondary); }
+html[data-theme="dark"] .agent-empty { color: var(--text-secondary); }
+html[data-theme="dark"] .agent-item { border-color: var(--border); }
+html[data-theme="dark"] .agent-item-desc { color: var(--text-secondary); }
+html[data-theme="dark"] .agent-answer {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+html[data-theme="dark"] .agent-answer-head { color: var(--text-secondary); }
+
+/* Activity-feed rows */
+html[data-theme="dark"] .activity-row { border-bottom: 1px solid var(--border); color: var(--text-primary); }
+html[data-theme="dark"] .activity-row:hover { background: var(--bg-elevated); }
+
+/* Cost banner */
+html[data-theme="dark"] .cost-banner { background: var(--bg-elevated); border: 1px solid var(--border); }
+html[data-theme="dark"] .cost-row { border-color: var(--border); }
+html[data-theme="dark"] .cost-row.is-active.is-fail { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.4); }
+html[data-theme="dark"] .cost-row.is-active:not(.is-fail) { background: rgba(183, 248, 112, 0.08); border-color: rgba(183, 248, 112, 0.3); }
+html[data-theme="dark"] .cost-label  { color: var(--text-secondary); }
+html[data-theme="dark"] .cost-value  { color: var(--text-primary); }
+html[data-theme="dark"] .cost-meta   { color: var(--text-tertiary); }

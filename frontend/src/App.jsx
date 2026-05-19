@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import { useWeb3 } from "./context/Web3Context";
 import { useUGF } from "./context/UGFContext";
 import { useSmartAgent, AGENT_PROVIDERS } from "./context/SmartAgentContext";
+import { useTheme } from "./context/ThemeContext";
 import Icon from "./components/Icon";
 import Logo from "./components/Logo";
 import Switch from "./components/Switch";
@@ -163,6 +164,7 @@ function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
     aiModel, setAiModel,
     llmReady,
   } = useSmartAgent();
+  const { theme, setTheme } = useTheme();
   const [showKey, setShowKey] = useState(false);
 
   const provider = AGENT_PROVIDERS.find((p) => p.id === aiProvider) || AGENT_PROVIDERS[0];
@@ -173,7 +175,31 @@ function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
       aria-label="Settings"
       className="settings-popover"
     >
-      <div className="settings-section-head">Demo controls</div>
+      <div className="settings-section-head">Appearance</div>
+
+      {/* Theme pill toggle — Light is the deterministic default */}
+      <div className="theme-toggle" role="radiogroup" aria-label="Theme">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={theme === "light"}
+          className={`theme-pill ${theme === "light" ? "is-active" : ""}`}
+          onClick={() => setTheme("light")}
+        >
+          <Icon name="info" size={12} /> Light
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={theme === "dark"}
+          className={`theme-pill ${theme === "dark" ? "is-active" : ""}`}
+          onClick={() => setTheme("dark")}
+        >
+          <Icon name="bolt" size={12} /> Dark
+        </button>
+      </div>
+
+      <div className="settings-section-head" style={{ marginTop: 18 }}>Demo controls</div>
 
       {/* UGF gasless toggle */}
       <div className="settings-row">

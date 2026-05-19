@@ -28,6 +28,25 @@
       type="image/svg+xml"
       href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='1' y='1' width='30' height='30' rx='8' fill='%23B9FF66' stroke='%23191A23' stroke-width='2'/><path d='M16 7 24 11.5l-8 4.5-8-4.5L16 7Z' fill='%23191A23'/><path d='M8 15 16 19.5l8-4.5v3L16 22.5 8 18v-3Z' fill='%23191A23' fill-opacity='0.7'/></svg>"
     />
+
+    <!--
+      No-FOUC theme bootstrap. Runs synchronously before <body> renders so
+      the data-theme attribute is in place before any CSS variables resolve
+      against the wrong token set. Light is the deterministic default — we
+      deliberately ignore prefers-color-scheme so demos behave the same on
+      every machine.
+    -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("realchain-theme");
+          var theme = (saved === "dark") ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

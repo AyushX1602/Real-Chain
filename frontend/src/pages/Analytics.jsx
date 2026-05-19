@@ -160,9 +160,9 @@ export default function Analytics() {
                 {holders.map((h) => (
                   <div key={h.propertyId} style={{
                     display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12, alignItems: "center",
-                    padding: 12, border: "1px solid #191A23", borderRadius: 10, background: "#fff",
+                    padding: 12, border: "1px solid var(--border)", borderRadius: 10, background: "var(--bg-card)",
                   }}>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>{h.name || `Property #${h.propertyId}`}</div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>{h.name || `Property #${h.propertyId}`}</div>
                     <HolderConcentrationStrip shares={h.top5} label="Top-5" />
                   </div>
                 ))}
@@ -185,7 +185,7 @@ export default function Analytics() {
               <div>
                 {leaders.slice(0, 10).map((row, i) => (
                   <div key={row.address || i} className="sp-compact-row" style={{ gridTemplateColumns: "32px 1fr auto" }}>
-                    <div style={{ fontWeight: 800, fontSize: 14, color: "#191A23" }}>#{i + 1}</div>
+                    <div style={{ fontWeight: 800, fontSize: 14, color: "var(--text-primary)" }}>#{i + 1}</div>
                     <WalletShort address={row.address || row.wallet} />
                     <div style={{ fontWeight: 800, fontFeatureSettings: "'tnum' on" }}>
                       ${Number(row.lifetimeRentUsd ?? row.lifetimeRent ?? row.amount ?? 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}

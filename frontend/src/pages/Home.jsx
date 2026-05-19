@@ -401,13 +401,13 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 18, marginBottom: 14 }}>
-          <div style={{ background: "var(--positivus-white)", border: "1px solid var(--positivus-black)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
+          <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
             <div className="stat-label" style={{ fontSize: 11, marginBottom: 2 }}>Valuation</div>
-            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--positivus-black)" }}>{fmtInr(property.valueInr)}</div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>{fmtInr(property.valueInr)}</div>
           </div>
-          <div style={{ background: "var(--positivus-white)", border: "1px solid var(--positivus-black)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
+          <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
             <div className="stat-label" style={{ fontSize: 11, marginBottom: 2 }}>Supply</div>
-            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--positivus-black)" }}>{supplyLabel}</div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>{supplyLabel}</div>
           </div>
         </div>
 

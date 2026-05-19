@@ -377,7 +377,7 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
         <div style={{
           display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14,
           padding: 16, marginBottom: 16,
-          background: "#fff", border: "1px solid #191A23", borderRadius: 10,
+          background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10,
         }}>
           <FractionalOwnershipBar
             holding={distributedNum}

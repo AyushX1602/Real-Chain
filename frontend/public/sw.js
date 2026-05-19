@@ -10,8 +10,8 @@
  * are passed straight through.
  */
 
-const STATIC_CACHE = "rc-static-v1";
-const RUNTIME_CACHE = "rc-runtime-v1";
+const STATIC_CACHE = "rc-static-v2";
+const RUNTIME_CACHE = "rc-runtime-v2";
 
 const CORE_ASSETS = [
   "/",

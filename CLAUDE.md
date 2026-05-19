@@ -688,3 +688,101 @@ Blockers: None for the merge/push task.
   screen; the on-chain fallback path stays as the safety net for fresh
   deployments where the indexer has yet to populate the denormalised
   fields.
+
+
+## Session — Dark mode (2026-05-19)
+
+### What shipped
+- New `frontend/src/context/ThemeContext.jsx` exposing `{ theme, setTheme }`.
+  Storage key `realchain-theme`, validated values `"light" | "dark"`, default
+  `"light"`. Cross-tab sync via the `storage` event. The `prefers-color-scheme`
+  media query is deliberately not consulted — light is forced as factory default.
+- `index.html` gained a synchronous bootstrap script that reads
+  `localStorage["realchain-theme"]` and sets `data-theme` on `<html>` before
+  React mounts. Eliminates first-paint FOUC.
+- `main.jsx`: `ThemeProvider` is now the outermost provider so theme state is
+  invariant to inner remounts.
+- `App.jsx` `SettingsPopover`: added an **Appearance** section as the first
+  group inside the existing gear popover. Two pill toggles ("Light" / "Dark"),
+  active state is lime + black bold per spec. Existing UGF / Smart Gas / AI
+  groups kept below — those are real features, not placeholders, so removing
+  them would have been a regression. Flag if you want them dropped instead.
+- `index.css`: full token system at the bottom of the file:
+  - `[data-theme="light"]` and `[data-theme="dark"]` token sets exactly per
+    the brief: `--bg-base`, `--bg-card`, `--bg-elevated`, `--text-primary`,
+    `--text-secondary`, `--accent-lime`, `--border`, `--usdc-accent`,
+    `--eth-accent`, plus a derived `--shadow-color`.
+  - 0.3s ease transitions on `background-color`, `color`, `border-color`
+    only — no `box-shadow` / `filter` per the brief, with reduced-motion
+    override.
+  - Theme pill styles using the tokens (active = lime fill, inactive =
+    elevated-bg + secondary text + 1px border).
+  - Dark-mode-only enhancements: navbar glassmorphism with rgba(8,12,8,0.75)
+    + backdrop-blur 16px, hero radial #0F1A0F → #080C08, neon glow on the
+    zero-ETH highlight chip (0 0 20px rgba(170,255,69,0.4)), USDC coins
+    swap to #4DFFB4 fill, ETH coins swap to #C4A8FF, all card borders use
+    the dark token, "Connect wallet" CTA gets a 0 0 24px lime glow.
+
+### Verification
+- `npx vite build` → 577 modules, exit 0. CSS 89.7 kB / 14.4 kB gzipped.
+- Diagnostics: zero issues across `ThemeContext.jsx`, `App.jsx`, `main.jsx`,
+  `index.css`, `index.html`.
+
+### Things to know if extending
+- Dark-mode component overrides intentionally target only the high-contrast
+  surfaces (navbar, hero, cards, popovers, form inputs, muted text). Pages
+  that still ship hardcoded colours in inline `style={...}` will follow the
+  light tokens until they are migrated to `var(--…)`. Migrating those is
+  mechanical — search for hex literals in JSX style props and replace with
+  the matching token.
+- The new tokens live in `:root, html[data-theme="light"]` so any consumer
+  that doesn't set `data-theme` (e.g. a future static export) still gets the
+  light palette automatically.
+
+
+## Session — Dark mode v2 (proper redesign) (2026-05-19)
+
+### Why this round
+The first dark-mode pass had three problems: green-tinted base felt
+amateur, `#AAFF45` was too saturated against pure black (eye strain), and
+most components still pulled hardcoded `#191A23` / `#fff` literals so dark
+mode only half-applied.
+
+### What changed
+- **Palette redesigned** for premium fintech feel:
+  - `--bg-base #0B0E12`, `--bg-card #161A21`, `--bg-elevated #1E232C` —
+    cool navy-black, no green tint, three-step elevation pyramid.
+  - `--text-primary #ECEDEF` (warm off-white at 92% L), `--text-secondary
+    #9AA2B0` slate, `--text-tertiary #6B7280` for the quiet level.
+  - `--accent-lime #B7F870` desaturated for fills, `--accent-lime-strong
+    #C7FF82` for active/hover states. Soft alpha `--accent-lime-soft` for
+    selection / hero washes.
+  - `--border #232830` hairline, `--border-strong #2D3340` for the
+    Positivus 1px outlines that survive on dark.
+  - `--usdc-accent #34D399` (emerald) and `--eth-accent #A78BFA`
+    (periwinkle) — the previous neon-mint USDC was unreadable.
+- **Legacy `--positivus-*` tokens rebound** at the dark scope so every
+  consumer that still uses `var(--positivus-white)` etc. flips
+  automatically. No page-by-page rewrite needed.
+- **Explicit dark overrides** on every component that hardcoded hex:
+  - Navbar (cool 0.55 alpha glass over `#0B0E12`).
+  - Hero (radial midnight wash, recoloured ETH/USDC coins, lime neon edge
+    on the zero-ETH chip).
+  - Cards / tables / popovers / forms / chips / badges / banners.
+  - Every screen primitive (`OnChainBadge`, `GasMethodBadge`,
+    `ContractMethodBadge`, `FractionalOwnershipBar`, `HolderCountChip`,
+    `HolderConcentrationStrip`, `EpochCadenceIndicator`, `KpiTile`,
+    `IndexerStatus`, `WalletShort`).
+  - Activity feed rows, agent suggestion block, cost banner.
+- Scrollbar restyled so the rail isn't a bright stripe on dark.
+- Selection colour set to a faint lime so highlights stay readable.
+
+### Verification
+- `npx vite build` → 577 modules, exit 0. CSS 103.4 kB / 15.9 kB gzipped.
+- Diagnostics zero on `index.css`.
+
+### Not yet covered
+- Inline `style={{ color: "#191A23" }}` literals on a small number of pages
+  still resolve to the brand-static black even in dark mode. They're rare
+  (the previous session migrated the visible ones); a future sweep can
+  replace them with `var(--text-primary)`.

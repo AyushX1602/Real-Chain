@@ -112,13 +112,13 @@ export default function Watchlist() {
                   <Icon name="pin" size={12} /> {p.location}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 18, marginBottom: 18 }}>
-                  <div style={{ background: "var(--positivus-white)", border: "1px solid var(--positivus-black)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
+                  <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
                     <div className="stat-label" style={{ fontSize: 11, marginBottom: 2 }}>Valuation</div>
-                    <div style={{ fontWeight: 700, fontSize: 16 }}>{fmtInr(p.valueInr)}</div>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>{fmtInr(p.valueInr)}</div>
                   </div>
-                  <div style={{ background: "var(--positivus-white)", border: "1px solid var(--positivus-black)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
+                  <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", padding: "10px 14px" }}>
                     <div className="stat-label" style={{ fontSize: 11, marginBottom: 2 }}>Supply</div>
-                    <div style={{ fontWeight: 700, fontSize: 16 }}>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>
                       {p.totalSupply != null ? `${fmtProp(p.totalSupply)} PROP` : "—"}
                     </div>
                   </div>

@@ -6,6 +6,7 @@ import App from "./App";
 import { Web3Provider } from "./context/Web3Context";
 import { UGFContextProvider } from "./context/UGFContext";
 import { SmartAgentProvider } from "./context/SmartAgentContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { ToastProvider } from "./components/Toast";
 import { PrivyShell } from "./context/PrivyBridge";
 import { AgentProvider } from "./agents";
@@ -32,23 +33,25 @@ import "./index.css";
 //                        call toast().
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <PrivyShell>
-      <UGFProvider mode="testnet">
-        <BrowserRouter>
-          <Web3Provider>
-            <UGFContextProvider>
-              <SmartAgentProvider>
-                <ToastProvider>
-                  <AgentProvider>
-                    <ToastBridge />
-                    <App />
-                  </AgentProvider>
-                </ToastProvider>
-              </SmartAgentProvider>
-            </UGFContextProvider>
-          </Web3Provider>
-        </BrowserRouter>
-      </UGFProvider>
-    </PrivyShell>
+    <ThemeProvider>
+      <PrivyShell>
+        <UGFProvider mode="testnet">
+          <BrowserRouter>
+            <Web3Provider>
+              <UGFContextProvider>
+                <SmartAgentProvider>
+                  <ToastProvider>
+                    <AgentProvider>
+                      <ToastBridge />
+                      <App />
+                    </AgentProvider>
+                  </ToastProvider>
+                </SmartAgentProvider>
+              </UGFContextProvider>
+            </Web3Provider>
+          </BrowserRouter>
+        </UGFProvider>
+      </PrivyShell>
+    </ThemeProvider>
   </React.StrictMode>
 );
