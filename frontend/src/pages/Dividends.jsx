@@ -7,6 +7,13 @@ import { useToast } from "../components/Toast";
 import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import ConnectGate from "../components/ConnectGate";
+import {
+  GasMethodBadge,
+  ContractMethodBadge,
+  OnChainBadge,
+  EpochCadenceIndicator,
+  FractionalOwnershipBar,
+} from "../components/ScreenPrimitives";
 import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -46,14 +53,31 @@ export default function Dividends() {
           epochs.push({ id: j, total, ts: Number(ts), isClaimed });
         }
 
-        const [pending, balance] = await Promise.all([
+        const [pending, balance, totalSupply] = await Promise.all([
           rental.pendingDividends(account),
           token.balanceOf(account),
+          token.totalSupply(),
         ]);
 
+        // Compute median cadence over the last 12 deposits — used by the
+        // EpochCadenceIndicator to show the projected next deposit date.
+        let cadenceDays = null;
+        let lastDepositAt = null;
+        if (epochs.length >= 2) {
+          const sorted = [...epochs].sort((a, b) => a.ts - b.ts);
+          lastDepositAt = sorted[sorted.length - 1].ts * 1000;
+          const recent = sorted.slice(-12);
+          const gaps = [];
+          for (let k = 1; k < recent.length; k++) gaps.push(recent[k].ts - recent[k - 1].ts);
+          gaps.sort((a, b) => a - b);
+          const median = gaps[Math.floor(gaps.length / 2)];
+          cadenceDays = Math.max(1, Math.round(median / 86_400));
+        }
+
         ps.push({
-          propId: i, prop: p, pending, balance,
+          propId: i, prop: p, pending, balance, totalSupply,
           epochCount, epochs,
+          cadenceDays, lastDepositAt,
           isOwner: p.owner.toLowerCase() === account.toLowerCase(),
         });
       }
@@ -132,16 +156,21 @@ export default function Dividends() {
 }
 
 function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, isUGFEnabled, logTx, getUsdc, onRefresh, refreshUsdcBalance, toast }) {
-  const { prop, balance, pending, epochCount, epochs, isOwner, propId } = data;
+  const { prop, balance, totalSupply, pending, epochCount, epochs, isOwner, propId, cadenceDays, lastDepositAt } = data;
   const [busy, setBusy] = useState(null); // null | "claim" | "deposit"
   const [depositAmt, setDepositAmt] = useState("");
+  const [lastTxHash, setLastTxHash] = useState(null);
   const hasPending = pending > 0n;
+
+  const balanceNum = Number(ethers.formatEther(balance));
+  const supplyNum = totalSupply ? Number(ethers.formatEther(totalSupply)) : 0;
 
   async function handleClaim() {
     setBusy("claim");
     try {
       const receipt = await ugfExecute(prop.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "claimAll", []);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
+      setLastTxHash(txHash);
       logTx({
         txHash, type: "claim",
         propertyId: propId,
@@ -168,6 +197,7 @@ function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, isUGFEnabled, logTx, get
 
       const receipt = await ugfExecute(prop.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [amt]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
+      setLastTxHash(txHash);
       logTx({
         txHash, type: "deposit",
         propertyId: propId,
@@ -219,6 +249,16 @@ function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, isUGFEnabled, logTx, get
           </div>
         </div>
 
+        {/* Fractional ownership + cadence — visible blockchain context */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, marginBottom: 16, alignItems: "center" }}>
+          <FractionalOwnershipBar
+            holding={balanceNum}
+            totalSupply={supplyNum}
+            label="Your share of this property"
+          />
+          <EpochCadenceIndicator cadenceDays={cadenceDays} lastDepositAt={lastDepositAt} />
+        </div>
+
         {/* Claim CTA */}
         {hasPending && (
           <div className="flex items-center gap-3 flex-wrap" style={{ marginBottom: 16 }}>
@@ -228,6 +268,9 @@ function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, isUGFEnabled, logTx, get
                 : <><Icon name="bolt" size={13} /> Claim {fmtUsdc(pending)}</>}
             </button>
             <UGFBadge />
+            <GasMethodBadge method={isUGFEnabled ? "ugf" : "eth"} compact />
+            <ContractMethodBadge contractName="RentalDistribution" methodName="claimAll" address={prop.rentalDistribution} />
+            {lastTxHash && <OnChainBadge txHash={lastTxHash} label="Last claim" />}
           </div>
         )}
 

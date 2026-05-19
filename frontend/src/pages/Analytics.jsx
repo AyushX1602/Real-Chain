@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Icon from "../components/Icon";
 import { BACKEND_URL } from "../config/contracts";
+import {
+  KpiTile,
+  IndexerStatus,
+  HolderConcentrationStrip,
+  WalletShort,
+} from "../components/ScreenPrimitives";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Analytics — protocol-wide chart page. Pulls live data from:
@@ -14,7 +20,10 @@ import { BACKEND_URL } from "../config/contracts";
 export default function Analytics() {
   const [stats, setStats] = useState(null);
   const [series, setSeries] = useState(null);
+  const [holders, setHolders] = useState([]);  // [{ propertyId, name, top5 }]
+  const [leaders, setLeaders] = useState([]);
   const [error, setError] = useState(null);
+  const [lastUpdatedMs, setLastUpdatedMs] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -28,10 +37,47 @@ export default function Analytics() {
         if (a.ok) setStats(await a.json());
         if (b.ok) setSeries(await b.json());
         if (!a.ok && !b.ok) setError("Backend unreachable");
+        else setLastUpdatedMs(Date.now());
       } catch (e) {
         if (alive) setError(e?.message || "Backend unreachable");
       }
     })();
+
+    // Holder concentration per property — best-effort; populates lazily.
+    (async () => {
+      try {
+        const r = await fetch(`${BACKEND_URL}/api/properties`);
+        if (!r.ok) return;
+        const data = await r.json();
+        const list = Array.isArray(data) ? data : (data?.properties || []);
+        const out = [];
+        for (const p of list.slice(0, 12)) {
+          try {
+            const h = await fetch(`${BACKEND_URL}/api/properties/${p.id ?? p._id}/holders`);
+            if (!h.ok) continue;
+            const dh = await h.json();
+            const sorted = (dh?.holders || []).slice().sort((x, y) => Number(y.balance) - Number(x.balance));
+            const total = sorted.reduce((s, x) => s + Number(x.balance), 0);
+            if (total === 0) continue;
+            const top5 = sorted.slice(0, 5).map((x) => Math.round((Number(x.balance) / total) * 1000) / 10);
+            out.push({ propertyId: p.id ?? p._id, name: p.name, top5 });
+          } catch { /* skip property */ }
+        }
+        if (alive) setHolders(out);
+      } catch { /* indexer offline — leave list empty */ }
+    })();
+
+    // Leaderboard — top wallets by lifetime rent received.
+    (async () => {
+      try {
+        const r = await fetch(`${BACKEND_URL}/api/users/leaderboard/top?limit=10`);
+        if (!r.ok) return;
+        const data = await r.json();
+        const rows = Array.isArray(data) ? data : (data?.leaders || []);
+        if (alive) setLeaders(rows);
+      } catch { /* leave empty */ }
+    })();
+
     return () => { alive = false; };
   }, []);
 
@@ -41,11 +87,9 @@ export default function Analytics() {
         <div className="page-header-row">
           <div>
             <h1>Protocol <span className="accent">analytics</span></h1>
-            <p>Live aggregates from the Express + MongoDB backend. Updated each time the page loads.</p>
+            <p>Live aggregates from the Express + MongoDB indexer. Hover any tile to see its on-chain source.</p>
           </div>
-          <span className={`badge ${error ? "badge-danger" : "badge-success"}`}>
-            <Icon name={error ? "alert" : "check"} size={11} /> {error ? "Offline" : "Live"}
-          </span>
+          <IndexerStatus offline={Boolean(error)} lastUpdatedMs={lastUpdatedMs} />
         </div>
       </div>
 
@@ -55,12 +99,34 @@ export default function Analytics() {
         </div>
       )}
 
-      {/* KPIs */}
+      {/* KPIs with hover-revealed contract source */}
       <div className="stats-row" style={{ marginBottom: 32 }}>
-        <KpiTile icon="history" label="Total transactions" value={stats?.totalTransactions} />
-        <KpiTile icon="bolt"    label="Gasless via UGF"    value={stats?.ugfTransactions} />
-        <KpiTile icon="coins"   label="Rent claimed"       value={stats?.totalClaimed}  money />
-        <KpiTile icon="trending" label="Tokens bought"      value={stats?.totalInvested} money />
+        <KpiTile
+          icon="history"
+          label="Total transactions"
+          value={fmtCount(stats?.totalTransactions)}
+          sourceText="Sourced from Marketplace + RentalDistribution events via indexer"
+        />
+        <KpiTile
+          icon="bolt"
+          label="Gasless via UGF"
+          value={fmtCount(stats?.ugfTransactions)}
+          tone="accent"
+          sourceText="Tx records where gasMethod === 'ugf'"
+        />
+        <KpiTile
+          icon="coins"
+          label="Rent claimed"
+          value={fmtMoney(stats?.totalClaimed)}
+          tone="dark"
+          sourceText="Sum of RentalDistribution.claim / claimAll amounts"
+        />
+        <KpiTile
+          icon="trending"
+          label="Tokens bought"
+          value={fmtMoney(stats?.totalInvested)}
+          sourceText="Sum of Marketplace.buyFromOwner + buyFromListing volumes"
+        />
       </div>
 
       {/* Daily volume bars */}
@@ -69,6 +135,58 @@ export default function Analytics() {
         <div className="card card-elevated">
           <div className="card-body">
             <DailyBars points={series?.daily ?? []} />
+          </div>
+        </div>
+      </div>
+
+      {/* Holder concentration leaderboard */}
+      <div className="section">
+        <h2 className="section-title"><Icon name="users" size={14} /> Holder concentration</h2>
+        <div className="card card-elevated">
+          <div className="card-body">
+            {holders.length === 0 ? (
+              <div className="text-muted" style={{ padding: 12 }}>
+                Concentration data appears once the indexer sees its first <code>Transfer</code> event per property.
+              </div>
+            ) : (
+              <div style={{ display: "grid", gap: 14 }}>
+                {holders.map((h) => (
+                  <div key={h.propertyId} style={{
+                    display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12, alignItems: "center",
+                    padding: 12, border: "1px solid #191A23", borderRadius: 10, background: "#fff",
+                  }}>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{h.name || `Property #${h.propertyId}`}</div>
+                    <HolderConcentrationStrip shares={h.top5} label="Top-5" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Lifetime-rent leaderboard */}
+      <div className="section">
+        <h2 className="section-title"><Icon name="trending" size={14} /> Lifetime rent leaderboard</h2>
+        <div className="card card-elevated">
+          <div className="card-body" style={{ padding: 0 }}>
+            {leaders.length === 0 ? (
+              <div className="text-muted" style={{ padding: 18 }}>
+                Leaderboard populates once wallets begin claiming rent.
+              </div>
+            ) : (
+              <div>
+                {leaders.slice(0, 10).map((row, i) => (
+                  <div key={row.address || i} className="sp-compact-row" style={{ gridTemplateColumns: "32px 1fr auto" }}>
+                    <div style={{ fontWeight: 800, fontSize: 14, color: "#191A23" }}>#{i + 1}</div>
+                    <WalletShort address={row.address || row.wallet} />
+                    <div style={{ fontWeight: 800, fontFeatureSettings: "'tnum' on" }}>
+                      ${Number(row.lifetimeRentUsd ?? row.lifetimeRent ?? row.amount ?? 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -86,19 +204,13 @@ export default function Analytics() {
   );
 }
 
-function KpiTile({ icon, label, value, money = false }) {
-  const v = Number(value);
-  const display = (value === undefined || value === null || !Number.isFinite(v))
-    ? "—"
-    : money
-      ? `$${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
-      : v.toLocaleString("en-US");
-  return (
-    <div className="stat-card">
-      <div className="stat-label"><Icon name={icon} size={12} /> {label}</div>
-      <div className="stat-value">{display}</div>
-    </div>
-  );
+function fmtCount(v) {
+  const n = Number(v);
+  return (v == null || !Number.isFinite(n)) ? "—" : n.toLocaleString("en-US");
+}
+function fmtMoney(v) {
+  const n = Number(v);
+  return (v == null || !Number.isFinite(n)) ? "—" : `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
 // ── Daily bars (inline SVG, no charting dep) ────────────────────────────────

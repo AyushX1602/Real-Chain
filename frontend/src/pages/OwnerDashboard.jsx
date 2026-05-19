@@ -8,7 +8,15 @@ import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import CostBanner from "../components/CostBanner";
 import ConnectGate from "../components/ConnectGate";
-import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import {
+  GasMethodBadge,
+  ContractMethodBadge,
+  OnChainBadge,
+  HolderConcentrationStrip,
+  EpochCadenceIndicator,
+  FractionalOwnershipBar,
+} from "../components/ScreenPrimitives";
+import { BACKEND_URL, RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OwnerDashboard — properties you own, rent you have deposited, quick deposit
@@ -48,16 +56,57 @@ export default function OwnerDashboard() {
           totalDeposited += total;
           epochs.push({ id: j, total, ts: Number(ts) });
         }
-        const ownerSupply = await token.balanceOf(p.owner);
-        list.push({ id: i, property: p, totalDeposited, ownerSupply, epochs });
+
+        // Cadence calc — same logic as the Claim Rent screen.
+        let cadenceDays = null;
+        let lastDepositAt = null;
+        if (epochs.length >= 2) {
+          const sorted = [...epochs].sort((a, b) => a.ts - b.ts);
+          lastDepositAt = sorted[sorted.length - 1].ts * 1000;
+          const recent = sorted.slice(-12);
+          const gaps = [];
+          for (let k = 1; k < recent.length; k++) gaps.push(recent[k].ts - recent[k - 1].ts);
+          gaps.sort((a, b) => a - b);
+          const median = gaps[Math.floor(gaps.length / 2)];
+          cadenceDays = Math.max(1, Math.round(median / 86_400));
+        }
+
+        const [ownerSupply, totalSupply] = await Promise.all([
+          token.balanceOf(p.owner),
+          token.totalSupply(),
+        ]);
+        list.push({
+          id: i, property: p, totalDeposited, ownerSupply, totalSupply,
+          epochs, cadenceDays, lastDepositAt,
+          holderShares: null, // filled async by fetchHolderConcentration
+          lastTxHash: null,
+        });
       }
       setProps(list);
+      // Fire holder-concentration fetches in parallel — they fail soft.
+      list.forEach((p) => fetchHolderConcentration(p.id));
     } catch (e) {
       console.error(e);
       toast.error("Could not load properties", { msg: "Check the network and try again." });
     } finally {
       setLoading(false);
     }
+  }
+
+  // Pull top-5 holder concentration from the indexer per property.
+  async function fetchHolderConcentration(id) {
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/properties/${id}/holders`, {
+        signal: AbortSignal.timeout?.(10_000),
+      });
+      if (!r.ok) throw new Error(String(r.status));
+      const data = await r.json();
+      const holders = (data?.holders || []).slice().sort((a, b) => Number(b.balance) - Number(a.balance));
+      const total = holders.reduce((s, h) => s + Number(h.balance), 0);
+      if (total === 0) return;
+      const top5 = holders.slice(0, 5).map((h) => Math.round((Number(h.balance) / total) * 1000) / 10);
+      setProps((prev) => prev.map((p) => p.id === id ? { ...p, holderShares: top5 } : p));
+    } catch { /* leave as null — strip renders "—" */ }
   }
 
   const totalRent = useMemo(() => props.reduce((s, x) => s + x.totalDeposited, 0n), [props]);
@@ -230,12 +279,31 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
 }
 
 function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, isUGFEnabled, logTx, getUsdc, onRefresh, toast }) {
-  const { property: p, totalDeposited, ownerSupply, epochs } = item;
+  const { property: p, totalDeposited, ownerSupply, totalSupply, epochs, cadenceDays, lastDepositAt, holderShares } = item;
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lastTxHash, setLastTxHash] = useState(null);
+  const [validationErr, setValidationErr] = useState(null);
+
+  const ownerSupplyNum = Number(ethers.formatEther(ownerSupply));
+  const totalSupplyNum = totalSupply ? Number(ethers.formatEther(totalSupply)) : 0;
+  const distributedNum = Math.max(0, totalSupplyNum - ownerSupplyNum);
+
+  function validate(value) {
+    const v = String(value ?? "").trim();
+    if (!v) return "Enter an amount";
+    if (!/^\d+(\.\d{1,2})?$/.test(v)) return "Up to 2 decimal places";
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "Invalid number";
+    if (n < 0.01) return "Minimum 0.01 MockUSDC";
+    if (n > 1_000_000) return "Maximum 1,000,000 MockUSDC";
+    return null;
+  }
 
   async function handleDeposit() {
-    if (!amount || Number(amount) <= 0) return;
+    const err = validate(amount);
+    if (err) { setValidationErr(err); return; }
+    setValidationErr(null);
     const usdcRaw = BigInt(Math.floor(parseFloat(amount) * 1e6));
     setBusy(true);
     try {
@@ -246,6 +314,7 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, isUGFEn
 
       const receipt = await ugfExecute(p.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [usdcRaw]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
+      setLastTxHash(txHash);
       logTx({
         txHash,
         type: "deposit",
@@ -297,6 +366,29 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, isUGFEn
           </div>
         </div>
 
+        {/* Tokenization health: distribution + holder concentration + cadence */}
+        <div style={{
+          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14,
+          padding: 16, marginBottom: 16,
+          background: "#fff", border: "1px solid #191A23", borderRadius: 10,
+        }}>
+          <FractionalOwnershipBar
+            holding={distributedNum}
+            totalSupply={totalSupplyNum}
+            label="Tokens distributed"
+          />
+          {holderShares == null
+            ? <div className="text-xs text-muted" style={{ alignSelf: "center" }}>
+                <Icon name="info" size={11} /> Holder concentration loading…
+              </div>
+            : <HolderConcentrationStrip shares={holderShares} label="Top-5 share" />
+          }
+          <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+            <EpochCadenceIndicator cadenceDays={cadenceDays} lastDepositAt={lastDepositAt} />
+            {lastTxHash && <OnChainBadge txHash={lastTxHash} label="Last deposit" />}
+          </div>
+        </div>
+
         {/* Deposit form */}
         <div style={{
           padding: 18,
@@ -315,16 +407,21 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, isUGFEn
               <div className="form-input-prefix">
                 <span className="prefix">$</span>
                 <input className="form-input" type="number" min="0" step="0.01" placeholder="500.00"
-                  value={amount} onChange={(e) => setAmount(e.target.value)} />
+                  value={amount} onChange={(e) => { setAmount(e.target.value); setValidationErr(null); }} />
               </div>
+              {validationErr && <div className="text-xs" style={{ color: "var(--red-500)", marginTop: 4 }}>{validationErr}</div>}
             </div>
             <button className="btn btn-primary" onClick={handleDeposit} disabled={!amount || busy}>
               {busy ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Depositing…</> : <><Icon name="bolt" size={13} /> Deposit</>}
             </button>
           </div>
           <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-            <UGFBadge />
-            {amount && <CostBanner
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <UGFBadge />
+              <GasMethodBadge method={isUGFEnabled ? "ugf" : "eth"} compact />
+              <ContractMethodBadge contractName="RentalDistribution" methodName="depositRental" address={p.rentalDistribution} />
+            </div>
+            {amount && !validationErr && <CostBanner
               target={p.rentalDistribution}
               abi={RENTAL_DISTRIBUTION_ABI}
               fnName="depositRental"

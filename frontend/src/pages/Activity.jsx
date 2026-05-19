@@ -1,6 +1,12 @@
 import React, { useMemo } from "react";
 import { useAgent, useAgentState, AGENT_IDS } from "../agents";
 import Icon from "../components/Icon";
+import {
+  GasMethodBadge,
+  OnChainBadge,
+  IndexerStatus,
+  WalletShort,
+} from "../components/ScreenPrimitives";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Activity — full-screen variant, owned by ActivityAgent.
@@ -30,8 +36,9 @@ export default function Activity() {
     <main className="container py-8">
       <header className="surface-glass" style={{ padding: 24, marginBottom: 16 }}>
         <h1 style={{ margin: 0 }}>Activity</h1>
-        <p className="muted" style={{ marginTop: 6 }}>
-          Live on-chain transactions. {state.offline ? "Indexer offline — cached view." : ""}
+        <p className="muted" style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          Live on-chain transactions.
+          <IndexerStatus offline={state.offline} />
         </p>
         <div className="row" style={{ gap: 8, marginTop: 14, flexWrap: "wrap" }}>
           {ACTIONS.map((a) => (
@@ -78,15 +85,13 @@ export default function Activity() {
           )}
           {rows.map((r) => (
             <div key={r._id || r.txHash} className="activity-row">
-              <span className={`badge ${r.gasMethod === "ugf" ? "badge-success" : "badge-muted"}`}>
-                {r.gasMethod || "—"}
-              </span>
-              <code className="muted">{r.from?.slice(0, 6)}…{r.from?.slice(-4)}</code>
+              <GasMethodBadge method={r.gasMethod === "ugf" ? "ugf" : "eth"} compact />
+              <WalletShort address={r.from} />
               <span>{verb(r.action)}</span>
-              <span>{Number(r.amount || 0).toFixed(6)} USDC</span>
-              <a href={r.explorerUrl || "#"} target="_blank" rel="noreferrer" className="settings-link">
-                <Icon name="external" size={11} />
-              </a>
+              <span style={{ fontFeatureSettings: "'tnum' on", fontWeight: 700 }}>
+                {Number(r.amount || 0).toFixed(6)} USDC
+              </span>
+              <OnChainBadge txHash={r.txHash} label="Tx" />
             </div>
           ))}
           {state.loading && <div className="muted" style={{ padding: 16 }}>Loading…</div>}
