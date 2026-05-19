@@ -7,7 +7,7 @@ import { useToast } from "../components/Toast";
 import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import ConnectGate from "../components/ConnectGate";
-import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import { CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // "Claim Rent" page — granular per-property view (replaces the old Dividends).
@@ -16,8 +16,8 @@ import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Dividends() {
-  const { account, getReadFactory, getReadPropertyContracts, getUsdc, fmtUsdc, fmtProp, refreshUsdcBalance } = useWeb3();
-  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { account, getReadFactory, getReadPropertyContracts, fmtUsdc, fmtProp, refreshUsdcBalance } = useWeb3();
+  const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,9 +117,9 @@ export default function Dividends() {
               fmtUsdc={fmtUsdc}
               fmtProp={fmtProp}
               ugfExecute={ugfExecute}
+              ugfApprove={ugfApprove}
               isUGFEnabled={isUGFEnabled}
               logTx={logTx}
-              getUsdc={getUsdc}
               onRefresh={load}
               refreshUsdcBalance={refreshUsdcBalance}
               toast={toast}
@@ -131,7 +131,7 @@ export default function Dividends() {
   );
 }
 
-function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, isUGFEnabled, logTx, getUsdc, onRefresh, refreshUsdcBalance, toast }) {
+function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, ugfApprove, isUGFEnabled, logTx, onRefresh, refreshUsdcBalance, toast }) {
   const { prop, balance, pending, epochCount, epochs, isOwner, propId } = data;
   const [busy, setBusy] = useState(null); // null | "claim" | "deposit"
   const [depositAmt, setDepositAmt] = useState("");
@@ -162,9 +162,8 @@ function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, isUGFEnabled, logTx, get
     const amt = BigInt(Math.floor(parseFloat(depositAmt) * 1e6));
     setBusy("deposit");
     try {
-      const usdc = getUsdc();
-      toast.info("Approving USDC…", { msg: "First of two confirmations." });
-      await (await usdc.approve(prop.rentalDistribution, amt)).wait();
+      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
+      await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, prop.rentalDistribution, amt);
 
       const receipt = await ugfExecute(prop.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [amt]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;

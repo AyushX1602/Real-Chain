@@ -1,52 +1,50 @@
 # Flags
 
 ## Resolved
-- ~~Repo URL unknown~~ — `https://github.com/AyushX1602/Real-Chain`.
-- ~~`.env.example` placeholder secret broke fresh local Hardhat startup~~ — fixed; placeholder PRIVATE_KEY blanked.
-- ~~Need verified Base Sepolia deployment inputs (RPC, deployer wallet, ETH for deployment)~~ — partially: `baseSepolia` is wired in `hardhat.config.js`. Funded wallet + actual deployment still TODO (see Open).
-- ~~Graphify refresh required manual `graphify update` calls~~ — automated 2026-05-18 via Kiro fileEdited/fileCreated/fileDeleted/agentStop hooks, opt-in `scripts/git-hooks/pre-commit`, and root npm scripts (`graphify:update`, `:watch`, `:query`, `:explain`, `:path`).
+- ~~Repo URL unknown~~ - `https://github.com/AyushX1602/Real-Chain`.
+- ~~`.env.example` placeholder secret broke fresh local Hardhat startup~~ - fixed; placeholder `PRIVATE_KEY` blanked.
+- ~~Graphify refresh required manual `graphify update` calls~~ - automated 2026-05-18 via Kiro hooks, optional git pre-commit, and root npm scripts.
+- ~~Contracts not yet deployed to Base Sepolia / frontend still pointed at local fallbacks~~ - `deployed-addresses.json` records Base Sepolia MockUSDC `0xc90610277191F7Dbe7Ddf18319Bd28D3aAAe9a38` and Factory `0xa8bb0D4923C1aBB9294cBc115c6FF81B2DaC0168`; `frontend/src/config/contracts.js` now defaults to those in `baseSepolia` mode.
+- ~~`OwnerDashboard.jsx` and `InvestorDashboard.jsx` do not exist~~ - both role dashboards exist and are routed from `App.jsx`.
+- ~~UGF SDK API surface unverified before integration~~ - rechecked 2026-05-19 against Tychi's live `ugf-testnet-js` README and installed `@tychilabs/react-ugf` README/types. React UGF uses `<UGFProvider mode="testnet">` and `useUGFModal().openUGF(...)`.
+- ~~ERC-20 approve calls were direct signer transactions~~ - all frontend `.approve()` calls were removed from `frontend/src`; approvals now route through `UGFContext.ugfApprove()`.
+- ~~UGF on/off toggle missing~~ - settings popover exposes the UGF toggle and `UGFBadge` / `CostBanner` react to it.
 
-## Open — Tier 1 (must clear before demo can run)
-- Base Sepolia deployer wallet not yet funded with testnet ETH. Faucet: https://www.alchemy.com/faucets/base-sepolia
-- Contracts not yet deployed to Base Sepolia. `deployed-addresses.json` still reflects localhost.
-- `frontend/src/config/contracts.js` still points at chain id `31337`. Must flip to `84532` after 1B.
-- No deterministic demo-state seeding script exists yet (`scripts/seedDemo.js` planned in Phase 1E). Demo wallet currently has to be set up by hand → fragile on demo day.
-- Fresh local deploy still needs owner marketplace approval before buyer primary purchases work. Roll into the seed script (Phase 1E) so this never bites again.
-- Fresh local deploy does not auto-fund investor wallets with MockUSDC. Same fix.
-- `OwnerDashboard.jsx` and `InvestorDashboard.jsx` do not exist yet (Phase 2A/2B).
-- `@tychilabs/react-ugf` is installed in `frontend/`, but UGF SDK API surface must still be re-verified against the live README before integration (Phase 3A/3B).
-- Final `TYI_MOCK_USD` route/address on Base Sepolia must be confirmed against UGF's current docs; do not trust internal notes.
+## Open - Tier 1 (must clear before demo can run)
+- Live Base Sepolia clean-wallet smoke test still has not been run in this session. Must prove: demo investor has PROP > 0, pending rent > 0, TYI_MOCK_USD for gas, and exactly 0 ETH before clicking claim.
+- `scripts/seedDemo.js` exists and records demo addresses, but its current Base Sepolia output must be re-run or verified before demo day: owner marketplace approval, investor MockUSDC, investor PROP balance, rent epoch, pending dividends, and final ETH sweep to 0.
+- Final `TYI_MOCK_USD` faucet/balance path must be checked in the actual demo wallet. UGF docs confirm the settlement coin, but the wallet still needs funds from https://universalgasframework.com/faucets.
+- Browser-level UGF modal behavior still needs manual verification. Build passes, but only a wallet session can prove modal quote/payment/execute/confirm in the real app.
 
-## Open — Tier 2 (only relevant after Tier 1 demo runs)
-- All three secondary state-changing flows (`depositRental`, `buyFromOwner`, `buyFromListing`/`cancelListing`) and the ERC-20 `approve` calls are still on the normal MetaMask path — Phase 5A unwraps them.
-- No UGF on/off toggle yet (Phase 5B). Without it judges have to take "gas paid in Mock USD" on faith.
-- Express backend exists but is judge-invisible. Phase 5C wires the activity feed to give it a job.
-- Cost-comparison banner ("without UGF" vs "with UGF") not built (Phase 5D).
-- User-visible "Dividends" string still appears across the UI; rename to "Claim Rent" pending (Phase 5E).
-- No in-app faucet helper (Phase 5F). Cold-start judges have no easy on-ramp.
+## Open - Tier 2 (only relevant after Tier 1 demo runs)
+- Confirm every Tier 2 state-changing flow from a 0-ETH wallet in-browser: `depositRental`, `buyFromOwner`, `buyFromListing`, `createListing`, and `cancelListing`. Code paths are UGF-wrapped, but manual chain proof is still pending.
+- Express backend activity feed exists but should be smoke-tested with MongoDB online and offline. It is not yet proven as judge-ready.
+- Cost-comparison banner is built, but UGF quote preview depends on the gateway `/quote` response and browser CORS. Confirm it populates in the deployed browser.
+- User-visible "Dividends" string should be re-grepped before submission. The route/file name can stay, but visible copy should read "Claim Rent".
+- In-app faucet helper exists, but cold-start judge flow still needs testing with the real demo wallet and current faucet URLs.
 - "RealChain v2" naming + branding pending (Phase 5G). Hackathon scoring is partly aesthetic.
 
-## Open — Tier 3 (stretch only)
-- Embedded wallet (Privy / Web3Auth) — Phase 6A. Not started.
-- Soulbound NFT claim receipt — Phase 6B. New contract `ClaimReceipt.sol` not started; would require redeploy, so do this last.
-- 60–90 sec pitch video — Phase 6C. Not started.
-- Live demo URL on Vercel/Netlify — Phase 6D. Not started.
+## Open - Tier 3 (stretch only)
+- Embedded wallet (Privy / Web3Auth) - Phase 6A. Not started.
+- Soulbound NFT claim receipt - Phase 6B. New contract `ClaimReceipt.sol` not started; would require redeploy, so do this last.
+- 60-90 sec pitch video - Phase 6C. Not started.
+- Live demo URL on Vercel/Netlify - Phase 6D. Not started.
 
 ## Risks (need a decision, not just a task)
-- **Two "Mock USD" tokens** — our `MockUSDC` (rent settlement) vs UGF's `TYI_MOCK_USD` (gas settlement). Decision is recorded in `memory/decisions.md` 2026-05-18, but UI copy still needs to land that distinction consistently. Watch for drift in any new component.
-- **Settlement-token swap** — if anyone tries to point our contracts at UGF's `TYI_MOCK_USD` for rent settlement, the existing 31 tests still pass on local Hardhat but the on-chain accounting on Base Sepolia will be inconsistent with what the UI shows. Don't do this without team sign-off.
-- **UGF SDK version drift** — `HACKATHON_PLAN.txt` is internal notes, not API truth. Verify against live SDK README before each integration touch.
-- **MongoDB Atlas quota** — backend uses Atlas free tier. If the activity feed gets hot during the demo, M0 connection limits could cause API blips. Acceptable risk; mention in pitch only if asked.
+- **Two "Mock USD" tokens** - our `MockUSDC` is rent settlement; UGF's `TYI_MOCK_USD` is gas settlement. This is decided, but UI copy must keep the distinction sharp.
+- **Settlement-token swap** - if anyone points the RealChain contracts at UGF's `TYI_MOCK_USD` for rent settlement, the UI/accounting story becomes inconsistent. Do not do this without team sign-off.
+- **UGF SDK version drift** - `HACKATHON_PLAN.txt` is internal notes, not API truth. Last checked 2026-05-19: React wrapper exposes `UGFProvider` / `useUGFModal`, and testnet mode is Base Sepolia + `TYI_MOCK_USD`. Recheck before demo-day changes.
+- **MongoDB Atlas quota** - backend uses Atlas free tier. If the activity feed gets hot during the demo, M0 connection limits could cause API blips. Acceptable risk; mention in pitch only if asked.
+- **Frontend dependency hygiene** - `npm install` on 2026-05-19 restored the missing `framer-motion` dependency and produced a passing Vite build, but npm reported 7 moderate audit findings. Do not run `npm audit fix --force` casually because it may make breaking changes.
 
 ## Process / team
 - Team ownership, project board, deployment URLs are still unknown for the most part. Persons A/B/C/D are role placeholders in `implementation_plan.md`.
-- Each teammate still needs to run `graphify codex install` once locally; `.codex/hooks.json` is intentionally not shared.
-- On this machine, `graphify` is not on PATH. Use `uvx --from graphifyy graphify.exe query|path|explain|update` as the working fallback.
+- Each teammate still needs to install Graphify once locally; `.codex/hooks.json` is intentionally not shared.
+- On this machine, `graphify.exe` is on PATH at `C:\Users\ayush\AppData\Local\Programs\Python\Python311\Scripts\graphify.exe`; `uvx` is not on PATH. Use `graphify.exe query|path|explain|update` here unless PATH changes.
 - On this machine, Graphify Codex integration is installed and auto-runs via local `.codex/hooks.json` (machine-specific; not committed).
-- On this machine, four Kiro IDE hooks (`graphify-update-on-edit`, `graphify-update-on-create`, `graphify-update-on-delete`, `graphify-update-on-stop`) refresh `graphify-out/` automatically on every save / create / delete / agent-stop event so the AI's view of the project tracks the working tree line by line. Other contributors can opt their machine in by either running `uvx --from graphifyy graphify.exe install --platform kiro` (Kiro skill), wiring the same hooks via Kiro's hook UI, or running `git config core.hooksPath scripts/git-hooks` for a portable git pre-commit refresh.
+- Four Kiro IDE hooks refresh `graphify-out/` automatically on save/create/delete/agent-stop for machines with those hooks installed. Other contributors can opt in via Kiro or `git config core.hooksPath scripts/git-hooks`.
 - Teammates must run `cd backend && npm install` after cloning.
-- Frontend currently does not call backend API endpoints. Will start in Phase 5C.
 - After meaningful work, every agent must append a session entry to `CLAUDE.md` and update this file. Stale flags break the next agent's planning.
 
 ## Cuts (intentional, not gaps)
-- The V1/V2 distribution comparison and snapshot-attack research surface stays in the repo for the academic paper but is **not** surfaced to judges. Do not re-add it to the hackathon README, demo, or pitch video.
+- The V1/V2 distribution comparison and snapshot-attack research surface stays in the repo for the academic paper but is not surfaced to judges. Do not re-add it to the hackathon README, demo, or pitch video.

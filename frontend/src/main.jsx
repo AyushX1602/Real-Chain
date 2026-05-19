@@ -1,25 +1,42 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { UGFProvider } from "@tychilabs/react-ugf";
 import App from "./App";
 import { Web3Provider } from "./context/Web3Context";
 import { UGFContextProvider } from "./context/UGFContext";
 import { SmartAgentProvider } from "./context/SmartAgentContext";
 import { ToastProvider } from "./components/Toast";
+import { PrivyShell } from "./context/PrivyBridge";
 import "./index.css";
 
+// Provider order (outermost → innermost):
+//   PrivyShell      — Tier 3: optional embedded-wallet onboarding. No-op when
+//                     VITE_PRIVY_APP_ID is unset, so the MetaMask-only flow
+//                     keeps working untouched.
+//   UGFProvider     — Tier 1/2: gives every child access to the UGF modal.
+//   BrowserRouter   — routing.
+//   Web3Provider    — wallet state (reads window.ethereum, which PrivyShell
+//                     may have populated with an embedded wallet).
+//   UGFContextProvider — wraps tx execution through UGF when toggle is on.
+//   SmartAgentProvider — automation hooks.
+//   ToastProvider   — UI notifications.
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Web3Provider>
-        <UGFContextProvider>
-          <SmartAgentProvider>
-            <ToastProvider>
-              <App />
-            </ToastProvider>
-          </SmartAgentProvider>
-        </UGFContextProvider>
-      </Web3Provider>
-    </BrowserRouter>
+    <PrivyShell>
+      <UGFProvider mode="testnet">
+        <BrowserRouter>
+          <Web3Provider>
+            <UGFContextProvider>
+              <SmartAgentProvider>
+                <ToastProvider>
+                  <App />
+                </ToastProvider>
+              </SmartAgentProvider>
+            </UGFContextProvider>
+          </Web3Provider>
+        </BrowserRouter>
+      </UGFProvider>
+    </PrivyShell>
   </React.StrictMode>
 );

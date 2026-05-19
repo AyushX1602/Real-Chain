@@ -8,7 +8,7 @@ import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import CostBanner from "../components/CostBanner";
 import ConnectGate from "../components/ConnectGate";
-import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import { CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OwnerDashboard — properties you own, rent you have deposited, quick deposit
@@ -16,8 +16,8 @@ import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function OwnerDashboard() {
-  const { account, roleHint, getReadFactory, getReadPropertyContracts, getFactory, getUsdc, fmtUsdc, fmtProp, fmtAddr, fmtInr } = useWeb3();
-  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { account, roleHint, getReadFactory, getReadPropertyContracts, getFactory, fmtUsdc, fmtProp, fmtAddr, fmtInr } = useWeb3();
+  const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
   const [props, setProps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,9 +151,9 @@ export default function OwnerDashboard() {
               fmtProp={fmtProp}
               fmtInr={fmtInr}
               ugfExecute={ugfExecute}
+              ugfApprove={ugfApprove}
               isUGFEnabled={isUGFEnabled}
               logTx={logTx}
-              getUsdc={getUsdc}
               onRefresh={load}
               toast={toast}
             />
@@ -229,7 +229,7 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
   );
 }
 
-function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, isUGFEnabled, logTx, getUsdc, onRefresh, toast }) {
+function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfApprove, isUGFEnabled, logTx, onRefresh, toast }) {
   const { property: p, totalDeposited, ownerSupply, epochs } = item;
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
@@ -239,10 +239,8 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, isUGFEn
     const usdcRaw = BigInt(Math.floor(parseFloat(amount) * 1e6));
     setBusy(true);
     try {
-      const usdc = getUsdc();
-      toast.info("Approving USDC…", { msg: "First of two confirmations." });
-      const ap = await usdc.approve(p.rentalDistribution, usdcRaw);
-      await ap.wait();
+      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
+      await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, p.rentalDistribution, usdcRaw);
 
       const receipt = await ugfExecute(p.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [usdcRaw]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;

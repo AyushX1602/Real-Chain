@@ -11,7 +11,7 @@ import YieldCalculator from "../components/YieldCalculator";
 import RentChart from "../components/RentChart";
 import HolderList from "../components/HolderList";
 import useWatchlist from "../hooks/useWatchlist";
-import { MARKETPLACE_ABI } from "../config/contracts";
+import { CONTRACT_ADDRESSES, MARKETPLACE_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Property — primary + secondary market for a single property.
@@ -24,10 +24,10 @@ export default function Property() {
   const {
     account, connect,
     getReadFactory, getReadPropertyContracts,
-    getPropertyContracts, getUsdc,
+    getPropertyContracts,
     fmtUsdc, fmtProp, fmtAddr, fmtInr, refreshUsdcBalance,
   } = useWeb3();
-  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
 
   const [prop, setProp] = useState(null);
@@ -113,9 +113,8 @@ export default function Property() {
     const cost = amount * pricePerToken;
     setBusy("primary");
     try {
-      const usdc = getUsdc();
-      toast.info("Approving USDC…", { msg: "First of two confirmations." });
-      await (await usdc.approve(prop.marketplace, cost)).wait();
+      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
+      await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, prop.marketplace, cost);
 
       // Owner needs to have approved marketplace for the supply transfer.
       const { token } = getPropertyContracts({
@@ -125,8 +124,7 @@ export default function Property() {
       });
       const ownerAllowance = await token.allowance(prop.owner, prop.marketplace);
       if (ownerAllowance < amount * BigInt(1e18)) {
-        toast.info("Owner approval pending…", { msg: "Approving the marketplace as the property owner." });
-        await (await token.approve(prop.marketplace, ethers.MaxUint256)).wait();
+        throw new Error("Owner has not approved primary supply. Run seedDemo or approve from the owner wallet before selling.");
       }
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromOwner", [amount]);
@@ -158,9 +156,8 @@ export default function Property() {
     const cost = (listing.amount * listing.price) / BigInt(1e18);
     setBusy(`listing-${listing.id}`);
     try {
-      const usdc = getUsdc();
-      toast.info("Approving USDC…", { msg: "First of two confirmations." });
-      await (await usdc.approve(prop.marketplace, cost)).wait();
+      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
+      await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, prop.marketplace, cost);
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromListing", [listing.id]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;

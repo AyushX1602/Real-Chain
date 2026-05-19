@@ -1,53 +1,45 @@
-import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ethers } from "ethers";
+import { useUGFModal } from "@tychilabs/react-ugf";
 import { useWeb3 } from "./Web3Context";
 import { BACKEND_URL, NETWORK_CHAIN_ID } from "../config/contracts";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// UGFContext — wraps the Universal Gas Framework SDK so investors can pay gas
-// in TYI_MOCK_USD instead of native ETH.
-//
-// The actual SDK (`@tychilabs/react-ugf`) is loaded dynamically. If the SDK is
-// not installed or fails to load, this context falls back to direct
-// signer.sendTransaction so the rest of the app keeps working — useful for
-// local development and for the Tier 2 / 5B "UGF off" toggle.
-//
-// Public API (via useUGF()):
-//   ugfExecute(target, abi, fnName, args, opts?)    workhorse
-//   getQuote(target, abi, fnName, args)             cost preview
-//   isUGFEnabled, setUGFEnabled                     toggle
-//   logTx({ ... })                                  POST to activity feed
-//   sdkReady                                        boolean — SDK actually loaded
-// ─────────────────────────────────────────────────────────────────────────────
-
 const UGFCtx = createContext(null);
 
-// Dynamic SDK load — non-blocking, never throws into render.
-let _sdkPromise = null;
-function loadSdk() {
-  if (_sdkPromise) return _sdkPromise;
-  _sdkPromise = import("@tychilabs/react-ugf")
-    .then((mod) => mod ?? null)
-    .catch((e) => {
-      console.info("[UGF] SDK unavailable, falling back to direct signer:", e?.message || e);
-      return null;
-    });
-  return _sdkPromise;
+const TOGGLE_KEY = "realchain.ugf.enabled";
+const UGF_GATEWAY_URL = "https://gateway.universalgasframework.com";
+const APPROVE_ABI = ["function approve(address,uint256) returns (bool)"];
+
+function resultHash(result) {
+  return result?.txHash || result?.hash || result?.transactionHash || null;
 }
 
-// Persistent toggle key
-const TOGGLE_KEY = "realchain.ugf.enabled";
+function quoteToUsd(quote) {
+  const raw = quote?.payment_amount ?? quote?.settlement_amount ?? null;
+  if (raw == null) return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value)) return null;
+  return value / 1e6;
+}
 
 export function UGFContextProvider({ children }) {
   const { signer, account } = useWeb3();
-  const [sdk, setSdk] = useState(null);
+  const { openUGF, result: ugfResult } = useUGFModal();
+  const pendingUgfRef = useRef(null);
+  const lastResultHashRef = useRef(resultHash(ugfResult));
   const [isUGFEnabled, _setUGFEnabled] = useState(() => {
     if (typeof window === "undefined") return true;
     const v = window.localStorage?.getItem(TOGGLE_KEY);
     return v === null ? true : v === "true";
   });
-
-  useEffect(() => { loadSdk().then(setSdk); }, []);
 
   const setUGFEnabled = useCallback((next) => {
     _setUGFEnabled((prev) => {
@@ -57,9 +49,63 @@ export function UGFContextProvider({ children }) {
     });
   }, []);
 
-  const sdkReady = isUGFEnabled && Boolean(sdk?.openUGF || sdk?.useUGFModal);
+  useEffect(() => {
+    const hash = resultHash(ugfResult);
+    if (!hash || lastResultHashRef.current === hash) return;
 
-  // Workhorse: encode the call, route through UGF when enabled, otherwise direct.
+    lastResultHashRef.current = hash;
+    const pending = pendingUgfRef.current;
+    if (!pending || pending.startHash === hash) return;
+
+    window.clearTimeout(pending.timeoutId);
+    pendingUgfRef.current = null;
+    pending.resolve({ hash, transactionHash: hash, status: 1, ugf: true });
+  }, [ugfResult]);
+
+  useEffect(() => () => {
+    if (pendingUgfRef.current?.timeoutId) {
+      window.clearTimeout(pendingUgfRef.current.timeoutId);
+    }
+    pendingUgfRef.current = null;
+  }, []);
+
+  const sdkReady = isUGFEnabled && Boolean(openUGF);
+
+  const executeWithUGF = useCallback((tx) => new Promise((resolve, reject) => {
+    if (!openUGF) {
+      reject(new Error("UGF modal is not available. Check @tychilabs/react-ugf setup."));
+      return;
+    }
+
+    if (pendingUgfRef.current?.timeoutId) {
+      window.clearTimeout(pendingUgfRef.current.timeoutId);
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      const pending = pendingUgfRef.current;
+      if (!pending || pending.timeoutId !== timeoutId) return;
+      pendingUgfRef.current = null;
+      reject(new Error("UGF confirmation timed out. Reopen the action and try again."));
+    }, 10 * 60 * 1000);
+
+    pendingUgfRef.current = {
+      resolve,
+      reject,
+      timeoutId,
+      startHash: resultHash(ugfResult),
+    };
+
+    Promise.resolve(openUGF({
+      signer,
+      tx,
+      destChainId: String(NETWORK_CHAIN_ID),
+    })).catch((e) => {
+      window.clearTimeout(timeoutId);
+      if (pendingUgfRef.current?.timeoutId === timeoutId) pendingUgfRef.current = null;
+      reject(e);
+    });
+  }), [openUGF, signer, ugfResult]);
+
   const ugfExecute = useCallback(async (target, abi, fnName, args = [], opts = {}) => {
     if (!signer) throw new Error("Connect your wallet first");
     const iface = new ethers.Interface(abi);
@@ -67,35 +113,51 @@ export function UGFContextProvider({ children }) {
     const value = opts.value ?? 0n;
     const tx = { to: target, data, value };
 
-    if (isUGFEnabled && sdk?.openUGF) {
-      const result = await sdk.openUGF({
-        signer,
-        tx,
-        destChainId: String(NETWORK_CHAIN_ID),
-      });
-      return result;
+    if (isUGFEnabled && NETWORK_CHAIN_ID === 84532) {
+      return executeWithUGF(tx);
     }
 
-    // Direct signer path — used when the SDK isn't loaded or the toggle is off.
     const sent = await signer.sendTransaction(tx);
-    const receipt = await sent.wait();
-    return receipt;
-  }, [signer, isUGFEnabled, sdk]);
+    return sent.wait();
+  }, [signer, isUGFEnabled, executeWithUGF]);
 
-  // Cost preview — best-effort, returns null when SDK can't quote.
+  const ugfApprove = useCallback((tokenAddress, spender, amount, opts = {}) => (
+    ugfExecute(tokenAddress, opts.abi || APPROVE_ABI, "approve", [spender, amount], opts)
+  ), [ugfExecute]);
+
   const getQuote = useCallback(async (target, abi, fnName, args = [], opts = {}) => {
     try {
-      if (!sdk?.getQuote) return null;
+      if (!signer || !account || NETWORK_CHAIN_ID !== 84532) return null;
       const iface = new ethers.Interface(abi);
       const data = iface.encodeFunctionData(fnName, args);
-      const tx = { to: target, data, value: opts.value ?? 0n };
-      return await sdk.getQuote({ tx, destChainId: String(NETWORK_CHAIN_ID) });
+      const value = opts.value ?? 0n;
+      const res = await fetch(`${UGF_GATEWAY_URL}/quote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payment_coin: "TYI_MOCK_USD",
+          payer_address: account,
+          payment_chain: "84532",
+          payment_chain_type: "evm",
+          tx_object: JSON.stringify({
+            from: account,
+            to: target,
+            data,
+            value: value.toString(),
+          }),
+          dest_chain_id: "84532",
+          dest_chain_type: "evm",
+        }),
+      });
+      if (!res.ok) return null;
+      const quote = await res.json();
+      const feeUsd = quoteToUsd(quote);
+      return { ...quote, feeUsd, totalUsd: feeUsd };
     } catch (_) {
       return null;
     }
-  }, [sdk]);
+  }, [signer, account]);
 
-  // Activity feed — fire-and-forget POST. Backend may be offline; that's fine.
   const logTx = useCallback(async (payload) => {
     try {
       if (!BACKEND_URL) return;
@@ -108,7 +170,9 @@ export function UGFContextProvider({ children }) {
           ...payload,
         }),
       });
-    } catch (_) { /* swallow */ }
+    } catch (_) {
+      // Backend is optional during local demos.
+    }
   }, [account]);
 
   const value = useMemo(() => ({
@@ -116,9 +180,10 @@ export function UGFContextProvider({ children }) {
     setUGFEnabled,
     sdkReady,
     ugfExecute,
+    ugfApprove,
     getQuote,
     logTx,
-  }), [isUGFEnabled, setUGFEnabled, sdkReady, ugfExecute, getQuote, logTx]);
+  }), [isUGFEnabled, setUGFEnabled, sdkReady, ugfExecute, ugfApprove, getQuote, logTx]);
 
   return <UGFCtx.Provider value={value}>{children}</UGFCtx.Provider>;
 }

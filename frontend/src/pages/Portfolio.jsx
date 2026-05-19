@@ -15,8 +15,8 @@ import { MARKETPLACE_ABI } from "../config/contracts";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Portfolio() {
-  const { account, getReadFactory, getReadPropertyContracts, getPropertyContracts, fmtUsdc, fmtProp } = useWeb3();
-  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { account, getReadFactory, getReadPropertyContracts, fmtUsdc, fmtProp } = useWeb3();
+  const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
   const [holdings, setHoldings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,9 +111,9 @@ export default function Portfolio() {
               fmtProp={fmtProp}
               onRefresh={load}
               ugfExecute={ugfExecute}
+              ugfApprove={ugfApprove}
               isUGFEnabled={isUGFEnabled}
               logTx={logTx}
-              getPropertyContracts={getPropertyContracts}
               toast={toast}
             />
           ))}
@@ -123,7 +123,7 @@ export default function Portfolio() {
   );
 }
 
-function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, isUGFEnabled, logTx, getPropertyContracts, toast }) {
+function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, ugfApprove, isUGFEnabled, logTx, toast }) {
   const { prop, balance, pricePerToken, myListings, propId } = holding;
   const [listAmount, setListAmount] = useState("");
   const [listPrice, setListPrice] = useState("");
@@ -131,23 +131,14 @@ function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, isUGFEn
 
   const pct = ((Number(ethers.formatEther(balance)) / 100) * 100).toFixed(1);
 
-  function getRw() {
-    return getPropertyContracts({
-      propertyToken: prop.propertyToken,
-      rentalDistribution: prop.rentalDistribution,
-      marketplace: prop.marketplace,
-    });
-  }
-
   async function handleCreateListing() {
     if (!listAmount || !listPrice) return;
     const amount = BigInt(Math.floor(Number(listAmount)));
     const priceVal = BigInt(Math.floor(parseFloat(listPrice) * 1e6));
     setBusy("create");
     try {
-      const { token } = getRw();
-      toast.info("Approving tokens…", { msg: "First of two confirmations." });
-      await (await token.approve(prop.marketplace, amount * BigInt(1e18))).wait();
+      toast.info("Approving PROP", { msg: "UGF will settle listing approval gas in Mock USD." });
+      await ugfApprove(prop.propertyToken, prop.marketplace, amount * BigInt(1e18));
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "createListing", [amount, priceVal]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;

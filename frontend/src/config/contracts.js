@@ -10,8 +10,8 @@
 //   VITE_BASE_SEPOLIA_RPC_URL      Base Sepolia RPC URL       default https://sepolia.base.org
 //   VITE_BACKEND_URL               Express backend            default http://localhost:5000
 //   VITE_ETH_USD_RATE              ETH price (USD) for cost banner   default 2000
-//   VITE_MOCK_USDC_ADDRESS         override deployed USDC     default localhost address
-//   VITE_PROPERTY_FACTORY_ADDRESS  override deployed factory  default localhost address
+//   VITE_MOCK_USDC_ADDRESS         override deployed USDC
+//   VITE_PROPERTY_FACTORY_ADDRESS  override deployed factory
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─── RPC URLs (for read-only browsing without MetaMask) ──────────────────────
@@ -34,12 +34,21 @@ export const BACKEND_URL   = import.meta.env.VITE_BACKEND_URL || "http://localho
 export const ETH_USD_RATE = Number(import.meta.env.VITE_ETH_USD_RATE) || 2000;
 
 // ─── Deployed contract addresses ─────────────────────────────────────────────
-// Localhost defaults preserved so `VITE_NETWORK_MODE=local` still works without
-// any env config. After running `npm run deploy:base`, either paste the new
-// addresses here OR set the env vars in `.env`.
+const LOCAL_ADDRESSES = {
+  mockUsdc: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  propertyFactory: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+};
+
+const BASE_SEPOLIA_ADDRESSES = {
+  mockUsdc: "0xc90610277191F7Dbe7Ddf18319Bd28D3aAAe9a38",
+  propertyFactory: "0xa8bb0D4923C1aBB9294cBc115c6FF81B2DaC0168",
+};
+
+const DEFAULT_ADDRESSES = NETWORK_MODE === "local" ? LOCAL_ADDRESSES : BASE_SEPOLIA_ADDRESSES;
+
 export const CONTRACT_ADDRESSES = {
-  mockUsdc:        import.meta.env.VITE_MOCK_USDC_ADDRESS        || "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  propertyFactory: import.meta.env.VITE_PROPERTY_FACTORY_ADDRESS || "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  mockUsdc: import.meta.env.VITE_MOCK_USDC_ADDRESS || DEFAULT_ADDRESSES.mockUsdc,
+  propertyFactory: import.meta.env.VITE_PROPERTY_FACTORY_ADDRESS || DEFAULT_ADDRESSES.propertyFactory,
 };
 
 // ─── MockUSDC ABI ────────────────────────────────────────────────────────────

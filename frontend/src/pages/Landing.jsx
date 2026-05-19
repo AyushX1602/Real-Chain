@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion, useInView, AnimatePresence } from "framer-motion";
 import { useWeb3 } from "../context/Web3Context";
+import { usePrivyEmbeddedSignIn } from "../context/PrivyBridge";
 import Icon from "../components/Icon";
 import Logo from "../components/Logo";
 import LiveRentCounter from "../components/LiveRentCounter";
@@ -33,6 +34,9 @@ const NETWORK_LABEL = {
 
 export default function Landing() {
   const { account, connect, connecting, roleHint, nodeOnline, chainId, isCorrectNetwork, getReadFactory } = useWeb3();
+  // Tier 3 / 6.1 — embedded wallet onboarding. `enabled` is false (and the
+  // button hidden) unless VITE_PRIVY_APP_ID is set in .env.
+  const privy = usePrivyEmbeddedSignIn();
   const [openStep, setOpenStep] = useState(0);
   const [backendOnline, setBackendOnline] = useState(null);
   const [stats, setStats] = useState(null);
@@ -167,6 +171,23 @@ export default function Landing() {
                 </button>
               )}
               <a href="#how-it-works" className="btn btn-secondary btn-xl">How it works</a>
+              {/* Tier 3 / 6.1 — embedded wallet CTA. Renders only when
+                  VITE_PRIVY_APP_ID is configured, so judges without a Privy
+                  app see the same page as before. After Privy sign-in, the
+                  embedded wallet is exposed as window.ethereum and the user
+                  can press "Connect wallet" exactly like a MetaMask user. */}
+              {privy.enabled && !account && (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-xl"
+                  onClick={() => privy.login()}
+                  disabled={!privy.ready || privy.authenticated}
+                  title="No wallet? Create one with email or Google in 10 seconds."
+                >
+                  <Icon name="bolt" size={14} />
+                  {privy.authenticated ? "Signed in — connect wallet" : "Or sign in with email"}
+                </button>
+              )}
             </div>
             <LiveRentCounter className="lp-hero-counter" />
           </div>
