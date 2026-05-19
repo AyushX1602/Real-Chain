@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { ethers } from "ethers";
+import { useAuth } from "../context/AuthContext";
 import { useWeb3 } from "../context/Web3Context";
 import { useUGF } from "../context/UGFContext";
 import { useToast } from "../components/Toast";
@@ -21,14 +22,25 @@ import { MARKETPLACE_ABI } from "../config/contracts";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Portfolio() {
-  const { account, getReadFactory, getReadPropertyContracts, fmtUsdc, fmtProp } = useWeb3();
+  const { user: authUser, isAuthenticated } = useAuth();
+  const { account, roleHint, getReadFactory, getReadPropertyContracts, fmtUsdc, fmtProp } = useWeb3();
   const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
   const [holdings, setHoldings] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => { if (account) load(); else { setLoading(false); setHoldings([]); } }, [account]);
+  const isAdminSession = (isAuthenticated && authUser?.role === "owner") || (!isAuthenticated && roleHint === "Owner");
+
+  useEffect(() => {
+    if (isAdminSession) {
+      setLoading(false);
+      setHoldings([]);
+      return;
+    }
+    if (account) load();
+    else { setLoading(false); setHoldings([]); }
+  }, [account, isAdminSession]);
 
   async function load() {
     setLoading(true);
@@ -70,6 +82,10 @@ export default function Portfolio() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (isAdminSession) {
+    return <Navigate to={isAuthenticated ? "/admin" : "/owner"} replace />;
   }
 
   if (!account) {

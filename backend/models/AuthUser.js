@@ -17,6 +17,12 @@ const AuthUserSchema = new mongoose.Schema({
     enum: ["owner", "tenant"],
     required: true,
   },
+  assetWallet: {
+    type: String,
+    lowercase: true,
+    trim: true,
+    default: undefined,
+  },
   lastLoginAt: {
     type: Date,
     default: null,
@@ -26,5 +32,12 @@ const AuthUserSchema = new mongoose.Schema({
 });
 
 AuthUserSchema.index({ role: 1 });
+AuthUserSchema.index(
+  { assetWallet: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { assetWallet: { $type: "string" } },
+  }
+);
 
 module.exports = mongoose.model("AuthUser", AuthUserSchema);

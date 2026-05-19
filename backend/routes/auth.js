@@ -9,6 +9,7 @@ const JWT_ALG = "HS256";
 const JWT_TTL_SECONDS = 7 * 24 * 60 * 60;
 const PASSWORD_MIN_LENGTH = 6;
 const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const WALLET_RX = /^0x[a-fA-F0-9]{40}$/;
 const ROLES = new Set(["owner", "tenant"]);
 
 function getJwtSecret() {
@@ -99,6 +100,7 @@ function publicUser(user) {
     id: String(user._id),
     email: user.email,
     role: user.role,
+    assetWallet: user.assetWallet || "",
     createdAt: user.createdAt,
     lastLoginAt: user.lastLoginAt,
   };
@@ -108,7 +110,12 @@ function authResponse(user) {
   const clean = publicUser(user);
   return {
     user: clean,
-    token: signJwt({ sub: clean.id, email: clean.email, role: clean.role }),
+    token: signJwt({
+      sub: clean.id,
+      email: clean.email,
+      role: clean.role,
+      assetWallet: clean.assetWallet || "",
+    }),
     expiresIn: JWT_TTL_SECONDS,
   };
 }
@@ -218,6 +225,40 @@ router.get("/me", requireJwt, async (req, res) => {
     return res.json({ user: publicUser(user) });
   } catch (err) {
     return res.status(500).json({ error: err.message || "Profile lookup failed" });
+  }
+});
+
+router.patch("/me", requireJwt, async (req, res) => {
+  if (!requireDbReady(res)) return;
+
+  try {
+    const user = await AuthUser.findById(req.auth.sub);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (Object.prototype.hasOwnProperty.call(req.body || {}, "assetWallet")) {
+      const rawWallet = String(req.body.assetWallet || "").trim();
+      if (!rawWallet) {
+        user.assetWallet = undefined;
+      } else {
+        if (!WALLET_RX.test(rawWallet)) {
+          return res.status(400).json({ error: "Enter a valid 0x wallet address" });
+        }
+        const wallet = rawWallet.toLowerCase();
+        const existing = await AuthUser.findOne({
+          assetWallet: wallet,
+          _id: { $ne: user._id },
+        });
+        if (existing) {
+          return res.status(409).json({ error: "That wallet is already assigned to another admin account" });
+        }
+        user.assetWallet = wallet;
+      }
+    }
+
+    await user.save();
+    return res.json(authResponse(user));
+  } catch (err) {
+    return res.status(500).json({ error: err.message || "Profile update failed" });
   }
 });
 

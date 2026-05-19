@@ -11,12 +11,14 @@
 - ~~UGF on/off toggle missing~~ - settings popover exposes the UGF toggle and `UGFBadge` / `CostBanner` react to it.
 - ~~Landing hero showed an oversized floating "USDC settlement" logo~~ - removed the bottom hero badge from `Landing.jsx` and scoped hero SVG sizing so inline icons no longer inherit full-illustration dimensions.
 - ~~Frontend build failed on `PrivyBridge.jsx` top-level await~~ - optional Privy SDK loading now happens inside `PrivyShell` lifecycle state, so Vite builds for the configured browser target.
+- ~~Owner/admin login could still expose the investor portfolio surface~~ - owner email sessions now route to `/admin`, owner wallet sessions redirect away from `/portfolio`, and the admin dashboard filters owned properties by a saved receiving wallet.
+- ~~Admin property creation could hit raw Localhost/MetaMask RPC failures~~ - admin writes now require the saved wallet and expected chain, the dashboard exposes a network-repair button, property creation uses `ugfExecute()`, and background gas/balance polling ignores wrong-wallet networks.
 
 ## Open - Tier 1 (must clear before demo can run)
 - Live Base Sepolia clean-wallet smoke test still has not been run in this session. Must prove: demo investor has PROP > 0, pending rent > 0, TYI_MOCK_USD for gas, and exactly 0 ETH before clicking claim.
 - `scripts/seedDemo.js` exists and records demo addresses, but its current Base Sepolia output must be re-run or verified before demo day: owner marketplace approval, investor MockUSDC, investor PROP balance, rent epoch, pending dividends, and final ETH sweep to 0.
 - Final `TYI_MOCK_USD` faucet/balance path must be checked in the actual demo wallet. UGF docs confirm the settlement coin, but the wallet still needs funds from https://universalgasframework.com/faucets.
-- Browser-level UGF modal behavior still needs manual verification. Build passes, but only a wallet session can prove modal quote/payment/execute/confirm in the real app.
+- Browser-level UGF modal behavior still needs manual verification. Build passes, but only a wallet session can prove modal quote/payment/execute/confirm in the real app, especially the admin `createProperty` path after the latest UGF routing.
 
 ## Open - Tier 2 (only relevant after Tier 1 demo runs)
 - Confirm every Tier 2 state-changing flow from a 0-ETH wallet in-browser: `depositRental`, `buyFromOwner`, `buyFromListing`, `createListing`, and `cancelListing`. Code paths are UGF-wrapped, but manual chain proof is still pending.
@@ -33,7 +35,7 @@
 - Live demo URL on Vercel/Netlify - Phase 6D. Not started.
 
 ## Open - Auth / rent-payer flow
-- Email/password auth now exists (`/api/auth/signup`, `/login`, `/me`) but needs a manual browser smoke test with MongoDB online: create owner, create rent-payer, reload, verify JWT restore and role redirects.
+- Email/password auth now exists (`/api/auth/signup`, `/login`, `/me`) but needs a manual browser smoke test with MongoDB online: create owner/admin, save a receiving wallet, create rent-payer, reload, verify JWT restore and role redirects.
 - `JWT_SECRET` is blank in `.env.example`; set a long random secret before any shared deployment. The backend has a dev fallback only for local work.
 - The rent-payer dashboard transfers MockUSDC directly to the selected property owner and logs it as a `deposit` activity. It does not call `RentalDistribution.depositRental()`, which is still owner-only by contract design.
 

@@ -837,3 +837,70 @@ mode only half-applied.
   both roles, reload JWT restore, wallet reload restore, and tenant MockUSDC
   payment.
 - Set a real `JWT_SECRET` before any shared deployment.
+
+
+## Session - Admin wallet ownership cleanup (2026-05-20)
+
+### What changed
+- Owner email accounts now behave as admin profiles: `dashboardForRole("owner")`
+  routes to `/admin` while `/owner` remains as a backward-compatible alias.
+- Added `assetWallet` to `AuthUser` with a unique partial index, plus
+  authenticated `PATCH /api/auth/me` profile updates. JWT/public user payloads
+  now include the saved receiving wallet.
+- Added an **Admin receiving wallet** panel to `OwnerDashboard.jsx`. Admins can
+  save a wallet address or use the connected MetaMask address. The dashboard
+  loads owned properties for that wallet, not for unrelated demo holdings.
+- Admin/owner sessions are redirected away from `/portfolio`; the investor
+  portfolio link is hidden for owner nav states. Owner write actions stay
+  disabled unless the connected wallet matches the saved admin wallet.
+
+### Verification
+- `npm.cmd run build` from `frontend/` passes; Vite still emits only the
+  existing large-chunk warning.
+- Backend auth smoke check passes with `node -e "require('./models/AuthUser');
+  require('./routes/auth'); console.log('auth ok')"`.
+- `graphify update .` completed and refreshed `graphify-out/`.
+
+### Follow-up
+- Browser smoke with MongoDB online still needed: create/login owner admin,
+  save receiving wallet, reload, confirm `/admin` restores the wallet and only
+  shows properties owned by that wallet.
+
+
+## Session - Admin workflow hardening + RPC preflight (2026-05-20)
+
+### What changed
+- Hardened `OwnerDashboard.jsx` as the dedicated admin workflow:
+  - Added an **Admin workflow** readiness panel for saved wallet, expected
+    network, owned properties, and rent deposits.
+  - Admin write actions now require both the saved admin wallet and the
+    configured chain (`Base Sepolia` in hackathon mode).
+  - Added a network repair button that calls the existing MetaMask chain switch
+    flow before users try to mint/create properties.
+  - `createProperty()` now routes through `ugfExecute()` with
+    `PROPERTY_FACTORY_ABI`, so it follows the same UGF/native toggle behavior
+    as rent deposits and marketplace actions.
+  - Post-create marketplace approval now uses `ugfApprove()` instead of a raw
+    token `approve()` call.
+- Reduced noisy wrong-network RPC behavior:
+  - `Web3Context` read provider now uses a static network hint.
+  - `refreshUsdcBalance()` skips token reads when MetaMask is on the wrong
+    chain.
+  - `SmartAgentContext` only polls the wallet provider when it is on the
+    expected chain; otherwise it falls back to the configured Base Sepolia RPC.
+- Updated ignored `frontend/.env` locally to explicitly set
+  `VITE_NETWORK_MODE=baseSepolia` and `VITE_BASE_SEPOLIA_RPC_URL=https://sepolia.base.org`.
+
+### Verification
+- `npm.cmd run build` from `frontend/` passes; Vite still emits only the
+  existing large-chunk warning.
+- Backend auth route smoke check passes with `node -e "require('./models/AuthUser');
+  require('./routes/auth'); console.log('auth ok')"`.
+- `git diff --check` passes for the touched frontend/admin files.
+- Frontend dev server restarted and is responding at `http://127.0.0.1:3000/`.
+- `graphify update .` completed and refreshed `graphify-out/`.
+
+### Follow-up
+- Browser wallet smoke still needed: connect the saved admin wallet, click
+  network repair if MetaMask is on Localhost, then create a property and verify
+  marketplace approval succeeds through UGF/native mode.

@@ -33,12 +33,30 @@ const IndexerCheckpoint = require("../models/IndexerCheckpoint");
 const logger = require("../logger");
 
 const POLL_MS = 20_000;
+const UNREACHABLE_BACKOFF_MS = 5 * 60_000; // when RPC is down, sleep 5 minutes before retrying
 const CHUNK_BLOCKS = Number(process.env.INDEXER_CHUNK_BLOCKS) || 10; // tuned for Base Sepolia free-tier RPC (10-block cap); raise on paid RPC
 const CHUNK_DELAY_MS = 300;  // pause between chunks to avoid Alchemy 429s
 const RETRY_DELAY_MS = 3000; // backoff on rate-limit before retrying
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const START_BLOCK = Number(process.env.INDEXER_START_BLOCK) || 0; // set near deploy block to avoid scanning from genesis
 const ZERO = ethers.ZeroAddress;
+
+// Detects "RPC endpoint not reachable" so we can downgrade the log level and
+// back off instead of spamming ERROR every 20s when the local Hardhat node
+// isn't running. Covers ECONNREFUSED, ENOTFOUND, ETIMEDOUT, and ethers'
+// SERVER_ERROR / NETWORK_ERROR codes.
+function isRpcUnreachable(err) {
+  const msg = String(err?.message || err || "").toLowerCase();
+  if (err?.code === "ECONNREFUSED" || err?.code === "ENOTFOUND" || err?.code === "ETIMEDOUT") return true;
+  if (err?.code === "NETWORK_ERROR" || err?.code === "SERVER_ERROR") return true;
+  return (
+    msg.includes("econnrefused") ||
+    msg.includes("enotfound") ||
+    msg.includes("etimedout") ||
+    msg.includes("failed to fetch") ||
+    msg.includes("could not detect network")
+  );
+}
 
 const ABI_FACTORY = [
   "event PropertyCreated(uint256 indexed propertyId,string name,address propertyToken,address rentalDistribution,address marketplace,address owner)",
@@ -361,6 +379,7 @@ async function tick() {
 }
 
 let timer = null;
+let unreachableSince = 0; // ms timestamp of first consecutive unreachable tick; 0 when healthy
 function start() {
   if (timer) return;
   if (process.env.ENABLE_INDEXER !== "true") {
@@ -372,12 +391,34 @@ function start() {
   }
   logger.info("indexer: starting (poll every " + (POLL_MS / 1000) + "s)");
   const loop = async () => {
+    let nextDelay = POLL_MS;
     try {
-      if (mongoose.connection.readyState === 1) await tick();
+      if (mongoose.connection.readyState === 1) {
+        await tick();
+        if (unreachableSince) {
+          logger.info("indexer: RPC reachable again, resuming normal polling");
+          unreachableSince = 0;
+        }
+      }
     } catch (e) {
-      logger.error({ err: e.message }, "indexer: tick failed");
+      if (isRpcUnreachable(e)) {
+        const url = process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org";
+        if (!unreachableSince) {
+          unreachableSince = Date.now();
+          logger.warn(
+            { rpc: url, err: e.message },
+            `indexer: RPC unreachable; backing off to ${UNREACHABLE_BACKOFF_MS / 1000}s polling until it responds`
+          );
+        } else {
+          // Stay quiet on subsequent unreachable ticks to keep the log clean.
+          logger.debug({ rpc: url, err: e.message }, "indexer: RPC still unreachable");
+        }
+        nextDelay = UNREACHABLE_BACKOFF_MS;
+      } else {
+        logger.error({ err: e.message }, "indexer: tick failed");
+      }
     } finally {
-      timer = setTimeout(loop, POLL_MS);
+      timer = setTimeout(loop, nextDelay);
     }
   };
   timer = setTimeout(loop, 1500); // small initial delay so the API binds first

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ethers } from "ethers";
 import { useWeb3 } from "./Web3Context";
-import { ETH_USD_RATE } from "../config/contracts";
+import { ETH_USD_RATE, NETWORK_CHAIN_ID } from "../config/contracts";
 import { getEthUsdRateSync, getEthUsdRateAsync } from "../hooks/useMarketPrice";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ function classifyGas(gweiNow, recent) {
 }
 
 export function SmartAgentProvider({ children }) {
-  const { provider: walletProvider, account } = useWeb3();
+  const { provider: walletProvider, account, isCorrectNetwork } = useWeb3();
   const [smartGas, setSmartGas] = useState(() => readBool(KEYS.smartGas, false));
   const [smartAi,  setSmartAi]  = useState(() => readBool(KEYS.smartAi, false));
   const [aiProvider, setAiProvider] = useState(() => readLs(KEYS.provider, "openai"));
@@ -148,9 +148,13 @@ export function SmartAgentProvider({ children }) {
 
     async function tick() {
       try {
-        const rp = walletProvider || new ethers.JsonRpcProvider(
-          import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org"
-        );
+        const rp = walletProvider && isCorrectNetwork
+          ? walletProvider
+          : new ethers.JsonRpcProvider(
+            import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
+            NETWORK_CHAIN_ID,
+            { staticNetwork: true }
+          );
         // Base L2 doesn't support eth_maxPriorityFeePerGas (used by
         // getFeeData), so use the legacy eth_gasPrice RPC call instead.
         const raw = await rp.send("eth_gasPrice", []);
@@ -171,7 +175,7 @@ export function SmartAgentProvider({ children }) {
     }
     tick();
     return () => { alive = false; if (timer) clearTimeout(timer); };
-  }, [walletProvider]);
+  }, [walletProvider, isCorrectNetwork]);
 
   const gasState = useMemo(() => {
     if (gasNowGwei == null) return "unknown";

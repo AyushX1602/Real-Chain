@@ -7,10 +7,10 @@ import Logo from "../components/Logo";
 const ROLE_OPTIONS = [
   {
     id: "owner",
-    label: "Owner",
+    label: "Admin",
     icon: "building",
-    title: "Property owner",
-    body: "Launch properties, deposit rent, and manage tokenized supply.",
+    title: "Property admin",
+    body: "Set a receiving wallet, launch properties, deposit rent, and manage tokenized supply.",
   },
   {
     id: "tenant",
@@ -29,7 +29,7 @@ export default function AuthPage({ mode = "login" }) {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "tenant",
+    role: "owner",
   });
   const [localError, setLocalError] = useState("");
 

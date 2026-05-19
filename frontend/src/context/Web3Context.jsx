@@ -16,7 +16,7 @@ function getReadProvider() {
     const rpcUrl = NETWORK_CHAIN_ID === 84532
       ? import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org"
       : LOCAL_RPC_URL;
-    _readProvider = new ethers.JsonRpcProvider(rpcUrl);
+    _readProvider = new ethers.JsonRpcProvider(rpcUrl, NETWORK_CHAIN_ID, { staticNetwork: true });
   }
   return _readProvider;
 }
@@ -79,18 +79,33 @@ export function Web3Provider({ children }) {
     };
   }
 
-  // ── Check if local node is reachable ────────────────────────────────────────
+  // ── Check if the read RPC is reachable ──────────────────────────────────────
+  // We re-check every 15 s while the node is down so the UI recovers
+  // automatically the moment a local Hardhat node comes back up (or a flaky
+  // public RPC stops timing out). When healthy, we stop polling.
   useEffect(() => {
+    let alive = true;
+    let timer = null;
+
     async function checkNode() {
       try {
         const rp = getReadProvider();
         await rp.getBlockNumber();
+        if (!alive) return;
         setNodeOnline(true);
       } catch {
+        if (!alive) return;
         setNodeOnline(false);
+        // Reset the cached provider so the next attempt builds a fresh one.
+        // ethers caches a "could not detect network" failure and refuses to
+        // send further requests on the same instance.
+        _readProvider = null;
+        timer = setTimeout(checkNode, 15_000);
       }
     }
+
     checkNode();
+    return () => { alive = false; if (timer) clearTimeout(timer); };
   }, []);
 
   // ── Connect MetaMask ─────────────────────────────────────────────────────────
@@ -213,12 +228,16 @@ export function Web3Provider({ children }) {
   // ── Fetch USDC balance ───────────────────────────────────────────────────────
   const refreshUsdcBalance = useCallback(async () => {
     if (!signer || !account) return;
+    if (!isCorrectNetwork) {
+      setUsdcBalance("0");
+      return;
+    }
     try {
       const usdc = new ethers.Contract(CONTRACT_ADDRESSES.mockUsdc, MOCK_USDC_ABI, signer);
       const bal  = await usdc.balanceOf(account);
       setUsdcBalance((Number(bal) / 1e6).toFixed(2));
     } catch (_) {}
-  }, [signer, account]);
+  }, [signer, account, isCorrectNetwork]);
 
   // ── Derive current demo role from on-chain property ownership ──────────────
   const refreshRoleHint = useCallback(async () => {

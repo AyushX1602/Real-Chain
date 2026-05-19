@@ -33,6 +33,8 @@
 | 2026-05-19 | Default Base Sepolia frontend addresses to the recorded deployment, not localhost | `VITE_NETWORK_MODE=baseSepolia` must never point judges at Hardhat fallback addresses. Localhost defaults are now scoped to `VITE_NETWORK_MODE=local`. | Codex |
 | 2026-05-19 | Route UI ERC-20 approvals through `ugfApprove()` | Approvals are state-changing transactions too. A 0-ETH investor can still fail before `buy`, `deposit`, or `list` unless the approval itself goes through UGF. | Codex |
 | 2026-05-19 | Treat owner primary-supply approval as a seed/owner prerequisite, not something the buyer UI can fix | The buyer cannot approve the owner's PROP balance. The property page now surfaces the missing approval instead of sending a useless buyer-side token approval. | Codex |
+| 2026-05-20 | Treat owner email accounts as admin profiles with one unique receiving wallet | Admin sessions should manage properties by an explicit wallet address, not accidentally render investor portfolio holdings from whichever demo wallet is connected. Write actions still require the connected MetaMask account to match the saved wallet. | Codex |
+| 2026-05-20 | Guard every admin write by saved wallet + expected network before touching contracts | The admin workflow was failing with raw MetaMask/RPC errors when the browser wallet was on Localhost or a throttled RPC. Creation/deposit actions now stay locked until the saved admin wallet is connected on the configured chain, and property creation routes through the shared UGF/native helper. | Codex |
 
 
 ## 2026-05-19 — Multi-agent orchestration architecture

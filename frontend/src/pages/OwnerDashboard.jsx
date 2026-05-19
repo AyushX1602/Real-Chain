@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ethers } from "ethers";
+import { useAuth } from "../context/AuthContext";
 import { useWeb3 } from "../context/Web3Context";
 import { useUGF } from "../context/UGFContext";
 import { useToast } from "../components/Toast";
@@ -16,7 +17,14 @@ import {
   EpochCadenceIndicator,
   FractionalOwnershipBar,
 } from "../components/ScreenPrimitives";
-import { BACKEND_URL, CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI, PROPERTY_TOKEN_ABI } from "../config/contracts";
+import {
+  BACKEND_URL,
+  CONTRACT_ADDRESSES,
+  NETWORK_CHAIN_ID,
+  NETWORK_MODE,
+  PROPERTY_FACTORY_ABI,
+  RENTAL_DISTRIBUTION_ABI,
+} from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OwnerDashboard — properties you own, rent you have deposited, quick deposit
@@ -24,25 +32,105 @@ import { BACKEND_URL, CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI, PROPERTY_TOKE
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function OwnerDashboard() {
-  const { account, signer, roleHint, getReadFactory, getReadPropertyContracts, getFactory, fmtUsdc, fmtProp, fmtAddr, fmtInr } = useWeb3();
+  const {
+    account,
+    chainId,
+    isCorrectNetwork,
+    nodeOnline,
+    switchToExpectedNetwork,
+    getReadFactory,
+    getReadPropertyContracts,
+    fmtUsdc,
+    fmtProp,
+    fmtAddr,
+    fmtInr,
+  } = useWeb3();
+  const { user: authUser, isAuthenticated, updateProfile } = useAuth();
   const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
   const [props, setProps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creatingNew, setCreatingNew] = useState(false);
   const [newProp, setNewProp] = useState({ name: "", location: "", valueInr: "", price: "" });
+  const [walletDraft, setWalletDraft] = useState(authUser?.assetWallet || "");
+  const [savingWallet, setSavingWallet] = useState(false);
+  const [walletError, setWalletError] = useState("");
 
-  useEffect(() => { if (account) load(); }, [account]);
+  const isAdminSession = isAuthenticated && authUser?.role === "owner";
+  const savedAssetWallet = authUser?.assetWallet || "";
+  const effectiveOwnerWallet = useMemo(() => {
+    const candidate = savedAssetWallet || account || "";
+    return ethers.isAddress(candidate) ? ethers.getAddress(candidate) : "";
+  }, [savedAssetWallet, account]);
+  const canWriteAsOwner = Boolean(
+    account &&
+    effectiveOwnerWallet &&
+    account.toLowerCase() === effectiveOwnerWallet.toLowerCase() &&
+    isCorrectNetwork
+  );
+  const canSignForOwnerWallet = Boolean(
+    account &&
+    effectiveOwnerWallet &&
+    account.toLowerCase() === effectiveOwnerWallet.toLowerCase()
+  );
+  const hasWalletMismatch = Boolean(
+    account &&
+    effectiveOwnerWallet &&
+    account.toLowerCase() !== effectiveOwnerWallet.toLowerCase()
+  );
 
-  async function load() {
+  useEffect(() => {
+    setWalletDraft(savedAssetWallet || "");
+  }, [savedAssetWallet]);
+
+  useEffect(() => {
+    if (!effectiveOwnerWallet) {
+      setProps([]);
+      setLoading(false);
+      return;
+    }
+    if (nodeOnline === false) {
+      // Don't burn cycles hitting an unreachable RPC. Web3Context re-polls
+      // every 15 s; this effect re-runs the moment nodeOnline flips to true.
+      setLoading(false);
+      return;
+    }
+    load(effectiveOwnerWallet);
+  }, [effectiveOwnerWallet, nodeOnline]);
+
+  async function load(ownerWallet = effectiveOwnerWallet) {
+    if (!ownerWallet) {
+      setProps([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
+      const normalizedOwner = ownerWallet.toLowerCase();
       const factory = getReadFactory();
+
+      // Pre-flight: ensure there's actually a contract at the factory address
+      // on the active chain. Without this, ethers throws an opaque
+      // BAD_DATA value="0x" when the RPC returns empty bytes for a missing
+      // contract (typical after `npx hardhat node` is restarted without
+      // re-running `npm run deploy:local`, or when the address points at the
+      // wrong chain).
+      const code = await factory.runner.provider.getCode(CONTRACT_ADDRESSES.propertyFactory);
+      if (!code || code === "0x") {
+        setProps([]);
+        toast.error("Factory not deployed", {
+          msg: NETWORK_MODE === "local"
+            ? `No contract at ${CONTRACT_ADDRESSES.propertyFactory} on chain ${NETWORK_CHAIN_ID}. Run npm run deploy:local.`
+            : `No contract at ${CONTRACT_ADDRESSES.propertyFactory} on chain ${NETWORK_CHAIN_ID}. Run npm run deploy:base or update VITE_PROPERTY_FACTORY_ADDRESS.`,
+        });
+        return;
+      }
+
       const count = Number(await factory.getPropertiesCount());
       const list = [];
       for (let i = 0; i < count; i++) {
         const p = await factory.properties(i);
-        if (p.owner.toLowerCase() !== account.toLowerCase()) continue;
+        if (p.owner.toLowerCase() !== normalizedOwner) continue;
         const { token, rental } = getReadPropertyContracts({
           propertyToken: p.propertyToken,
           rentalDistribution: p.rentalDistribution,
@@ -87,7 +175,36 @@ export default function OwnerDashboard() {
       list.forEach((p) => fetchHolderConcentration(p.id));
     } catch (e) {
       console.error(e);
-      toast.error("Could not load properties", { msg: "Check the network and try again." });
+      const msg = String(e?.shortMessage || e?.reason || e?.message || e || "").toLowerCase();
+      const looksUnreachable =
+        e?.code === "ECONNREFUSED" ||
+        e?.code === "NETWORK_ERROR" ||
+        msg.includes("failed to fetch") ||
+        msg.includes("could not detect network") ||
+        msg.includes("connection refused") ||
+        msg.includes("127.0.0.1:8545") ||
+        msg.includes("err_connection_refused");
+      const looksBadAbi =
+        e?.code === "BAD_DATA" ||
+        msg.includes("could not decode result data");
+      if (looksUnreachable) {
+        const rpcLabel = NETWORK_MODE === "local"
+          ? "Hardhat node at http://127.0.0.1:8545"
+          : `Base Sepolia RPC (${import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org"})`;
+        toast.error("RPC unreachable", {
+          msg: NETWORK_MODE === "local"
+            ? `Start the Hardhat node (npm run node) or set VITE_NETWORK_MODE=baseSepolia and restart Vite.`
+            : `Could not reach ${rpcLabel}. Check the URL or try again in a moment.`,
+        });
+      } else if (looksBadAbi) {
+        toast.error("Factory address mismatch", {
+          msg: NETWORK_MODE === "local"
+            ? `${CONTRACT_ADDRESSES.propertyFactory} on chain ${NETWORK_CHAIN_ID} did not respond to getPropertiesCount(). Re-run npm run deploy:local and refresh.`
+            : `${CONTRACT_ADDRESSES.propertyFactory} on chain ${NETWORK_CHAIN_ID} did not respond to getPropertiesCount(). Confirm VITE_PROPERTY_FACTORY_ADDRESS matches the deployed factory.`,
+        });
+      } else {
+        toast.error("Could not load properties", { msg: "Check the network and try again." });
+      }
     } finally {
       setLoading(false);
     }
@@ -121,51 +238,138 @@ export default function OwnerDashboard() {
   const totalRent = useMemo(() => props.reduce((s, x) => s + x.totalDeposited, 0n), [props]);
   const totalEpochs = useMemo(() => props.reduce((s, x) => s + x.epochs.length, 0), [props]);
 
-  async function handleCreate() {
-    const { name, location, valueInr, price } = newProp;
-    if (!name || !location || !valueInr || !price) return;
+  function friendlyTxError(e) {
+    const msg = String(e?.shortMessage || e?.reason || e?.message || e || "");
+    const lower = msg.toLowerCase();
+    if (lower.includes("127.0.0.1:8545") || lower.includes("failed to fetch")) {
+      return `Your wallet or app is still pointed at Localhost. Switch MetaMask to ${NETWORK_MODE === "local" ? "Hardhat Local" : "Base Sepolia"} and retry.`;
+    }
+    if (lower.includes("too many errors") || lower.includes("-32002")) {
+      return "MetaMask's RPC endpoint is throttling. Use the network repair button, wait a moment, then retry.";
+    }
+    if (lower.includes("user rejected")) return "Transaction was cancelled in MetaMask.";
+    return msg.slice(0, 180) || "Transaction failed. Check MetaMask and retry.";
+  }
+
+  async function ensureAdminWriteReady() {
+    if (!account) {
+      toast.error("Connect wallet", { msg: "Connect the admin wallet before making on-chain changes." });
+      return false;
+    }
+    if (!effectiveOwnerWallet) {
+      toast.error("Save admin wallet", { msg: "Set the wallet that owns and receives assets first." });
+      return false;
+    }
+    if (!canSignForOwnerWallet) {
+      toast.error("Wrong wallet", { msg: "Connect the saved admin wallet before making owner changes." });
+      return false;
+    }
+    if (!isCorrectNetwork) {
+      toast.info("Switching network", { msg: `Opening MetaMask for ${NETWORK_MODE === "local" ? "Hardhat Local" : "Base Sepolia"}.` });
+      const switched = await switchToExpectedNetwork();
+      if (!switched) {
+        toast.error("Wrong network", { msg: `Switch MetaMask to ${NETWORK_MODE === "local" ? "Hardhat Local" : "Base Sepolia"} and retry.` });
+        return false;
+      }
+    }
+    return true;
+  }
+
+  async function readNewestOwnedProperty(previousCount) {
+    const factory = getReadFactory();
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const count = Number(await factory.getPropertiesCount());
+      if (count > previousCount) {
+        const newest = await factory.properties(count - 1);
+        if (newest.owner.toLowerCase() === account.toLowerCase()) return newest;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+    return null;
+  }
+
+  async function handleSaveAssetWallet(raw = walletDraft) {
+    if (!isAdminSession) return;
+    const next = String(raw || "").trim();
+    if (!next) {
+      setWalletError("Enter the wallet address that should receive owner assets.");
+      return;
+    }
+    if (!ethers.isAddress(next)) {
+      setWalletError("Enter a valid 0x wallet address.");
+      return;
+    }
+
+    setSavingWallet(true);
+    setWalletError("");
     try {
-      const factory = getFactory();
+      const normalized = ethers.getAddress(next);
+      await updateProfile({ assetWallet: normalized });
+      setWalletDraft(normalized);
+      toast.success("Admin wallet saved", { msg: `${fmtAddr(normalized)} will be used for owned properties.` });
+    } catch (e) {
+      setWalletError((e.message || "Could not save wallet").slice(0, 180));
+    } finally {
+      setSavingWallet(false);
+    }
+  }
+
+  async function handleCreate() {
+    if (!(await ensureAdminWriteReady())) return;
+    const { name, location, valueInr, price } = newProp;
+    if (!name || !location || !valueInr || !price) {
+      toast.error("Missing fields", { msg: "Name, location, valuation, and token price are required." });
+      return;
+    }
+    try {
       const inrPaisa = BigInt(Math.floor(parseFloat(valueInr) * 100));
       const usdc6 = BigInt(Math.floor(parseFloat(price) * 1e6));
-      const tx = await factory.createProperty(name, location, inrPaisa, usdc6);
-      toast.info("Creating property…", { msg: "Confirm in MetaMask." });
-      await tx.wait();
+      if (inrPaisa <= 0n || usdc6 <= 0n) {
+        toast.error("Invalid numbers", { msg: "Valuation and token price must be greater than zero." });
+        return;
+      }
+
+      const previousCount = Number(await getReadFactory().getPropertiesCount());
+
+      toast.info("Creating property", {
+        msg: isUGFEnabled && NETWORK_CHAIN_ID === 84532
+          ? "Confirm the gasless UGF flow."
+          : "Confirm in MetaMask.",
+      });
+      await ugfExecute(
+        CONTRACT_ADDRESSES.propertyFactory,
+        PROPERTY_FACTORY_ABI,
+        "createProperty",
+        [name.trim(), location.trim(), inrPaisa, usdc6]
+      );
 
       // Auto-approve: the new Marketplace must be allowed to transfer the
       // owner's PROP tokens so buyFromOwner works immediately.
       try {
-        const readFactory = getReadFactory();
-        const count = Number(await readFactory.getPropertiesCount());
-        if (count > 0) {
-          const newest = await readFactory.properties(count - 1);
+        const newest = await readNewestOwnedProperty(previousCount);
+        if (newest) {
           if (newest.owner.toLowerCase() === account.toLowerCase()) {
-            toast.info("Approving marketplace…", { msg: "One more confirmation to enable token sales." });
-            const tokenContract = new ethers.Contract(newest.propertyToken, PROPERTY_TOKEN_ABI, signer);
-            const approveTx = await tokenContract.approve(
-              newest.marketplace,
-              ethers.MaxUint256
-            );
-            await approveTx.wait();
+            toast.info("Approving marketplace", { msg: "One more approval enables investor purchases." });
+            await ugfApprove(newest.propertyToken, newest.marketplace, ethers.MaxUint256);
             toast.success("Marketplace approved", { msg: "Investors can now buy tokens." });
           }
         }
       } catch (approveErr) {
         // Non-fatal — owner can approve later. Log for debugging.
         console.warn("Auto-approve failed:", approveErr);
-        toast.info("Created but approval pending", { msg: "Approve the marketplace manually before investors can buy." });
+        toast.info("Created but approval pending", { msg: "Marketplace approval can be retried later." });
       }
 
       toast.success("Property created", { msg: `${name} is now live on-chain.` });
       setCreatingNew(false);
       setNewProp({ name: "", location: "", valueInr: "", price: "" });
-      await load();
+      await load(effectiveOwnerWallet);
     } catch (e) {
-      toast.error("Create failed", { msg: (e.reason || e.message || "").slice(0, 160) });
+      toast.error("Create failed", { msg: friendlyTxError(e) });
     }
   }
 
-  if (!account) {
+  if (!account && !isAdminSession) {
     return (
       <ConnectGate
         title="Connect to manage your properties"
@@ -179,24 +383,58 @@ export default function OwnerDashboard() {
       <div className="page-header">
         <div className="page-header-row">
           <div>
-            <h1>Owner <span className="accent">control room</span></h1>
-            <p>Deposit USDC rent, launch new properties, and watch your distributions land in seconds.</p>
+            <h1>Admin <span className="accent">control room</span></h1>
+            <p>Deposit USDC rent, launch new properties, and keep owner assets tied to the right wallet.</p>
           </div>
           <div className="flex gap-3 items-center">
-            <span className="role-badge is-owner"><Icon name="star" size={12} /> Owner</span>
-            <button className="btn btn-gold" onClick={() => setCreatingNew(true)}>
+            <span className="role-badge is-owner"><Icon name="star" size={12} /> Admin</span>
+            <button
+              className="btn btn-gold"
+              onClick={() => setCreatingNew(true)}
+              disabled={!canWriteAsOwner}
+              title={!canWriteAsOwner ? "Connect the saved admin wallet to create properties" : undefined}
+            >
               <Icon name="plus" size={14} /> New property
             </button>
           </div>
         </div>
       </div>
 
+      {isAdminSession && (
+        <>
+          <AdminWalletPanel
+            account={account}
+            effectiveOwnerWallet={effectiveOwnerWallet}
+            walletDraft={walletDraft}
+            setWalletDraft={setWalletDraft}
+            walletError={walletError}
+            savingWallet={savingWallet}
+            hasWalletMismatch={hasWalletMismatch}
+            canWriteAsOwner={canWriteAsOwner}
+            fmtAddr={fmtAddr}
+            onSave={handleSaveAssetWallet}
+          />
+          <AdminWorkflowPanel
+            chainId={chainId}
+            isCorrectNetwork={isCorrectNetwork}
+            canSignForOwnerWallet={canSignForOwnerWallet}
+            canWriteAsOwner={canWriteAsOwner}
+            propertyCount={props.length}
+            totalRent={totalRent}
+            fmtUsdc={fmtUsdc}
+            onSwitchNetwork={switchToExpectedNetwork}
+            account={account}
+            toast={toast}
+          />
+        </>
+      )}
+
       {/* Top stats row */}
       <div className="stats-row" style={{ marginBottom: 32 }}>
         <KpiCard icon="building" label="Properties owned" value={String(props.length)} tone="accent" />
         <KpiCard icon="coins" label="Total rent deposited" value={fmtUsdc(totalRent)} tone="gold" />
         <KpiCard icon="history" label="Total epochs" value={String(totalEpochs)} tone="success" />
-        <KpiCard icon="user" label="Wallet" value={fmtAddr(account)} mono tone="muted" />
+        <KpiCard icon="user" label="Admin wallet" value={effectiveOwnerWallet ? fmtAddr(effectiveOwnerWallet) : "Not set"} mono tone="muted" />
       </div>
 
       {creatingNew && (
@@ -217,8 +455,13 @@ export default function OwnerDashboard() {
           <span className="emoji"><Icon name="building" size={28} /></span>
           <h3>No properties yet</h3>
           <p>Tokenize your first property to start collecting fractional rent.</p>
-          <button className="btn btn-primary mt-6" onClick={() => setCreatingNew(true)}>
-            <Icon name="plus" size={13} /> Create property
+          <button
+            className="btn btn-primary mt-6"
+            onClick={() => setCreatingNew(true)}
+            disabled={!canWriteAsOwner}
+            title={!canWriteAsOwner ? "Connect the saved admin wallet to create properties" : undefined}
+          >
+            <Icon name="plus" size={13} /> {canWriteAsOwner ? "Create property" : "Connect admin wallet"}
           </button>
         </div>
       ) : (
@@ -233,6 +476,7 @@ export default function OwnerDashboard() {
               ugfExecute={ugfExecute}
               ugfApprove={ugfApprove}
               isUGFEnabled={isUGFEnabled}
+              canWriteAsOwner={canWriteAsOwner}
               logTx={logTx}
               onRefresh={load}
               toast={toast}
@@ -240,6 +484,197 @@ export default function OwnerDashboard() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function AdminWalletPanel({
+  account,
+  effectiveOwnerWallet,
+  walletDraft,
+  setWalletDraft,
+  walletError,
+  savingWallet,
+  hasWalletMismatch,
+  canWriteAsOwner,
+  fmtAddr,
+  onSave,
+}) {
+  return (
+    <div className="card card-elevated reveal" style={{ marginBottom: 24 }}>
+      <div className="card-body">
+        <div className="page-header-row" style={{ marginBottom: 14 }}>
+          <div>
+            <h2 style={{ fontSize: 18, fontWeight: 800 }}>Admin receiving wallet</h2>
+            <p className="text-sm text-muted" style={{ marginTop: 4 }}>
+              Properties, sale proceeds, and owner actions are tied to this wallet. Connect the same wallet before deploying or depositing rent.
+            </p>
+          </div>
+          <span className={`badge ${canWriteAsOwner ? "badge-success" : "badge-muted"}`}>
+            {canWriteAsOwner ? "Wallet matched" : "Read-only"}
+          </span>
+        </div>
+
+        <div className="flex gap-3 items-end flex-wrap">
+          <div className="form-group" style={{ flex: 1, minWidth: 260 }}>
+            <label className="form-label">Wallet address for receiving assets</label>
+            <div className="form-input-prefix">
+              <span className="prefix"><Icon name="wallet" size={13} /></span>
+              <input
+                className="form-input font-mono"
+                value={walletDraft}
+                onChange={(e) => setWalletDraft(e.target.value)}
+                placeholder="0x0000000000000000000000000000000000000000"
+                spellCheck={false}
+              />
+            </div>
+            {walletError && <div className="text-xs" style={{ color: "var(--red-500)", marginTop: 4 }}>{walletError}</div>}
+          </div>
+          <button className="btn btn-primary" onClick={() => onSave()} disabled={savingWallet}>
+            {savingWallet
+              ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Saving</>
+              : <><Icon name="check" size={13} /> Save wallet</>}
+          </button>
+          {account && (
+            <button className="btn btn-ghost" onClick={() => onSave(account)} disabled={savingWallet}>
+              Use connected
+            </button>
+          )}
+        </div>
+
+        <div className="flex gap-2 flex-wrap" style={{ marginTop: 12 }}>
+          {effectiveOwnerWallet && <span className="badge badge-muted font-mono">Admin: {fmtAddr(effectiveOwnerWallet)}</span>}
+          {account && <span className="badge badge-muted font-mono">Connected: {fmtAddr(account)}</span>}
+          {hasWalletMismatch && (
+            <span className="badge badge-gold">Connect the admin wallet for write actions</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminWorkflowPanel({
+  chainId,
+  isCorrectNetwork,
+  canSignForOwnerWallet,
+  canWriteAsOwner,
+  propertyCount,
+  totalRent,
+  fmtUsdc,
+  onSwitchNetwork,
+  account,
+  toast,
+}) {
+  const [funding, setFunding] = useState(false);
+
+  // Local-only convenience: use Hardhat's hardhat_setBalance RPC method to
+  // top up the currently-connected MetaMask wallet to 100 ETH on chain 31337.
+  // This is only meaningful when VITE_NETWORK_MODE=local — production chains
+  // (Base Sepolia, Mainnet) reject this RPC. UGF handles gas there instead.
+  async function fundWalletLocally() {
+    if (!account) {
+      toast?.error?.("Connect wallet", { msg: "Connect MetaMask before funding the local account." });
+      return;
+    }
+    if (NETWORK_MODE !== "local") {
+      toast?.info?.("Use UGF instead", {
+        msg: "On Base Sepolia, gas is paid in Mock USD via UGF — no ETH top-up is possible from the dApp.",
+      });
+      return;
+    }
+    setFunding(true);
+    try {
+      const rpcUrl = "http://127.0.0.1:8545";
+      const hexAmount = "0x" + (100n * 10n ** 18n).toString(16); // 100 ETH
+      const res = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: Date.now(),
+          method: "hardhat_setBalance",
+          params: [account, hexAmount],
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (body?.error) throw new Error(body.error.message || "Hardhat RPC rejected setBalance");
+      // Tell MetaMask to refresh the cached balance for the active account.
+      try { await window.ethereum?.request({ method: "eth_blockNumber" }); } catch (_) {}
+      toast?.success?.("Funded with 100 ETH", { msg: `${account.slice(0, 6)}…${account.slice(-4)} now has gas for local txs.` });
+    } catch (e) {
+      toast?.error?.("Top-up failed", {
+        msg: (e?.message || "hardhat_setBalance failed. Is `npx hardhat node` running?").slice(0, 180),
+      });
+    } finally {
+      setFunding(false);
+    }
+  }
+
+  const steps = [
+    { label: "Admin wallet", done: canSignForOwnerWallet },
+    { label: NETWORK_MODE === "local" ? "Hardhat network" : "Base Sepolia", done: isCorrectNetwork },
+    { label: "Owned properties", done: propertyCount > 0 },
+    { label: "Rent deposits", done: totalRent > 0n },
+  ];
+
+  return (
+    <div className="card card-elevated reveal" style={{ marginBottom: 24 }}>
+      <div className="card-body">
+        <div className="page-header-row" style={{ marginBottom: 12 }}>
+          <div>
+            <h2 style={{ fontSize: 18, fontWeight: 800 }}>Admin workflow</h2>
+            <p className="text-sm text-muted" style={{ marginTop: 4 }}>
+              Create properties, approve marketplace sales, then deposit collected rent as USDC epochs.
+            </p>
+          </div>
+          <div className="flex gap-2 items-center flex-wrap">
+            {NETWORK_MODE === "local" && (
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={fundWalletLocally}
+                disabled={funding || !account}
+                title="Top up the connected wallet to 100 ETH on the local Hardhat chain"
+              >
+                {funding
+                  ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Funding</>
+                  : <><Icon name="bolt" size={12} /> Fund 100 ETH (local)</>}
+              </button>
+            )}
+            {!isCorrectNetwork && (
+              <button className="btn btn-secondary btn-sm" onClick={onSwitchNetwork}>
+                <Icon name="alert" size={12} /> Repair network
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
+          {steps.map((step) => (
+            <div key={step.label} className="stat-card">
+              <div className="stat-label">
+                <Icon name={step.done ? "check" : "info"} size={12} /> {step.label}
+              </div>
+              <div className={`stat-value ${step.done ? "success" : "muted"}`} style={{ fontSize: 18 }}>
+                {step.done ? "Ready" : "Needs setup"}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-2 flex-wrap" style={{ marginTop: 12 }}>
+          <span className={`badge ${isCorrectNetwork ? "badge-success" : "badge-gold"}`}>
+            Chain: {chainId || "not connected"} / expected {NETWORK_CHAIN_ID}
+          </span>
+          <span className={`badge ${canWriteAsOwner ? "badge-success" : "badge-muted"}`}>
+            Writes: {canWriteAsOwner ? "enabled" : "locked"}
+          </span>
+          <span className="badge badge-muted">Rent deposited: {fmtUsdc(totalRent)}</span>
+          {NETWORK_MODE === "local" && (
+            <span className="badge badge-muted">Local mode: gas paid in test ETH (UGF disabled)</span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -309,7 +744,7 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
   );
 }
 
-function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfApprove, isUGFEnabled, logTx, onRefresh, toast }) {
+function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfApprove, isUGFEnabled, canWriteAsOwner, logTx, onRefresh, toast }) {
   const { property: p, totalDeposited, ownerSupply, totalSupply, epochs, cadenceDays, lastDepositAt, holderShares } = item;
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
@@ -332,6 +767,10 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
   }
 
   async function handleDeposit() {
+    if (!canWriteAsOwner) {
+      toast.error("Admin write locked", { msg: "Connect the saved admin wallet and switch to the expected network first." });
+      return;
+    }
     const err = validate(amount);
     if (err) { setValidationErr(err); return; }
     setValidationErr(null);
@@ -440,8 +879,12 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
               </div>
               {validationErr && <div className="text-xs" style={{ color: "var(--red-500)", marginTop: 4 }}>{validationErr}</div>}
             </div>
-            <button className="btn btn-primary" onClick={handleDeposit} disabled={!amount || busy}>
-              {busy ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Depositing…</> : <><Icon name="bolt" size={13} /> Deposit</>}
+            <button className="btn btn-primary" onClick={handleDeposit} disabled={!amount || busy || !canWriteAsOwner}>
+              {!canWriteAsOwner
+                ? <>Connect admin wallet</>
+                : busy
+                  ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Depositing…</>
+                  : <><Icon name="bolt" size={13} /> Deposit</>}
             </button>
           </div>
           <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>

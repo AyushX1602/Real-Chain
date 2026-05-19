@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 const TOKEN_KEY = "realchain-auth-token";
 
 function dashboardForRole(role) {
-  if (role === "owner") return "/owner";
+  if (role === "owner") return "/admin";
   if (role === "tenant") return "/tenant";
   return "/marketplace";
 }
@@ -30,6 +30,7 @@ function userFromToken(token) {
     id: payload.sub,
     email: payload.email,
     role: payload.role,
+    assetWallet: payload.assetWallet || "",
   };
 }
 
@@ -131,6 +132,32 @@ export function AuthProvider({ children }) {
     requestAuth("/api/auth/signup", { email, password, role })
   ), [requestAuth]);
 
+  const updateProfile = useCallback(async (patch) => {
+    if (!token) throw new Error("Not authenticated");
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(patch),
+      });
+      if (!r.ok) throw new Error(await parseApiError(r));
+      const data = await r.json();
+      if (!data?.token || !data?.user) throw new Error("Profile response missing token");
+      saveSession(data.token, data.user);
+      return data.user;
+    } catch (err) {
+      setError(err.message || "Profile update failed");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [token, saveSession]);
+
   const value = useMemo(() => ({
     token,
     user,
@@ -139,9 +166,10 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(user && token),
     login,
     signup,
+    updateProfile,
     logout,
     dashboardForRole,
-  }), [token, user, loading, error, login, signup, logout]);
+  }), [token, user, loading, error, login, signup, updateProfile, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -682,7 +682,7 @@
       "label": "shutdown()",
       "file_type": "code",
       "source_file": "backend/server.js",
-      "source_location": "L123",
+      "source_location": "L127",
       "id": "backend_server_shutdown",
       "community": 76,
       "norm_label": "shutdown()"
@@ -778,10 +778,19 @@
       "norm_label": "logger"
     },
     {
-      "label": "ABI_FACTORY",
+      "label": "sleep()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
       "source_location": "L39",
+      "id": "jobs_indexer_sleep",
+      "community": 256,
+      "norm_label": "sleep()"
+    },
+    {
+      "label": "ABI_FACTORY",
+      "file_type": "code",
+      "source_file": "backend/jobs/indexer.js",
+      "source_location": "L43",
       "id": "jobs_indexer_abi_factory",
       "community": 256,
       "norm_label": "abi_factory"
@@ -790,7 +799,7 @@
       "label": "ABI_TOKEN",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L44",
+      "source_location": "L48",
       "id": "jobs_indexer_abi_token",
       "community": 256,
       "norm_label": "abi_token"
@@ -799,7 +808,7 @@
       "label": "ABI_RENTAL",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L49",
+      "source_location": "L53",
       "id": "jobs_indexer_abi_rental",
       "community": 256,
       "norm_label": "abi_rental"
@@ -808,7 +817,7 @@
       "label": "ABI_MARKET",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L54",
+      "source_location": "L58",
       "id": "jobs_indexer_abi_market",
       "community": 256,
       "norm_label": "abi_market"
@@ -817,7 +826,7 @@
       "label": "loadDeployedAddresses()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L61",
+      "source_location": "L65",
       "id": "jobs_indexer_loaddeployedaddresses",
       "community": 256,
       "norm_label": "loaddeployedaddresses()"
@@ -826,7 +835,7 @@
       "label": "getProvider()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L68",
+      "source_location": "L72",
       "id": "jobs_indexer_getprovider",
       "community": 256,
       "norm_label": "getprovider()"
@@ -835,7 +844,7 @@
       "label": "getCheckpoint()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L73",
+      "source_location": "L77",
       "id": "jobs_indexer_getcheckpoint",
       "community": 256,
       "norm_label": "getcheckpoint()"
@@ -844,7 +853,7 @@
       "label": "setCheckpoint()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L79",
+      "source_location": "L83",
       "id": "jobs_indexer_setcheckpoint",
       "community": 256,
       "norm_label": "setcheckpoint()"
@@ -853,7 +862,7 @@
       "label": "scanLogs()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L90",
+      "source_location": "L95",
       "id": "jobs_indexer_scanlogs",
       "community": 256,
       "norm_label": "scanlogs()"
@@ -862,7 +871,7 @@
       "label": "upsertTransfer()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L110",
+      "source_location": "L126",
       "id": "jobs_indexer_upserttransfer",
       "community": 256,
       "norm_label": "upserttransfer()"
@@ -871,7 +880,7 @@
       "label": "upsertTransaction()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L137",
+      "source_location": "L153",
       "id": "jobs_indexer_upserttransaction",
       "community": 256,
       "norm_label": "upserttransaction()"
@@ -880,7 +889,7 @@
       "label": "indexFactory()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L147",
+      "source_location": "L163",
       "id": "jobs_indexer_indexfactory",
       "community": 256,
       "norm_label": "indexfactory()"
@@ -889,7 +898,7 @@
       "label": "indexProperty()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L178",
+      "source_location": "L194",
       "id": "jobs_indexer_indexproperty",
       "community": 256,
       "norm_label": "indexproperty()"
@@ -898,7 +907,7 @@
       "label": "tick()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L327",
+      "source_location": "L343",
       "id": "jobs_indexer_tick",
       "community": 256,
       "norm_label": "tick()"
@@ -907,7 +916,7 @@
       "label": "start()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L347",
+      "source_location": "L364",
       "id": "jobs_indexer_start",
       "community": 256,
       "norm_label": "start()"
@@ -916,7 +925,7 @@
       "label": "stop()",
       "file_type": "code",
       "source_file": "backend/jobs/indexer.js",
-      "source_location": "L369",
+      "source_location": "L386",
       "id": "jobs_indexer_stop",
       "community": 256,
       "norm_label": "stop()"
@@ -1116,7 +1125,7 @@
       "source_file": "backend/models/Property.js",
       "source_location": "L1",
       "id": "backend_models_property_js",
-      "community": 353,
+      "community": 431,
       "norm_label": "property.js"
     },
     {
@@ -1125,7 +1134,7 @@
       "source_file": "backend/models/Property.js",
       "source_location": "L1",
       "id": "models_property_mongoose",
-      "community": 353,
+      "community": 431,
       "norm_label": "mongoose"
     },
     {
@@ -1134,7 +1143,7 @@
       "source_file": "backend/models/Property.js",
       "source_location": "L13",
       "id": "models_property_propertyschema",
-      "community": 353,
+      "community": 431,
       "norm_label": "propertyschema"
     },
     {
@@ -1143,7 +1152,7 @@
       "source_file": "backend/models/Transaction.js",
       "source_location": "L1",
       "id": "backend_models_transaction_js",
-      "community": 427,
+      "community": 72,
       "norm_label": "transaction.js"
     },
     {
@@ -1152,7 +1161,7 @@
       "source_file": "backend/models/Transaction.js",
       "source_location": "L1",
       "id": "models_transaction_mongoose",
-      "community": 427,
+      "community": 72,
       "norm_label": "mongoose"
     },
     {
@@ -1161,7 +1170,7 @@
       "source_file": "backend/models/Transaction.js",
       "source_location": "L3",
       "id": "models_transaction_transactionschema",
-      "community": 427,
+      "community": 72,
       "norm_label": "transactionschema"
     },
     {
@@ -1170,7 +1179,7 @@
       "source_file": "backend/models/User.js",
       "source_location": "L1",
       "id": "backend_models_user_js",
-      "community": 72,
+      "community": 353,
       "norm_label": "user.js"
     },
     {
@@ -1179,7 +1188,7 @@
       "source_file": "backend/models/User.js",
       "source_location": "L1",
       "id": "models_user_mongoose",
-      "community": 72,
+      "community": 353,
       "norm_label": "mongoose"
     },
     {
@@ -1188,7 +1197,7 @@
       "source_file": "backend/models/User.js",
       "source_location": "L3",
       "id": "models_user_userschema",
-      "community": 72,
+      "community": 353,
       "norm_label": "userschema"
     },
     {
@@ -1258,7 +1267,7 @@
       "label": "ROLES",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L12",
+      "source_location": "L13",
       "id": "routes_auth_roles",
       "community": 316,
       "norm_label": "roles"
@@ -1267,7 +1276,7 @@
       "label": "getJwtSecret()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L14",
+      "source_location": "L15",
       "id": "routes_auth_getjwtsecret",
       "community": 316,
       "norm_label": "getjwtsecret()"
@@ -1276,7 +1285,7 @@
       "label": "base64url()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "routes_auth_base64url",
       "community": 316,
       "norm_label": "base64url()"
@@ -1285,7 +1294,7 @@
       "label": "base64urlJson()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L26",
+      "source_location": "L27",
       "id": "routes_auth_base64urljson",
       "community": 316,
       "norm_label": "base64urljson()"
@@ -1294,7 +1303,7 @@
       "label": "signJwt()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L30",
+      "source_location": "L31",
       "id": "routes_auth_signjwt",
       "community": 316,
       "norm_label": "signjwt()"
@@ -1303,7 +1312,7 @@
       "label": "decodeBase64url()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L49",
+      "source_location": "L50",
       "id": "routes_auth_decodebase64url",
       "community": 316,
       "norm_label": "decodebase64url()"
@@ -1312,7 +1321,7 @@
       "label": "verifyJwt()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L55",
+      "source_location": "L56",
       "id": "routes_auth_verifyjwt",
       "community": 316,
       "norm_label": "verifyjwt()"
@@ -1321,7 +1330,7 @@
       "label": "hashPassword()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L83",
+      "source_location": "L84",
       "id": "routes_auth_hashpassword",
       "community": 316,
       "norm_label": "hashpassword()"
@@ -1330,7 +1339,7 @@
       "label": "verifyPassword()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L89",
+      "source_location": "L90",
       "id": "routes_auth_verifypassword",
       "community": 316,
       "norm_label": "verifypassword()"
@@ -1339,7 +1348,7 @@
       "label": "publicUser()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L97",
+      "source_location": "L98",
       "id": "routes_auth_publicuser",
       "community": 316,
       "norm_label": "publicuser()"
@@ -1348,7 +1357,7 @@
       "label": "authResponse()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L107",
+      "source_location": "L109",
       "id": "routes_auth_authresponse",
       "community": 316,
       "norm_label": "authresponse()"
@@ -1357,7 +1366,7 @@
       "label": "requireDbReady()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L116",
+      "source_location": "L123",
       "id": "routes_auth_requiredbready",
       "community": 316,
       "norm_label": "requiredbready()"
@@ -1366,7 +1375,7 @@
       "label": "requireJwt()",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L125",
+      "source_location": "L132",
       "id": "routes_auth_requirejwt",
       "community": 316,
       "norm_label": "requirejwt()"
@@ -1375,7 +1384,7 @@
       "label": "wallet",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L145",
+      "source_location": "L152",
       "id": "routes_auth_wallet",
       "community": 316,
       "norm_label": "wallet"
@@ -1384,7 +1393,7 @@
       "label": "email",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L157",
+      "source_location": "L164",
       "id": "routes_auth_email",
       "community": 316,
       "norm_label": "email"
@@ -1393,7 +1402,7 @@
       "label": "password",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L158",
+      "source_location": "L165",
       "id": "routes_auth_password",
       "community": 316,
       "norm_label": "password"
@@ -1402,10 +1411,19 @@
       "label": "role",
       "file_type": "code",
       "source_file": "backend/routes/auth.js",
-      "source_location": "L159",
+      "source_location": "L166",
       "id": "routes_auth_role",
       "community": 316,
       "norm_label": "role"
+    },
+    {
+      "label": "rawWallet",
+      "file_type": "code",
+      "source_file": "backend/routes/auth.js",
+      "source_location": "L239",
+      "id": "routes_auth_rawwallet",
+      "community": 316,
+      "norm_label": "rawwallet"
     },
     {
       "label": "faucet.js",
@@ -2367,14 +2385,14 @@
       "source_file": "frontend/src/App.jsx",
       "source_location": "L33",
       "id": "src_app_navbar",
-      "community": 249,
+      "community": 317,
       "norm_label": "navbar()"
     },
     {
       "label": "SettingsPopover()",
       "file_type": "code",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L180",
+      "source_location": "L186",
       "id": "src_app_settingspopover",
       "community": 249,
       "norm_label": "settingspopover()"
@@ -2383,7 +2401,7 @@
       "label": "ErrorBanner()",
       "file_type": "code",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L339",
+      "source_location": "L255",
       "id": "src_app_errorbanner",
       "community": 249,
       "norm_label": "errorbanner()"
@@ -2392,7 +2410,7 @@
       "label": "App()",
       "file_type": "code",
       "source_file": "frontend/src/App.jsx",
-      "source_location": "L362",
+      "source_location": "L278",
       "id": "src_app_app",
       "community": 249,
       "norm_label": "app()"
@@ -3870,7 +3888,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_activityfeed_jsx",
-      "community": 415,
+      "community": 307,
       "norm_label": "activityfeed.jsx"
     },
     {
@@ -3879,7 +3897,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L13",
       "id": "components_activityfeed_verb",
-      "community": 415,
+      "community": 307,
       "norm_label": "verb"
     },
     {
@@ -3888,7 +3906,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L22",
       "id": "components_activityfeed_timeago",
-      "community": 415,
+      "community": 307,
       "norm_label": "timeago()"
     },
     {
@@ -3897,7 +3915,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L34",
       "id": "components_activityfeed_shortaddr",
-      "community": 415,
+      "community": 307,
       "norm_label": "shortaddr()"
     },
     {
@@ -3906,7 +3924,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L39",
       "id": "components_activityfeed_avatarkind",
-      "community": 415,
+      "community": 307,
       "norm_label": "avatarkind()"
     },
     {
@@ -3915,7 +3933,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L45",
       "id": "components_activityfeed_fmtamount",
-      "community": 415,
+      "community": 307,
       "norm_label": "fmtamount()"
     },
     {
@@ -3924,7 +3942,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L58",
       "id": "components_activityfeed_classifyfetcherror",
-      "community": 415,
+      "community": 307,
       "norm_label": "classifyfetcherror()"
     },
     {
@@ -3933,7 +3951,7 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L70",
       "id": "components_activityfeed_activityfeed",
-      "community": 415,
+      "community": 307,
       "norm_label": "activityfeed()"
     },
     {
@@ -3942,16 +3960,16 @@
       "source_file": "frontend/src/components/AgentSuggestions.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_agentsuggestions_jsx",
-      "community": 317,
+      "community": 249,
       "norm_label": "agentsuggestions.jsx"
     },
     {
       "label": "AgentSuggestions()",
       "file_type": "code",
       "source_file": "frontend/src/components/AgentSuggestions.jsx",
-      "source_location": "L14",
+      "source_location": "L10",
       "id": "components_agentsuggestions_agentsuggestions",
-      "community": 317,
+      "community": 249,
       "norm_label": "agentsuggestions()"
     },
     {
@@ -3960,7 +3978,7 @@
       "source_file": "frontend/src/components/ConnectGate.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_connectgate_jsx",
-      "community": 286,
+      "community": 266,
       "norm_label": "connectgate.jsx"
     },
     {
@@ -3969,7 +3987,7 @@
       "source_file": "frontend/src/components/ConnectGate.jsx",
       "source_location": "L6",
       "id": "components_connectgate_connectgate",
-      "community": 286,
+      "community": 317,
       "norm_label": "connectgate()"
     },
     {
@@ -3978,7 +3996,7 @@
       "source_file": "frontend/src/components/CostBanner.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_costbanner_jsx",
-      "community": 286,
+      "community": 191,
       "norm_label": "costbanner.jsx"
     },
     {
@@ -3987,7 +4005,7 @@
       "source_file": "frontend/src/components/CostBanner.jsx",
       "source_location": "L17",
       "id": "components_costbanner_costbanner",
-      "community": 286,
+      "community": 191,
       "norm_label": "costbanner()"
     },
     {
@@ -3996,7 +4014,7 @@
       "source_file": "frontend/src/components/FaucetPanel.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_faucetpanel_jsx",
-      "community": 255,
+      "community": 317,
       "norm_label": "faucetpanel.jsx"
     },
     {
@@ -4005,7 +4023,7 @@
       "source_file": "frontend/src/components/FaucetPanel.jsx",
       "source_location": "L14",
       "id": "components_faucetpanel_faucetpanel",
-      "community": 255,
+      "community": 317,
       "norm_label": "faucetpanel()"
     },
     {
@@ -4014,7 +4032,7 @@
       "source_file": "frontend/src/components/GasIndicator.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_gasindicator_jsx",
-      "community": 317,
+      "community": 249,
       "norm_label": "gasindicator.jsx"
     },
     {
@@ -4023,7 +4041,7 @@
       "source_file": "frontend/src/components/GasIndicator.jsx",
       "source_location": "L11",
       "id": "components_gasindicator_tone",
-      "community": 317,
+      "community": 249,
       "norm_label": "tone"
     },
     {
@@ -4032,7 +4050,7 @@
       "source_file": "frontend/src/components/GasIndicator.jsx",
       "source_location": "L18",
       "id": "components_gasindicator_gasindicator",
-      "community": 317,
+      "community": 249,
       "norm_label": "gasindicator()"
     },
     {
@@ -4077,7 +4095,7 @@
       "source_file": "frontend/src/components/Icon.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_icon_jsx",
-      "community": 417,
+      "community": 266,
       "norm_label": "icon.jsx"
     },
     {
@@ -4086,7 +4104,7 @@
       "source_file": "frontend/src/components/Icon.jsx",
       "source_location": "L14",
       "id": "components_icon_paths",
-      "community": 417,
+      "community": 266,
       "norm_label": "paths"
     },
     {
@@ -4095,7 +4113,7 @@
       "source_file": "frontend/src/components/Icon.jsx",
       "source_location": "L81",
       "id": "components_icon_icon",
-      "community": 417,
+      "community": 266,
       "norm_label": "icon()"
     },
     {
@@ -4104,7 +4122,7 @@
       "source_file": "frontend/src/components/LiveRentCounter.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_liverentcounter_jsx",
-      "community": 417,
+      "community": 286,
       "norm_label": "liverentcounter.jsx"
     },
     {
@@ -4113,7 +4131,7 @@
       "source_file": "frontend/src/components/LiveRentCounter.jsx",
       "source_location": "L16",
       "id": "components_liverentcounter_formatusd",
-      "community": 417,
+      "community": 286,
       "norm_label": "formatusd()"
     },
     {
@@ -4122,7 +4140,7 @@
       "source_file": "frontend/src/components/LiveRentCounter.jsx",
       "source_location": "L20",
       "id": "components_liverentcounter_liverentcounter",
-      "community": 417,
+      "community": 286,
       "norm_label": "liverentcounter()"
     },
     {
@@ -4347,7 +4365,7 @@
       "source_file": "frontend/src/components/Toast.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_toast_jsx",
-      "community": 255,
+      "community": 317,
       "norm_label": "toast.jsx"
     },
     {
@@ -4356,7 +4374,7 @@
       "source_file": "frontend/src/components/Toast.jsx",
       "source_location": "L11",
       "id": "components_toast_toastctx",
-      "community": 255,
+      "community": 317,
       "norm_label": "toastctx"
     },
     {
@@ -4365,7 +4383,7 @@
       "source_file": "frontend/src/components/Toast.jsx",
       "source_location": "L15",
       "id": "components_toast_toastprovider",
-      "community": 249,
+      "community": 317,
       "norm_label": "toastprovider()"
     },
     {
@@ -4374,7 +4392,7 @@
       "source_file": "frontend/src/components/Toast.jsx",
       "source_location": "L70",
       "id": "components_toast_usetoast",
-      "community": 255,
+      "community": 317,
       "norm_label": "usetoast()"
     },
     {
@@ -4392,7 +4410,7 @@
       "source_file": "frontend/src/components/UGFBadge.jsx",
       "source_location": "L10",
       "id": "components_ugfbadge_ugfbadge",
-      "community": 266,
+      "community": 317,
       "norm_label": "ugfbadge()"
     },
     {
@@ -4401,7 +4419,7 @@
       "source_file": "frontend/src/components/YieldCalculator.jsx",
       "source_location": "L1",
       "id": "frontend_src_components_yieldcalculator_jsx",
-      "community": 417,
+      "community": 286,
       "norm_label": "yieldcalculator.jsx"
     },
     {
@@ -4410,7 +4428,7 @@
       "source_file": "frontend/src/components/YieldCalculator.jsx",
       "source_location": "L12",
       "id": "components_yieldcalculator_yieldcalculator",
-      "community": 417,
+      "community": 286,
       "norm_label": "yieldcalculator()"
     },
     {
@@ -4419,7 +4437,7 @@
       "source_file": "frontend/src/components/YieldCalculator.jsx",
       "source_location": "L106",
       "id": "components_yieldcalculator_yieldstat",
-      "community": 417,
+      "community": 286,
       "norm_label": "yieldstat()"
     },
     {
@@ -4518,7 +4536,7 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L1",
       "id": "frontend_src_context_authcontext_jsx",
-      "community": 249,
+      "community": 264,
       "norm_label": "authcontext.jsx"
     },
     {
@@ -4527,7 +4545,7 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L4",
       "id": "context_authcontext_authcontext",
-      "community": 249,
+      "community": 264,
       "norm_label": "authcontext"
     },
     {
@@ -4536,7 +4554,7 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L7",
       "id": "context_authcontext_dashboardforrole",
-      "community": 249,
+      "community": 264,
       "norm_label": "dashboardforrole()"
     },
     {
@@ -4545,7 +4563,7 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L13",
       "id": "context_authcontext_decodejwtpayload",
-      "community": 249,
+      "community": 264,
       "norm_label": "decodejwtpayload()"
     },
     {
@@ -4554,34 +4572,34 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L25",
       "id": "context_authcontext_userfromtoken",
-      "community": 249,
+      "community": 264,
       "norm_label": "userfromtoken()"
     },
     {
       "label": "parseApiError()",
       "file_type": "code",
       "source_file": "frontend/src/context/AuthContext.jsx",
-      "source_location": "L36",
+      "source_location": "L37",
       "id": "context_authcontext_parseapierror",
-      "community": 249,
+      "community": 264,
       "norm_label": "parseapierror()"
     },
     {
       "label": "AuthProvider()",
       "file_type": "code",
       "source_file": "frontend/src/context/AuthContext.jsx",
-      "source_location": "L45",
+      "source_location": "L46",
       "id": "context_authcontext_authprovider",
-      "community": 249,
+      "community": 264,
       "norm_label": "authprovider()"
     },
     {
       "label": "useAuth()",
       "file_type": "code",
       "source_file": "frontend/src/context/AuthContext.jsx",
-      "source_location": "L149",
+      "source_location": "L177",
       "id": "context_authcontext_useauth",
-      "community": 249,
+      "community": 317,
       "norm_label": "useauth()"
     },
     {
@@ -4653,7 +4671,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L1",
       "id": "frontend_src_context_smartagentcontext_jsx",
-      "community": 317,
+      "community": 249,
       "norm_label": "smartagentcontext.jsx"
     },
     {
@@ -4662,7 +4680,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L37",
       "id": "context_smartagentcontext_ctx",
-      "community": 317,
+      "community": 249,
       "norm_label": "ctx"
     },
     {
@@ -4671,7 +4689,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L39",
       "id": "context_smartagentcontext_keys",
-      "community": 317,
+      "community": 249,
       "norm_label": "keys"
     },
     {
@@ -4680,7 +4698,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L47",
       "id": "context_smartagentcontext_agent_providers",
-      "community": 317,
+      "community": 249,
       "norm_label": "agent_providers"
     },
     {
@@ -4689,7 +4707,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L78",
       "id": "context_smartagentcontext_readls",
-      "community": 317,
+      "community": 249,
       "norm_label": "readls()"
     },
     {
@@ -4698,7 +4716,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L85",
       "id": "context_smartagentcontext_writels",
-      "community": 317,
+      "community": 249,
       "norm_label": "writels()"
     },
     {
@@ -4707,7 +4725,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L88",
       "id": "context_smartagentcontext_readbool",
-      "community": 317,
+      "community": 249,
       "norm_label": "readbool()"
     },
     {
@@ -4716,7 +4734,7 @@
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
       "source_location": "L94",
       "id": "context_smartagentcontext_classifygas",
-      "community": 317,
+      "community": 249,
       "norm_label": "classifygas()"
     },
     {
@@ -4732,9 +4750,9 @@
       "label": "useSmartAgent()",
       "file_type": "code",
       "source_file": "frontend/src/context/SmartAgentContext.jsx",
-      "source_location": "L392",
+      "source_location": "L396",
       "id": "context_smartagentcontext_usesmartagent",
-      "community": 317,
+      "community": 249,
       "norm_label": "usesmartagent()"
     },
     {
@@ -4797,7 +4815,7 @@
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L1",
       "id": "frontend_src_context_ugfcontext_jsx",
-      "community": 286,
+      "community": 191,
       "norm_label": "ugfcontext.jsx"
     },
     {
@@ -4806,7 +4824,7 @@
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L15",
       "id": "context_ugfcontext_ugfctx",
-      "community": 286,
+      "community": 191,
       "norm_label": "ugfctx"
     },
     {
@@ -4815,7 +4833,7 @@
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L19",
       "id": "context_ugfcontext_approve_abi",
-      "community": 286,
+      "community": 191,
       "norm_label": "approve_abi"
     },
     {
@@ -4824,7 +4842,7 @@
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L21",
       "id": "context_ugfcontext_resulthash",
-      "community": 286,
+      "community": 191,
       "norm_label": "resulthash()"
     },
     {
@@ -4833,7 +4851,7 @@
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L25",
       "id": "context_ugfcontext_quotetousd",
-      "community": 286,
+      "community": 191,
       "norm_label": "quotetousd()"
     },
     {
@@ -4842,7 +4860,7 @@
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L33",
       "id": "context_ugfcontext_ugfcontextprovider",
-      "community": 286,
+      "community": 191,
       "norm_label": "ugfcontextprovider()"
     },
     {
@@ -4851,7 +4869,7 @@
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L203",
       "id": "context_ugfcontext_useugf",
-      "community": 266,
+      "community": 317,
       "norm_label": "useugf()"
     },
     {
@@ -4894,9 +4912,9 @@
       "label": "useWeb3()",
       "file_type": "code",
       "source_file": "frontend/src/context/Web3Context.jsx",
-      "source_location": "L347",
+      "source_location": "L351",
       "id": "context_web3context_useweb3",
-      "community": 286,
+      "community": 317,
       "norm_label": "useweb3()"
     },
     {
@@ -4905,7 +4923,7 @@
       "source_file": "frontend/src/hooks/useMarketPrice.js",
       "source_location": "L1",
       "id": "frontend_src_hooks_usemarketprice_js",
-      "community": 317,
+      "community": 191,
       "norm_label": "usemarketprice.js"
     },
     {
@@ -4914,7 +4932,7 @@
       "source_file": "frontend/src/hooks/useMarketPrice.js",
       "source_location": "L23",
       "id": "hooks_usemarketprice_loadrate",
-      "community": 317,
+      "community": 191,
       "norm_label": "loadrate()"
     },
     {
@@ -4923,7 +4941,7 @@
       "source_file": "frontend/src/hooks/useMarketPrice.js",
       "source_location": "L46",
       "id": "hooks_usemarketprice_usemarketprice",
-      "community": 286,
+      "community": 191,
       "norm_label": "usemarketprice()"
     },
     {
@@ -4932,7 +4950,7 @@
       "source_file": "frontend/src/hooks/useMarketPrice.js",
       "source_location": "L68",
       "id": "hooks_usemarketprice_getethusdratesync",
-      "community": 317,
+      "community": 191,
       "norm_label": "getethusdratesync()"
     },
     {
@@ -4941,7 +4959,7 @@
       "source_file": "frontend/src/hooks/useMarketPrice.js",
       "source_location": "L71",
       "id": "hooks_usemarketprice_getethusdrateasync",
-      "community": 317,
+      "community": 191,
       "norm_label": "getethusdrateasync()"
     },
     {
@@ -5103,7 +5121,7 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L1",
       "id": "frontend_src_pages_authpage_jsx",
-      "community": 249,
+      "community": 264,
       "norm_label": "authpage.jsx"
     },
     {
@@ -5112,7 +5130,7 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L7",
       "id": "pages_authpage_role_options",
-      "community": 249,
+      "community": 264,
       "norm_label": "role_options"
     },
     {
@@ -5121,7 +5139,7 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L24",
       "id": "pages_authpage_authpage",
-      "community": 249,
+      "community": 264,
       "norm_label": "authpage()"
     },
     {
@@ -5139,7 +5157,7 @@
       "source_file": "frontend/src/pages/Dividends.jsx",
       "source_location": "L25",
       "id": "pages_dividends_dividends",
-      "community": 266,
+      "community": 317,
       "norm_label": "dividends()"
     },
     {
@@ -5193,7 +5211,7 @@
       "source_file": "frontend/src/pages/InvestorDashboard.jsx",
       "source_location": "L1",
       "id": "frontend_src_pages_investordashboard_jsx",
-      "community": 286,
+      "community": 317,
       "norm_label": "investordashboard.jsx"
     },
     {
@@ -5202,7 +5220,7 @@
       "source_file": "frontend/src/pages/InvestorDashboard.jsx",
       "source_location": "L21",
       "id": "pages_investordashboard_investordashboard",
-      "community": 4,
+      "community": 317,
       "norm_label": "investordashboard()"
     },
     {
@@ -5220,7 +5238,7 @@
       "source_file": "frontend/src/pages/InvestorDashboard.jsx",
       "source_location": "L291",
       "id": "pages_investordashboard_emptyholdings",
-      "community": 286,
+      "community": 317,
       "norm_label": "emptyholdings()"
     },
     {
@@ -5229,7 +5247,7 @@
       "source_file": "frontend/src/pages/InvestorDashboard.jsx",
       "source_location": "L304",
       "id": "pages_investordashboard_sidebartips",
-      "community": 286,
+      "community": 317,
       "norm_label": "sidebartips()"
     },
     {
@@ -5256,14 +5274,14 @@
       "source_file": "frontend/src/pages/Landing.jsx",
       "source_location": "L36",
       "id": "pages_landing_landing",
-      "community": 286,
+      "community": 317,
       "norm_label": "landing()"
     },
     {
       "label": "HERO_TITLE_PARTS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L410",
+      "source_location": "L414",
       "id": "pages_landing_hero_title_parts",
       "community": 308,
       "norm_label": "hero_title_parts"
@@ -5272,7 +5290,7 @@
       "label": "HeroSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L418",
+      "source_location": "L422",
       "id": "pages_landing_herosection",
       "community": 308,
       "norm_label": "herosection()"
@@ -5281,7 +5299,7 @@
       "label": "CoinUsdc()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L592",
+      "source_location": "L596",
       "id": "pages_landing_coinusdc",
       "community": 308,
       "norm_label": "coinusdc()"
@@ -5290,7 +5308,7 @@
       "label": "STEPS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L618",
+      "source_location": "L622",
       "id": "pages_landing_steps",
       "community": 308,
       "norm_label": "steps"
@@ -5299,7 +5317,7 @@
       "label": "ServiceCard()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L637",
+      "source_location": "L641",
       "id": "pages_landing_servicecard",
       "community": 308,
       "norm_label": "servicecard()"
@@ -5308,7 +5326,7 @@
       "label": "ProcessStep()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L656",
+      "source_location": "L660",
       "id": "pages_landing_processstep",
       "community": 308,
       "norm_label": "processstep()"
@@ -5317,7 +5335,7 @@
       "label": "HeroIllustration()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L676",
+      "source_location": "L680",
       "id": "pages_landing_heroillustration",
       "community": 308,
       "norm_label": "heroillustration()"
@@ -5326,7 +5344,7 @@
       "label": "CtaIllustration()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L754",
+      "source_location": "L758",
       "id": "pages_landing_ctaillustration",
       "community": 308,
       "norm_label": "ctaillustration()"
@@ -5335,7 +5353,7 @@
       "label": "IlluTokens()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L770",
+      "source_location": "L774",
       "id": "pages_landing_illutokens",
       "community": 308,
       "norm_label": "illutokens()"
@@ -5344,7 +5362,7 @@
       "label": "IlluRent()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L780",
+      "source_location": "L784",
       "id": "pages_landing_illurent",
       "community": 308,
       "norm_label": "illurent()"
@@ -5353,7 +5371,7 @@
       "label": "IlluUgf()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L790",
+      "source_location": "L794",
       "id": "pages_landing_illuugf",
       "community": 308,
       "norm_label": "illuugf()"
@@ -5362,7 +5380,7 @@
       "label": "IlluMarket()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L797",
+      "source_location": "L801",
       "id": "pages_landing_illumarket",
       "community": 308,
       "norm_label": "illumarket()"
@@ -5371,7 +5389,7 @@
       "label": "IlluOwner()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L807",
+      "source_location": "L811",
       "id": "pages_landing_illuowner",
       "community": 308,
       "norm_label": "illuowner()"
@@ -5380,7 +5398,7 @@
       "label": "IlluAnalytics()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L818",
+      "source_location": "L822",
       "id": "pages_landing_illuanalytics",
       "community": 308,
       "norm_label": "illuanalytics()"
@@ -5389,7 +5407,7 @@
       "label": "Reveal()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L838",
+      "source_location": "L842",
       "id": "pages_landing_reveal",
       "community": 308,
       "norm_label": "reveal()"
@@ -5398,7 +5416,7 @@
       "label": "Stagger()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L855",
+      "source_location": "L859",
       "id": "pages_landing_stagger",
       "community": 308,
       "norm_label": "stagger()"
@@ -5407,7 +5425,7 @@
       "label": "STAGGER_ITEM",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L876",
+      "source_location": "L880",
       "id": "pages_landing_stagger_item",
       "community": 308,
       "norm_label": "stagger_item"
@@ -5416,7 +5434,7 @@
       "label": "FloatIcon()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L884",
+      "source_location": "L888",
       "id": "pages_landing_floaticon",
       "community": 308,
       "norm_label": "floaticon()"
@@ -5425,7 +5443,7 @@
       "label": "TECH_GROUPS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L912",
+      "source_location": "L916",
       "id": "pages_landing_tech_groups",
       "community": 308,
       "norm_label": "tech_groups"
@@ -5434,7 +5452,7 @@
       "label": "TechStackSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L958",
+      "source_location": "L962",
       "id": "pages_landing_techstacksection",
       "community": 308,
       "norm_label": "techstacksection()"
@@ -5443,7 +5461,7 @@
       "label": "ARCH_LAYERS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1005",
+      "source_location": "L1009",
       "id": "pages_landing_arch_layers",
       "community": 308,
       "norm_label": "arch_layers"
@@ -5452,7 +5470,7 @@
       "label": "ArchitectureSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1042",
+      "source_location": "L1046",
       "id": "pages_landing_architecturesection",
       "community": 308,
       "norm_label": "architecturesection()"
@@ -5461,7 +5479,7 @@
       "label": "ArchArrow()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1084",
+      "source_location": "L1088",
       "id": "pages_landing_archarrow",
       "community": 308,
       "norm_label": "archarrow()"
@@ -5470,7 +5488,7 @@
       "label": "FEATURE_TABS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1097",
+      "source_location": "L1101",
       "id": "pages_landing_feature_tabs",
       "community": 308,
       "norm_label": "feature_tabs"
@@ -5479,7 +5497,7 @@
       "label": "FeaturesGallerySection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1191",
+      "source_location": "L1195",
       "id": "pages_landing_featuresgallerysection",
       "community": 308,
       "norm_label": "featuresgallerysection()"
@@ -5488,7 +5506,7 @@
       "label": "WORKFLOW_STEPS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1256",
+      "source_location": "L1260",
       "id": "pages_landing_workflow_steps",
       "community": 308,
       "norm_label": "workflow_steps"
@@ -5497,7 +5515,7 @@
       "label": "AnimatedWorkflowSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1295",
+      "source_location": "L1299",
       "id": "pages_landing_animatedworkflowsection",
       "community": 308,
       "norm_label": "animatedworkflowsection()"
@@ -5506,7 +5524,7 @@
       "label": "WorkflowNode()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1398",
+      "source_location": "L1402",
       "id": "pages_landing_workflownode",
       "community": 308,
       "norm_label": "workflownode()"
@@ -5515,7 +5533,7 @@
       "label": "CountUp()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1458",
+      "source_location": "L1462",
       "id": "pages_landing_countup",
       "community": 308,
       "norm_label": "countup()"
@@ -5524,7 +5542,7 @@
       "label": "tw()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1487",
+      "source_location": "L1491",
       "id": "pages_landing_tw",
       "community": 235,
       "norm_label": "tw()"
@@ -5533,7 +5551,7 @@
       "label": "th()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1488",
+      "source_location": "L1492",
       "id": "pages_landing_th",
       "community": 235,
       "norm_label": "th()"
@@ -5542,7 +5560,7 @@
       "label": "TechReact()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1490",
+      "source_location": "L1494",
       "id": "pages_landing_techreact",
       "community": 235,
       "norm_label": "techreact()"
@@ -5551,7 +5569,7 @@
       "label": "TechVite()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1502",
+      "source_location": "L1506",
       "id": "pages_landing_techvite",
       "community": 235,
       "norm_label": "techvite()"
@@ -5560,7 +5578,7 @@
       "label": "TechRouter()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1510",
+      "source_location": "L1514",
       "id": "pages_landing_techrouter",
       "community": 235,
       "norm_label": "techrouter()"
@@ -5569,7 +5587,7 @@
       "label": "TechFramer()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1520",
+      "source_location": "L1524",
       "id": "pages_landing_techframer",
       "community": 235,
       "norm_label": "techframer()"
@@ -5578,7 +5596,7 @@
       "label": "TechType()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1527",
+      "source_location": "L1531",
       "id": "pages_landing_techtype",
       "community": 235,
       "norm_label": "techtype()"
@@ -5587,7 +5605,7 @@
       "label": "TechSolidity()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1535",
+      "source_location": "L1539",
       "id": "pages_landing_techsolidity",
       "community": 235,
       "norm_label": "techsolidity()"
@@ -5596,7 +5614,7 @@
       "label": "TechOZ()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1545",
+      "source_location": "L1549",
       "id": "pages_landing_techoz",
       "community": 235,
       "norm_label": "techoz()"
@@ -5605,7 +5623,7 @@
       "label": "TechHardhat()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1554",
+      "source_location": "L1558",
       "id": "pages_landing_techhardhat",
       "community": 235,
       "norm_label": "techhardhat()"
@@ -5614,7 +5632,7 @@
       "label": "TechEthers()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1564",
+      "source_location": "L1568",
       "id": "pages_landing_techethers",
       "community": 235,
       "norm_label": "techethers()"
@@ -5623,7 +5641,7 @@
       "label": "TechNode()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1572",
+      "source_location": "L1576",
       "id": "pages_landing_technode",
       "community": 235,
       "norm_label": "technode()"
@@ -5632,7 +5650,7 @@
       "label": "TechMongo()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1580",
+      "source_location": "L1584",
       "id": "pages_landing_techmongo",
       "community": 235,
       "norm_label": "techmongo()"
@@ -5641,7 +5659,7 @@
       "label": "TechExpress()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1588",
+      "source_location": "L1592",
       "id": "pages_landing_techexpress",
       "community": 235,
       "norm_label": "techexpress()"
@@ -5650,7 +5668,7 @@
       "label": "TechUgf()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1596",
+      "source_location": "L1600",
       "id": "pages_landing_techugf",
       "community": 235,
       "norm_label": "techugf()"
@@ -5659,7 +5677,7 @@
       "label": "TechBase()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1603",
+      "source_location": "L1607",
       "id": "pages_landing_techbase",
       "community": 235,
       "norm_label": "techbase()"
@@ -5668,7 +5686,7 @@
       "label": "TechMetaMask()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1611",
+      "source_location": "L1615",
       "id": "pages_landing_techmetamask",
       "community": 235,
       "norm_label": "techmetamask()"
@@ -5677,7 +5695,7 @@
       "label": "TechUsdc()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1620",
+      "source_location": "L1624",
       "id": "pages_landing_techusdc",
       "community": 235,
       "norm_label": "techusdc()"
@@ -5686,7 +5704,7 @@
       "label": "SPOTLIGHT_BULLETS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1633",
+      "source_location": "L1637",
       "id": "pages_landing_spotlight_bullets",
       "community": 308,
       "norm_label": "spotlight_bullets"
@@ -5695,7 +5713,7 @@
       "label": "SpotlightSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1640",
+      "source_location": "L1644",
       "id": "pages_landing_spotlightsection",
       "community": 308,
       "norm_label": "spotlightsection()"
@@ -5704,7 +5722,7 @@
       "label": "SpotlightIllu()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1677",
+      "source_location": "L1681",
       "id": "pages_landing_spotlightillu",
       "community": 308,
       "norm_label": "spotlightillu()"
@@ -5713,7 +5731,7 @@
       "label": "COMPARE_COLS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1699",
+      "source_location": "L1703",
       "id": "pages_landing_compare_cols",
       "community": 308,
       "norm_label": "compare_cols"
@@ -5722,7 +5740,7 @@
       "label": "COMPARE_ROWS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1706",
+      "source_location": "L1710",
       "id": "pages_landing_compare_rows",
       "community": 308,
       "norm_label": "compare_rows"
@@ -5731,7 +5749,7 @@
       "label": "CompareCell()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1717",
+      "source_location": "L1721",
       "id": "pages_landing_comparecell",
       "community": 308,
       "norm_label": "comparecell()"
@@ -5740,7 +5758,7 @@
       "label": "ComparisonSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1724",
+      "source_location": "L1728",
       "id": "pages_landing_comparisonsection",
       "community": 308,
       "norm_label": "comparisonsection()"
@@ -5749,7 +5767,7 @@
       "label": "OWNER_STEPS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1773",
+      "source_location": "L1777",
       "id": "pages_landing_owner_steps",
       "community": 308,
       "norm_label": "owner_steps"
@@ -5758,7 +5776,7 @@
       "label": "OwnerFlowSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1780",
+      "source_location": "L1784",
       "id": "pages_landing_ownerflowsection",
       "community": 308,
       "norm_label": "ownerflowsection()"
@@ -5767,7 +5785,7 @@
       "label": "TechShield()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1816",
+      "source_location": "L1820",
       "id": "pages_landing_techshield",
       "community": 235,
       "norm_label": "techshield()"
@@ -5776,7 +5794,7 @@
       "label": "TechIndexer()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1824",
+      "source_location": "L1828",
       "id": "pages_landing_techindexer",
       "community": 235,
       "norm_label": "techindexer()"
@@ -5785,7 +5803,7 @@
       "label": "TechAuth()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1836",
+      "source_location": "L1840",
       "id": "pages_landing_techauth",
       "community": 235,
       "norm_label": "techauth()"
@@ -5794,7 +5812,7 @@
       "label": "AGENT_FEATURES",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1854",
+      "source_location": "L1858",
       "id": "pages_landing_agent_features",
       "community": 308,
       "norm_label": "agent_features"
@@ -5803,7 +5821,7 @@
       "label": "AGENT_PROVIDER_CHIPS",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1869",
+      "source_location": "L1873",
       "id": "pages_landing_agent_provider_chips",
       "community": 308,
       "norm_label": "agent_provider_chips"
@@ -5812,7 +5830,7 @@
       "label": "SmartAgentSection()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1876",
+      "source_location": "L1880",
       "id": "pages_landing_smartagentsection",
       "community": 308,
       "norm_label": "smartagentsection()"
@@ -5821,7 +5839,7 @@
       "label": "ProvOpenAI()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1984",
+      "source_location": "L1988",
       "id": "pages_landing_provopenai",
       "community": 308,
       "norm_label": "provopenai()"
@@ -5830,7 +5848,7 @@
       "label": "ProvAnthropic()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L1994",
+      "source_location": "L1998",
       "id": "pages_landing_provanthropic",
       "community": 308,
       "norm_label": "provanthropic()"
@@ -5839,7 +5857,7 @@
       "label": "ProvGemini()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L2003",
+      "source_location": "L2007",
       "id": "pages_landing_provgemini",
       "community": 308,
       "norm_label": "provgemini()"
@@ -5848,7 +5866,7 @@
       "label": "ProvOpenRouter()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Landing.jsx",
-      "source_location": "L2011",
+      "source_location": "L2015",
       "id": "pages_landing_provopenrouter",
       "community": 308,
       "norm_label": "provopenrouter()"
@@ -5866,16 +5884,34 @@
       "label": "OwnerDashboard()",
       "file_type": "code",
       "source_file": "frontend/src/pages/OwnerDashboard.jsx",
-      "source_location": "L26",
+      "source_location": "L34",
       "id": "pages_ownerdashboard_ownerdashboard",
-      "community": 266,
+      "community": 317,
       "norm_label": "ownerdashboard()"
+    },
+    {
+      "label": "AdminWalletPanel()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L434",
+      "id": "pages_ownerdashboard_adminwalletpanel",
+      "community": 266,
+      "norm_label": "adminwalletpanel()"
+    },
+    {
+      "label": "AdminWorkflowPanel()",
+      "file_type": "code",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L500",
+      "id": "pages_ownerdashboard_adminworkflowpanel",
+      "community": 4,
+      "norm_label": "adminworkflowpanel()"
     },
     {
       "label": "KpiCard()",
       "file_type": "code",
       "source_file": "frontend/src/pages/OwnerDashboard.jsx",
-      "source_location": "L225",
+      "source_location": "L561",
       "id": "pages_ownerdashboard_kpicard",
       "community": 266,
       "norm_label": "kpicard()"
@@ -5884,7 +5920,7 @@
       "label": "CreatePropertyForm()",
       "file_type": "code",
       "source_file": "frontend/src/pages/OwnerDashboard.jsx",
-      "source_location": "L236",
+      "source_location": "L572",
       "id": "pages_ownerdashboard_createpropertyform",
       "community": 266,
       "norm_label": "createpropertyform()"
@@ -5893,7 +5929,7 @@
       "label": "OwnedPropertyCard()",
       "file_type": "code",
       "source_file": "frontend/src/pages/OwnerDashboard.jsx",
-      "source_location": "L290",
+      "source_location": "L626",
       "id": "pages_ownerdashboard_ownedpropertycard",
       "community": 4,
       "norm_label": "ownedpropertycard()"
@@ -5911,16 +5947,16 @@
       "label": "Portfolio()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Portfolio.jsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "id": "pages_portfolio_portfolio",
-      "community": 266,
+      "community": 317,
       "norm_label": "portfolio()"
     },
     {
       "label": "HoldingCard()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Portfolio.jsx",
-      "source_location": "L133",
+      "source_location": "L149",
       "id": "pages_portfolio_holdingcard",
       "community": 4,
       "norm_label": "holdingcard()"
@@ -5940,7 +5976,7 @@
       "source_file": "frontend/src/pages/Property.jsx",
       "source_location": "L22",
       "id": "pages_property_property",
-      "community": 4,
+      "community": 317,
       "norm_label": "property()"
     },
     {
@@ -5949,7 +5985,7 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L1",
       "id": "frontend_src_pages_tenantdashboard_jsx",
-      "community": 249,
+      "community": 317,
       "norm_label": "tenantdashboard.jsx"
     },
     {
@@ -5958,7 +5994,7 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L15",
       "id": "pages_tenantdashboard_tenantdashboard",
-      "community": 249,
+      "community": 317,
       "norm_label": "tenantdashboard()"
     },
     {
@@ -5967,7 +6003,7 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L295",
       "id": "pages_tenantdashboard_tenantkpi",
-      "community": 249,
+      "community": 317,
       "norm_label": "tenantkpi()"
     },
     {
@@ -6076,6 +6112,51 @@
       "source_location": "L5",
       "id": "scripts_deploy_main",
       "community": 30,
+      "norm_label": "main()"
+    },
+    {
+      "label": "mintUsdc.js",
+      "file_type": "code",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L1",
+      "id": "scripts_mintusdc_js",
+      "community": 269,
+      "norm_label": "mintusdc.js"
+    },
+    {
+      "label": "{ ethers }",
+      "file_type": "code",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L10",
+      "id": "scripts_mintusdc_ethers",
+      "community": 269,
+      "norm_label": "{ ethers }"
+    },
+    {
+      "label": "addresses",
+      "file_type": "code",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L11",
+      "id": "scripts_mintusdc_addresses",
+      "community": 269,
+      "norm_label": "addresses"
+    },
+    {
+      "label": "MOCK_USDC_ABI",
+      "file_type": "code",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L13",
+      "id": "scripts_mintusdc_mock_usdc_abi",
+      "community": 269,
+      "norm_label": "mock_usdc_abi"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L21",
+      "id": "scripts_mintusdc_main",
+      "community": 269,
       "norm_label": "main()"
     },
     {
@@ -7281,7 +7362,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L70",
       "id": "real_estate_tokenization_claude_architecture",
-      "community": 285,
+      "community": 263,
       "norm_label": "architecture"
     },
     {
@@ -7290,7 +7371,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L72",
       "id": "real_estate_tokenization_claude_codeblock_2",
-      "community": 285,
+      "community": 263,
       "norm_label": "code:text (user / metamask)"
     },
     {
@@ -7299,7 +7380,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L91",
       "id": "real_estate_tokenization_claude_codeblock_3",
-      "community": 167,
+      "community": 285,
       "norm_label": "code:text (user / metamask)"
     },
     {
@@ -7308,7 +7389,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L101",
       "id": "real_estate_tokenization_claude_key_files",
-      "community": 285,
+      "community": 263,
       "norm_label": "key files"
     },
     {
@@ -7317,7 +7398,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L120",
       "id": "real_estate_tokenization_claude_central_components",
-      "community": 285,
+      "community": 263,
       "norm_label": "central components"
     },
     {
@@ -7506,7 +7587,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L300",
       "id": "real_estate_tokenization_claude_memory_layer_setup",
-      "community": 167,
+      "community": 285,
       "norm_label": "memory layer setup"
     },
     {
@@ -7515,7 +7596,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L302",
       "id": "real_estate_tokenization_claude_current_status",
-      "community": 167,
+      "community": 285,
       "norm_label": "current status"
     },
     {
@@ -7524,7 +7605,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L308",
       "id": "real_estate_tokenization_claude_team_sharing_rule",
-      "community": 167,
+      "community": 285,
       "norm_label": "team-sharing rule"
     },
     {
@@ -7533,7 +7614,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L313",
       "id": "real_estate_tokenization_claude_codeblock_4",
-      "community": 167,
+      "community": 285,
       "norm_label": "code:bash (pip install graphifyy)"
     },
     {
@@ -7542,7 +7623,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L320",
       "id": "real_estate_tokenization_claude_graphify_commands",
-      "community": 167,
+      "community": 285,
       "norm_label": "graphify commands"
     },
     {
@@ -7551,7 +7632,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L322",
       "id": "real_estate_tokenization_claude_codeblock_5",
-      "community": 167,
+      "community": 285,
       "norm_label": "code:bash (graphify query \"how does dividend distribution work?\")"
     },
     {
@@ -7560,7 +7641,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L337",
       "id": "real_estate_tokenization_claude_session_log",
-      "community": 167,
+      "community": 285,
       "norm_label": "session log"
     },
     {
@@ -7569,7 +7650,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L339",
       "id": "real_estate_tokenization_claude_codeblock_6",
-      "community": 167,
+      "community": 285,
       "norm_label": "code:text (---)"
     },
     {
@@ -7578,7 +7659,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L494",
       "id": "real_estate_tokenization_claude_new_chat_quickstart",
-      "community": 167,
+      "community": 285,
       "norm_label": "new chat quickstart"
     },
     {
@@ -7587,7 +7668,7 @@
       "source_file": "CLAUDE.md",
       "source_location": "L496",
       "id": "real_estate_tokenization_claude_codeblock_7",
-      "community": 167,
+      "community": 285,
       "norm_label": "code:text (read claude.md in full. then:)"
     },
     {
@@ -7831,6 +7912,78 @@
       "source_location": "L835",
       "id": "real_estate_tokenization_claude_follow_up",
       "community": 428,
+      "norm_label": "follow-up"
+    },
+    {
+      "label": "Session - Admin wallet ownership cleanup (2026-05-20)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L842",
+      "id": "real_estate_tokenization_claude_session_admin_wallet_ownership_cleanup_2026_05_20",
+      "community": 408,
+      "norm_label": "session - admin wallet ownership cleanup (2026-05-20)"
+    },
+    {
+      "label": "What changed",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L844",
+      "id": "real_estate_tokenization_claude_what_changed_844",
+      "community": 408,
+      "norm_label": "what changed"
+    },
+    {
+      "label": "Verification",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L857",
+      "id": "real_estate_tokenization_claude_verification_857",
+      "community": 408,
+      "norm_label": "verification"
+    },
+    {
+      "label": "Follow-up",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L864",
+      "id": "real_estate_tokenization_claude_follow_up_864",
+      "community": 408,
+      "norm_label": "follow-up"
+    },
+    {
+      "label": "Session - Admin workflow hardening + RPC preflight (2026-05-20)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L870",
+      "id": "real_estate_tokenization_claude_session_admin_workflow_hardening_rpc_preflight_2026_05_20",
+      "community": 421,
+      "norm_label": "session - admin workflow hardening + rpc preflight (2026-05-20)"
+    },
+    {
+      "label": "What changed",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L872",
+      "id": "real_estate_tokenization_claude_what_changed_872",
+      "community": 421,
+      "norm_label": "what changed"
+    },
+    {
+      "label": "Verification",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L894",
+      "id": "real_estate_tokenization_claude_verification_894",
+      "community": 421,
+      "norm_label": "verification"
+    },
+    {
+      "label": "Follow-up",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L903",
+      "id": "real_estate_tokenization_claude_follow_up_903",
+      "community": 421,
       "norm_label": "follow-up"
     },
     {
@@ -12400,7 +12553,7 @@
       "label": "2026-05-19 \u2014 Multi-agent orchestration architecture",
       "file_type": "document",
       "source_file": "memory/decisions.md",
-      "source_location": "L38",
+      "source_location": "L40",
       "id": "memory_decisions_2026_05_19_multi_agent_orchestration_architecture",
       "community": 48,
       "norm_label": "2026-05-19 \u2014 multi-agent orchestration architecture"
@@ -12409,7 +12562,7 @@
       "label": "2026-05-19 \u2014 Shared screen primitives over per-screen one-offs",
       "file_type": "document",
       "source_file": "memory/decisions.md",
-      "source_location": "L63",
+      "source_location": "L65",
       "id": "memory_decisions_2026_05_19_shared_screen_primitives_over_per_screen_one_offs",
       "community": 48,
       "norm_label": "2026-05-19 \u2014 shared screen primitives over per-screen one-offs"
@@ -12418,7 +12571,7 @@
       "label": "2026-05-19 - Landing hero ornament cleanup",
       "file_type": "document",
       "source_file": "memory/decisions.md",
-      "source_location": "L88",
+      "source_location": "L90",
       "id": "memory_decisions_2026_05_19_landing_hero_ornament_cleanup",
       "community": 48,
       "norm_label": "2026-05-19 - landing hero ornament cleanup"
@@ -12427,7 +12580,7 @@
       "label": "2026-05-19 - Optional Privy SDK loading avoids top-level await",
       "file_type": "document",
       "source_file": "memory/decisions.md",
-      "source_location": "L101",
+      "source_location": "L103",
       "id": "memory_decisions_2026_05_19_optional_privy_sdk_loading_avoids_top_level_await",
       "community": 48,
       "norm_label": "2026-05-19 - optional privy sdk loading avoids top-level await"
@@ -12436,7 +12589,7 @@
       "label": "2026-05-19 - Email/password auth stays separate from wallet profiles",
       "file_type": "document",
       "source_file": "memory/decisions.md",
-      "source_location": "L114",
+      "source_location": "L116",
       "id": "memory_decisions_2026_05_19_email_password_auth_stays_separate_from_wallet_profiles",
       "community": 48,
       "norm_label": "2026-05-19 - email/password auth stays separate from wallet profiles"
@@ -12445,7 +12598,7 @@
       "label": "2026-05-19 - Wallet refresh restores authorized MetaMask sessions",
       "file_type": "document",
       "source_file": "memory/decisions.md",
-      "source_location": "L130",
+      "source_location": "L132",
       "id": "memory_decisions_2026_05_19_wallet_refresh_restores_authorized_metamask_sessions",
       "community": 48,
       "norm_label": "2026-05-19 - wallet refresh restores authorized metamask sessions"
@@ -12481,7 +12634,7 @@
       "label": "Open - Tier 1 (must clear before demo can run)",
       "file_type": "document",
       "source_file": "memory/flags.md",
-      "source_location": "L15",
+      "source_location": "L17",
       "id": "memory_flags_open_tier_1_must_clear_before_demo_can_run",
       "community": 49,
       "norm_label": "open - tier 1 (must clear before demo can run)"
@@ -12490,7 +12643,7 @@
       "label": "Open - Tier 2 (only relevant after Tier 1 demo runs)",
       "file_type": "document",
       "source_file": "memory/flags.md",
-      "source_location": "L21",
+      "source_location": "L23",
       "id": "memory_flags_open_tier_2_only_relevant_after_tier_1_demo_runs",
       "community": 49,
       "norm_label": "open - tier 2 (only relevant after tier 1 demo runs)"
@@ -12499,7 +12652,7 @@
       "label": "Open - Tier 3 (stretch only)",
       "file_type": "document",
       "source_file": "memory/flags.md",
-      "source_location": "L29",
+      "source_location": "L31",
       "id": "memory_flags_open_tier_3_stretch_only",
       "community": 49,
       "norm_label": "open - tier 3 (stretch only)"
@@ -12508,7 +12661,7 @@
       "label": "Open - Auth / rent-payer flow",
       "file_type": "document",
       "source_file": "memory/flags.md",
-      "source_location": "L35",
+      "source_location": "L37",
       "id": "memory_flags_open_auth_rent_payer_flow",
       "community": 49,
       "norm_label": "open - auth / rent-payer flow"
@@ -12517,7 +12670,7 @@
       "label": "Risks (need a decision, not just a task)",
       "file_type": "document",
       "source_file": "memory/flags.md",
-      "source_location": "L40",
+      "source_location": "L42",
       "id": "memory_flags_risks_need_a_decision_not_just_a_task",
       "community": 49,
       "norm_label": "risks (need a decision, not just a task)"
@@ -12526,7 +12679,7 @@
       "label": "Process / team",
       "file_type": "document",
       "source_file": "memory/flags.md",
-      "source_location": "L47",
+      "source_location": "L49",
       "id": "memory_flags_process_team",
       "community": 49,
       "norm_label": "process / team"
@@ -12535,10 +12688,19 @@
       "label": "Cuts (intentional, not gaps)",
       "file_type": "document",
       "source_file": "memory/flags.md",
-      "source_location": "L57",
+      "source_location": "L59",
       "id": "memory_flags_cuts_intentional_not_gaps",
       "community": 49,
       "norm_label": "cuts (intentional, not gaps)"
+    },
+    {
+      "label": "Resolved (2026-05-19, late session)",
+      "file_type": "document",
+      "source_file": "memory/flags.md",
+      "source_location": "L63",
+      "id": "memory_flags_resolved_2026_05_19_late_session",
+      "community": 49,
+      "norm_label": "resolved (2026-05-19, late session)"
     },
     {
       "label": "README.md",
@@ -12887,7 +13049,7 @@
       "file_type": "code",
       "source_file": "frontend/src/context/UGFContext.jsx",
       "source_location": "L27",
-      "community": 286,
+      "community": 191,
       "norm_label": "loadsdk()",
       "id": "context_ugfcontext_loadsdk"
     },
@@ -15704,7 +15866,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 408,
+      "community": 424,
       "norm_label": "tailwindconfiggenerator.__init__",
       "id": "tests_coverage_ui_functions_tailwindconfiggenerator_init"
     },
@@ -15713,7 +15875,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 408,
+      "community": 424,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_init_executed_lines"
     },
@@ -15722,7 +15884,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 408,
+      "community": 424,
       "norm_label": "summary",
       "id": "tests_coverage_ui_tailwindconfiggenerator_init_summary"
     },
@@ -15731,7 +15893,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 408,
+      "community": 424,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_init_missing_lines"
     },
@@ -15740,7 +15902,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 408,
+      "community": 424,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_init_excluded_lines"
     },
@@ -15839,7 +16001,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 94,
+      "community": 267,
       "norm_label": "tailwindconfiggenerator._default_content_paths",
       "id": "tests_coverage_ui_functions_tailwindconfiggenerator_default_content_paths"
     },
@@ -15848,7 +16010,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 94,
+      "community": 267,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_default_content_paths_executed_lines"
     },
@@ -15857,7 +16019,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 94,
+      "community": 267,
       "norm_label": "summary",
       "id": "tests_coverage_ui_tailwindconfiggenerator_default_content_paths_summary"
     },
@@ -15866,7 +16028,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 94,
+      "community": 267,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_default_content_paths_missing_lines"
     },
@@ -15875,7 +16037,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 94,
+      "community": 267,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_default_content_paths_excluded_lines"
     },
@@ -15974,7 +16136,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 421,
+      "community": 94,
       "norm_label": "tailwindconfiggenerator.add_fonts",
       "id": "tests_coverage_ui_functions_tailwindconfiggenerator_add_fonts"
     },
@@ -15983,7 +16145,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 421,
+      "community": 94,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_add_fonts_executed_lines"
     },
@@ -15992,7 +16154,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 421,
+      "community": 94,
       "norm_label": "summary",
       "id": "tests_coverage_ui_tailwindconfiggenerator_add_fonts_summary"
     },
@@ -16001,7 +16163,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 421,
+      "community": 94,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_add_fonts_missing_lines"
     },
@@ -16010,7 +16172,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 421,
+      "community": 94,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_add_fonts_excluded_lines"
     },
@@ -16199,7 +16361,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 261,
+      "community": 415,
       "norm_label": "tailwindconfiggenerator.generate_config_string",
       "id": "tests_coverage_ui_functions_tailwindconfiggenerator_generate_config_string"
     },
@@ -16208,7 +16370,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 261,
+      "community": 415,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_generate_config_string_executed_lines"
     },
@@ -16217,7 +16379,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 261,
+      "community": 415,
       "norm_label": "summary",
       "id": "tests_coverage_ui_tailwindconfiggenerator_generate_config_string_summary"
     },
@@ -16226,7 +16388,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 261,
+      "community": 415,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_generate_config_string_missing_lines"
     },
@@ -16235,7 +16397,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 261,
+      "community": 415,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_generate_config_string_excluded_lines"
     },
@@ -16424,7 +16586,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 424,
+      "community": 396,
       "norm_label": "tailwindconfiggenerator.write_config",
       "id": "tests_coverage_ui_functions_tailwindconfiggenerator_write_config"
     },
@@ -16433,7 +16595,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 424,
+      "community": 396,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_write_config_executed_lines"
     },
@@ -16442,7 +16604,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 424,
+      "community": 396,
       "norm_label": "summary",
       "id": "tests_coverage_ui_tailwindconfiggenerator_write_config_summary"
     },
@@ -16451,7 +16613,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 424,
+      "community": 396,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_write_config_missing_lines"
     },
@@ -16460,7 +16622,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 424,
+      "community": 396,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_write_config_excluded_lines"
     },
@@ -16469,7 +16631,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 263,
+      "community": 167,
       "norm_label": "tailwindconfiggenerator.validate_config",
       "id": "tests_coverage_ui_functions_tailwindconfiggenerator_validate_config"
     },
@@ -16478,7 +16640,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 263,
+      "community": 167,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_validate_config_executed_lines"
     },
@@ -16487,7 +16649,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 263,
+      "community": 167,
       "norm_label": "summary",
       "id": "tests_coverage_ui_tailwindconfiggenerator_validate_config_summary"
     },
@@ -16496,7 +16658,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 263,
+      "community": 167,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_validate_config_missing_lines"
     },
@@ -16505,7 +16667,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 263,
+      "community": 167,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_tailwindconfiggenerator_validate_config_excluded_lines"
     },
@@ -16847,7 +17009,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 267,
+      "community": 427,
       "norm_label": "testshadcninstaller.test_check_shadcn_config_not_exists",
       "id": "tests_coverage_ui_functions_testshadcninstaller_test_check_shadcn_config_not_exists"
     },
@@ -16856,7 +17018,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 267,
+      "community": 427,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_check_shadcn_config_not_exists_executed_lines"
     },
@@ -16865,7 +17027,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 267,
+      "community": 427,
       "norm_label": "summary",
       "id": "tests_coverage_ui_testshadcninstaller_test_check_shadcn_config_not_exists_summary"
     },
@@ -16874,7 +17036,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 267,
+      "community": 427,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_check_shadcn_config_not_exists_missing_lines"
     },
@@ -16883,7 +17045,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 267,
+      "community": 427,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_check_shadcn_config_not_exists_excluded_lines"
     },
@@ -16982,7 +17144,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 269,
+      "community": 398,
       "norm_label": "testshadcninstaller.test_get_installed_components_no_config",
       "id": "tests_coverage_ui_functions_testshadcninstaller_test_get_installed_components_no_config"
     },
@@ -16991,7 +17153,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 269,
+      "community": 398,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_get_installed_components_no_config_executed_lines"
     },
@@ -17000,7 +17162,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 269,
+      "community": 398,
       "norm_label": "summary",
       "id": "tests_coverage_ui_testshadcninstaller_test_get_installed_components_no_config_summary"
     },
@@ -17009,7 +17171,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 269,
+      "community": 398,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_get_installed_components_no_config_missing_lines"
     },
@@ -17018,7 +17180,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 269,
+      "community": 398,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_get_installed_components_no_config_excluded_lines"
     },
@@ -17117,7 +17279,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 264,
+      "community": 397,
       "norm_label": "testshadcninstaller.test_add_components_already_installed",
       "id": "tests_coverage_ui_functions_testshadcninstaller_test_add_components_already_installed"
     },
@@ -17126,7 +17288,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 264,
+      "community": 397,
       "norm_label": "executed_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_add_components_already_installed_executed_lines"
     },
@@ -17135,7 +17297,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 264,
+      "community": 397,
       "norm_label": "summary",
       "id": "tests_coverage_ui_testshadcninstaller_test_add_components_already_installed_summary"
     },
@@ -17144,7 +17306,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 264,
+      "community": 397,
       "norm_label": "missing_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_add_components_already_installed_missing_lines"
     },
@@ -17153,7 +17315,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/coverage-ui.json",
       "source_location": "L1",
-      "community": 264,
+      "community": 397,
       "norm_label": "excluded_lines",
       "id": "tests_coverage_ui_testshadcninstaller_test_add_components_already_installed_excluded_lines"
     },
@@ -17702,7 +17864,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L34",
-      "community": 398,
+      "community": 209,
       "norm_label": ".test_default_output_path_typescript()",
       "id": "tests_test_tailwind_config_gen_testtailwindconfiggenerator_test_default_output_path_typescript"
     },
@@ -17765,7 +17927,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L85",
-      "community": 209,
+      "community": 432,
       "norm_label": ".test_add_colors()",
       "id": "tests_test_tailwind_config_gen_testtailwindconfiggenerator_test_add_colors"
     },
@@ -17846,7 +18008,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L187",
-      "community": 396,
+      "community": 209,
       "norm_label": ".test_recommend_plugins_nextjs()",
       "id": "tests_test_tailwind_config_gen_testtailwindconfiggenerator_test_recommend_plugins_nextjs"
     },
@@ -17864,7 +18026,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L203",
-      "community": 209,
+      "community": 430,
       "norm_label": ".test_generate_javascript_config()",
       "id": "tests_test_tailwind_config_gen_testtailwindconfiggenerator_test_generate_javascript_config"
     },
@@ -17936,7 +18098,7 @@
       "file_type": "code",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L279",
-      "community": 397,
+      "community": 150,
       "norm_label": ".test_write_config_invalid_path()",
       "id": "tests_test_tailwind_config_gen_testtailwindconfiggenerator_test_write_config_invalid_path"
     },
@@ -18008,7 +18170,7 @@
       "file_type": "rationale",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L35",
-      "community": 398,
+      "community": 209,
       "norm_label": "test default output path for typescript.",
       "id": "tests_test_tailwind_config_gen_rationale_35"
     },
@@ -18071,7 +18233,7 @@
       "file_type": "rationale",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L86",
-      "community": 209,
+      "community": 432,
       "norm_label": "test adding custom colors.",
       "id": "tests_test_tailwind_config_gen_rationale_86"
     },
@@ -18143,7 +18305,7 @@
       "file_type": "rationale",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L188",
-      "community": 396,
+      "community": 209,
       "norm_label": "test plugin recommendations for next.js.",
       "id": "tests_test_tailwind_config_gen_rationale_188"
     },
@@ -18161,7 +18323,7 @@
       "file_type": "rationale",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L204",
-      "community": 209,
+      "community": 430,
       "norm_label": "test generating javascript configuration.",
       "id": "tests_test_tailwind_config_gen_rationale_204"
     },
@@ -18233,7 +18395,7 @@
       "file_type": "rationale",
       "source_file": "ui-ux-pro-max-skill/.claude/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py",
       "source_location": "L280",
-      "community": 397,
+      "community": 150,
       "norm_label": "test writing config to invalid path.",
       "id": "tests_test_tailwind_config_gen_rationale_280"
     },
@@ -24830,7 +24992,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L576",
-      "community": 191,
+      "community": 261,
       "norm_label": "phase 6 \u2014 stretch goals",
       "id": "real_chain_implementation_plan_phase_6_stretch_goals"
     },
@@ -24839,7 +25001,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L578",
-      "community": 191,
+      "community": 261,
       "norm_label": "6a. embedded wallet (privy or web3auth)",
       "id": "real_chain_implementation_plan_6a_embedded_wallet_privy_or_web3auth"
     },
@@ -24848,7 +25010,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L584",
-      "community": 191,
+      "community": 261,
       "norm_label": "[install] `@privy-io/react-auth` (or equivalent)",
       "id": "real_chain_implementation_plan_install_privy_io_react_auth_or_equivalent"
     },
@@ -24857,7 +25019,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L585",
-      "community": 191,
+      "community": 261,
       "norm_label": "[modify] web3context to accept either a metamask signer or a privy embedded signer.",
       "id": "real_chain_implementation_plan_modify_web3context_to_accept_either_a_metamask_signer_or_a_privy_embedded_signer"
     },
@@ -24866,7 +25028,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L591",
-      "community": 191,
+      "community": 261,
       "norm_label": "6b. soulbound nft receipt per claim",
       "id": "real_chain_implementation_plan_6b_soulbound_nft_receipt_per_claim"
     },
@@ -24875,7 +25037,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L597",
-      "community": 191,
+      "community": 261,
       "norm_label": "[new] [contracts/claimreceipt.sol](file:///d:/codes/blockchain/real_estate_tokenization/contracts/claimreceipt.sol)",
       "id": "real_chain_implementation_plan_new_contracts_claimreceipt_sol_file_d_codes_blockchain_real_estate_tokenization_contracts_claimreceipt_sol"
     },
@@ -24884,7 +25046,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L601",
-      "community": 191,
+      "community": 261,
       "norm_label": "[modify] rentaldistribution._claim \u2192 call claimreceipt.mint after usdc transfer.",
       "id": "real_chain_implementation_plan_modify_rentaldistribution_claim_call_claimreceipt_mint_after_usdc_transfer"
     },
@@ -24893,7 +25055,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L602",
-      "community": 191,
+      "community": 261,
       "norm_label": "[modify] investor dashboard \u2192 \"your receipts\" gallery.",
       "id": "real_chain_implementation_plan_modify_investor_dashboard_your_receipts_gallery"
     },
@@ -24902,7 +25064,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L610",
-      "community": 191,
+      "community": 261,
       "norm_label": "6c. 60-second pitch video",
       "id": "real_chain_implementation_plan_6c_60_second_pitch_video"
     },
@@ -24911,7 +25073,7 @@
       "file_type": "document",
       "source_file": "implementation_plan.md",
       "source_location": "L618",
-      "community": 191,
+      "community": 261,
       "norm_label": "6d. live demo url",
       "id": "real_chain_implementation_plan_6d_live_demo_url"
     },
@@ -25928,7 +26090,7 @@
       "file_type": "document",
       "source_file": "Real-Estate Project Audit.md",
       "source_location": "L690",
-      "community": 430,
+      "community": 53,
       "norm_label": "the paper structure this gives you",
       "id": "real_chain_real_estate_project_audit_the_paper_structure_this_gives_you"
     },
@@ -25937,7 +26099,7 @@
       "file_type": "document",
       "source_file": "Real-Estate Project Audit.md",
       "source_location": "L692",
-      "community": 430,
+      "community": 53,
       "norm_label": "code:block6 (abstract)",
       "id": "real_chain_real_estate_project_audit_codeblock_6"
     },
@@ -28214,7 +28376,7 @@
       "file_type": "document",
       "source_file": "Real-Estate Project Audit.md",
       "source_location": "L2642",
-      "community": 53,
+      "community": 436,
       "norm_label": "the analogy",
       "id": "real_chain_real_estate_project_audit_the_analogy"
     },
@@ -28223,7 +28385,7 @@
       "file_type": "document",
       "source_file": "Real-Estate Project Audit.md",
       "source_location": "L2644",
-      "community": 53,
+      "community": 436,
       "norm_label": "code:block40 (ethereum = a country)",
       "id": "real_chain_real_estate_project_audit_codeblock_40"
     },
@@ -43334,7 +43496,7 @@
       "file_type": "code",
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L147",
-      "community": 415,
+      "community": 307,
       "norm_label": "sample_feed",
       "id": "components_activityfeed_sample_feed"
     },
@@ -43487,7 +43649,7 @@
       "file_type": "document",
       "source_file": "CLAUDE.md",
       "source_location": "L179",
-      "community": 167,
+      "community": 285,
       "norm_label": "if the team adopts graphify",
       "id": "real_estate_tokenization_claude_if_the_team_adopts_graphify"
     }
@@ -44481,6 +44643,16 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "backend_jobs_indexer_js",
+      "target": "jobs_indexer_sleep"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/jobs/indexer.js",
+      "source_location": "L39",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "backend_jobs_indexer_js",
       "target": "jobs_indexer_abi_factory"
     },
     {
@@ -44632,6 +44804,28 @@
       "confidence_score": 1.0,
       "source": "backend_jobs_indexer_js",
       "target": "jobs_indexer_stop"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/jobs/indexer.js",
+      "source_location": "L109",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "jobs_indexer_scanlogs",
+      "target": "jobs_indexer_sleep"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/jobs/indexer.js",
+      "source_location": "L359",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "jobs_indexer_tick",
+      "target": "jobs_indexer_sleep"
     },
     {
       "relation": "calls",
@@ -44883,9 +45077,9 @@
       "source_file": "backend/models/AuthUser.js",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_models_authuser_js",
-      "target": "models_authuser_mongoose",
-      "confidence_score": 1.0
+      "target": "models_authuser_mongoose"
     },
     {
       "relation": "contains",
@@ -44893,9 +45087,9 @@
       "source_file": "backend/models/AuthUser.js",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_models_authuser_js",
-      "target": "models_authuser_authuserschema",
-      "confidence_score": 1.0
+      "target": "models_authuser_authuserschema"
     },
     {
       "relation": "imports_from",
@@ -44904,9 +45098,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "backend_models_authuser_js",
-      "confidence_score": 1.0
+      "target": "backend_models_authuser_js"
     },
     {
       "relation": "contains",
@@ -45112,9 +45306,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_crypto",
-      "confidence_score": 1.0
+      "target": "routes_auth_crypto"
     },
     {
       "relation": "contains",
@@ -45122,9 +45316,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_mongoose",
-      "confidence_score": 1.0
+      "target": "routes_auth_mongoose"
     },
     {
       "relation": "contains",
@@ -45152,9 +45346,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_authuser",
-      "confidence_score": 1.0
+      "target": "routes_auth_authuser"
     },
     {
       "relation": "contains",
@@ -45162,9 +45356,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_roles",
-      "confidence_score": 1.0
+      "target": "routes_auth_roles"
     },
     {
       "relation": "contains",
@@ -45172,9 +45366,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_getjwtsecret",
-      "confidence_score": 1.0
+      "target": "routes_auth_getjwtsecret"
     },
     {
       "relation": "contains",
@@ -45182,9 +45376,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_base64url",
-      "confidence_score": 1.0
+      "target": "routes_auth_base64url"
     },
     {
       "relation": "contains",
@@ -45192,9 +45386,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_base64urljson",
-      "confidence_score": 1.0
+      "target": "routes_auth_base64urljson"
     },
     {
       "relation": "contains",
@@ -45202,9 +45396,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_signjwt",
-      "confidence_score": 1.0
+      "target": "routes_auth_signjwt"
     },
     {
       "relation": "contains",
@@ -45212,9 +45406,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_decodebase64url",
-      "confidence_score": 1.0
+      "target": "routes_auth_decodebase64url"
     },
     {
       "relation": "contains",
@@ -45222,9 +45416,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_verifyjwt",
-      "confidence_score": 1.0
+      "target": "routes_auth_verifyjwt"
     },
     {
       "relation": "contains",
@@ -45232,9 +45426,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_hashpassword",
-      "confidence_score": 1.0
+      "target": "routes_auth_hashpassword"
     },
     {
       "relation": "contains",
@@ -45242,9 +45436,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_verifypassword",
-      "confidence_score": 1.0
+      "target": "routes_auth_verifypassword"
     },
     {
       "relation": "contains",
@@ -45252,9 +45446,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L97",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_publicuser",
-      "confidence_score": 1.0
+      "target": "routes_auth_publicuser"
     },
     {
       "relation": "contains",
@@ -45262,9 +45456,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_authresponse",
-      "confidence_score": 1.0
+      "target": "routes_auth_authresponse"
     },
     {
       "relation": "contains",
@@ -45272,9 +45466,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_requiredbready",
-      "confidence_score": 1.0
+      "target": "routes_auth_requiredbready"
     },
     {
       "relation": "contains",
@@ -45282,9 +45476,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_requirejwt",
-      "confidence_score": 1.0
+      "target": "routes_auth_requirejwt"
     },
     {
       "relation": "contains",
@@ -45302,9 +45496,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L191",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_email",
-      "confidence_score": 1.0
+      "target": "routes_auth_email"
     },
     {
       "relation": "contains",
@@ -45312,9 +45506,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L192",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_password",
-      "confidence_score": 1.0
+      "target": "routes_auth_password"
     },
     {
       "relation": "contains",
@@ -45322,9 +45516,19 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L159",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "backend_routes_auth_js",
-      "target": "routes_auth_role",
-      "confidence_score": 1.0
+      "target": "routes_auth_role"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/routes/auth.js",
+      "source_location": "L239",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "backend_routes_auth_js",
+      "target": "routes_auth_rawwallet"
     },
     {
       "relation": "calls",
@@ -45333,9 +45537,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_signjwt",
-      "target": "routes_auth_getjwtsecret",
-      "confidence_score": 1.0
+      "target": "routes_auth_getjwtsecret"
     },
     {
       "relation": "calls",
@@ -45344,9 +45548,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_verifyjwt",
-      "target": "routes_auth_getjwtsecret",
-      "confidence_score": 1.0
+      "target": "routes_auth_getjwtsecret"
     },
     {
       "relation": "calls",
@@ -45355,9 +45559,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_base64urljson",
-      "target": "routes_auth_base64url",
-      "confidence_score": 1.0
+      "target": "routes_auth_base64url"
     },
     {
       "relation": "calls",
@@ -45366,9 +45570,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_signjwt",
-      "target": "routes_auth_base64urljson",
-      "confidence_score": 1.0
+      "target": "routes_auth_base64urljson"
     },
     {
       "relation": "calls",
@@ -45377,9 +45581,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L111",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_authresponse",
-      "target": "routes_auth_signjwt",
-      "confidence_score": 1.0
+      "target": "routes_auth_signjwt"
     },
     {
       "relation": "calls",
@@ -45388,9 +45592,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_verifyjwt",
-      "target": "routes_auth_decodebase64url",
-      "confidence_score": 1.0
+      "target": "routes_auth_decodebase64url"
     },
     {
       "relation": "calls",
@@ -45399,9 +45603,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L130",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_requirejwt",
-      "target": "routes_auth_verifyjwt",
-      "confidence_score": 1.0
+      "target": "routes_auth_verifyjwt"
     },
     {
       "relation": "calls",
@@ -45410,9 +45614,9 @@
       "source_file": "backend/routes/auth.js",
       "source_location": "L108",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "routes_auth_authresponse",
-      "target": "routes_auth_publicuser",
-      "confidence_score": 1.0
+      "target": "routes_auth_publicuser"
     },
     {
       "relation": "contains",
@@ -46413,9 +46617,9 @@
       "source_file": "frontend/src/App.jsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_app_jsx",
-      "target": "frontend_src_context_authcontext_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_context_authcontext_jsx"
     },
     {
       "relation": "imports",
@@ -46424,9 +46628,9 @@
       "source_file": "frontend/src/App.jsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_app_jsx",
-      "target": "context_authcontext_useauth",
-      "confidence_score": 1.0
+      "target": "context_authcontext_useauth"
     },
     {
       "relation": "imports_from",
@@ -46493,17 +46697,6 @@
       "confidence_score": 1.0,
       "source": "frontend_src_app_jsx",
       "target": "context_smartagentcontext_usesmartagent"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/App.jsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "frontend_src_app_jsx",
-      "target": "context_smartagentcontext_agent_providers"
     },
     {
       "relation": "imports_from",
@@ -46600,9 +46793,9 @@
       "source_file": "frontend/src/App.jsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_app_jsx",
-      "target": "frontend_src_pages_authpage_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_pages_authpage_jsx"
     },
     {
       "relation": "imports_from",
@@ -46677,9 +46870,9 @@
       "source_file": "frontend/src/App.jsx",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_app_jsx",
-      "target": "frontend_src_pages_tenantdashboard_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_pages_tenantdashboard_jsx"
     },
     {
       "relation": "imports_from",
@@ -46764,6 +46957,17 @@
       "confidence_score": 1.0,
       "source": "frontend_src_main_jsx",
       "target": "frontend_src_app_jsx"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/App.jsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_app_jsx",
+      "target": "context_smartagentcontext_agent_providers"
     },
     {
       "relation": "imports_from",
@@ -46860,9 +47064,9 @@
       "source_file": "frontend/src/main.jsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_main_jsx",
-      "target": "frontend_src_context_authcontext_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_context_authcontext_jsx"
     },
     {
       "relation": "imports",
@@ -46871,9 +47075,9 @@
       "source_file": "frontend/src/main.jsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_main_jsx",
-      "target": "context_authcontext_authprovider",
-      "confidence_score": 1.0
+      "target": "context_authcontext_authprovider"
     },
     {
       "relation": "imports_from",
@@ -50348,9 +50552,9 @@
       "source_file": "frontend/src/components/ActivityFeed.jsx",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_components_activityfeed_jsx",
-      "target": "components_activityfeed_classifyfetcherror",
-      "confidence_score": 1.0
+      "target": "components_activityfeed_classifyfetcherror"
     },
     {
       "relation": "contains",
@@ -51083,9 +51287,9 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_authpage_jsx",
-      "target": "frontend_src_components_icon_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_components_icon_jsx"
     },
     {
       "relation": "imports_from",
@@ -51171,9 +51375,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "frontend_src_components_icon_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_components_icon_jsx"
     },
     {
       "relation": "imports_from",
@@ -51266,9 +51470,9 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_authpage_jsx",
-      "target": "frontend_src_components_logo_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_components_logo_jsx"
     },
     {
       "relation": "imports_from",
@@ -52048,9 +52252,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "frontend_src_components_toast_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_components_toast_jsx"
     },
     {
       "relation": "imports",
@@ -52114,9 +52318,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "components_toast_usetoast",
-      "confidence_score": 1.0
+      "target": "components_toast_usetoast"
     },
     {
       "relation": "calls",
@@ -52278,9 +52482,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "frontend_src_components_ugfbadge_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_components_ugfbadge_jsx"
     },
     {
       "relation": "calls",
@@ -52421,9 +52625,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "frontend_src_config_contracts_js",
-      "confidence_score": 1.0
+      "target": "frontend_src_config_contracts_js"
     },
     {
       "relation": "imports_from",
@@ -52575,9 +52779,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "frontend_src_config_contracts_js",
-      "confidence_score": 1.0
+      "target": "frontend_src_config_contracts_js"
     },
     {
       "relation": "imports",
@@ -52630,9 +52834,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "config_contracts_contract_addresses",
-      "confidence_score": 1.0
+      "target": "config_contracts_contract_addresses"
     },
     {
       "relation": "imports",
@@ -52652,9 +52856,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "config_contracts_mock_usdc_abi",
-      "confidence_score": 1.0
+      "target": "config_contracts_mock_usdc_abi"
     },
     {
       "relation": "imports",
@@ -52671,11 +52875,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_ownerdashboard_jsx",
+      "target": "config_contracts_property_factory_abi"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/src/context/Web3Context.jsx",
       "source_location": "L3",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "frontend_src_context_web3context_jsx",
+      "target": "config_contracts_property_token_abi"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_ownerdashboard_jsx",
       "target": "config_contracts_property_token_abi"
     },
     {
@@ -52783,9 +53009,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "context_authcontext_authcontext",
-      "confidence_score": 1.0
+      "target": "context_authcontext_authcontext"
     },
     {
       "relation": "contains",
@@ -52793,9 +53019,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "context_authcontext_dashboardforrole",
-      "confidence_score": 1.0
+      "target": "context_authcontext_dashboardforrole"
     },
     {
       "relation": "contains",
@@ -52803,9 +53029,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "context_authcontext_decodejwtpayload",
-      "confidence_score": 1.0
+      "target": "context_authcontext_decodejwtpayload"
     },
     {
       "relation": "contains",
@@ -52813,9 +53039,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "context_authcontext_userfromtoken",
-      "confidence_score": 1.0
+      "target": "context_authcontext_userfromtoken"
     },
     {
       "relation": "contains",
@@ -52823,9 +53049,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "context_authcontext_parseapierror",
-      "confidence_score": 1.0
+      "target": "context_authcontext_parseapierror"
     },
     {
       "relation": "contains",
@@ -52833,9 +53059,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "context_authcontext_authprovider",
-      "confidence_score": 1.0
+      "target": "context_authcontext_authprovider"
     },
     {
       "relation": "contains",
@@ -52843,9 +53069,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_context_authcontext_jsx",
-      "target": "context_authcontext_useauth",
-      "confidence_score": 1.0
+      "target": "context_authcontext_useauth"
     },
     {
       "relation": "imports_from",
@@ -52854,9 +53080,9 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_authpage_jsx",
-      "target": "frontend_src_context_authcontext_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_context_authcontext_jsx"
     },
     {
       "relation": "imports_from",
@@ -52865,9 +53091,31 @@
       "source_file": "frontend/src/pages/Landing.jsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_landing_jsx",
-      "target": "frontend_src_context_authcontext_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_context_authcontext_jsx"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_ownerdashboard_jsx",
+      "target": "frontend_src_context_authcontext_jsx"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/Portfolio.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_portfolio_jsx",
+      "target": "frontend_src_context_authcontext_jsx"
     },
     {
       "relation": "imports_from",
@@ -52876,9 +53124,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "frontend_src_context_authcontext_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_context_authcontext_jsx"
     },
     {
       "relation": "calls",
@@ -52898,9 +53146,9 @@
       "source_file": "frontend/src/context/AuthContext.jsx",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "context_authcontext_userfromtoken",
-      "target": "context_authcontext_decodejwtpayload",
-      "confidence_score": 1.0
+      "target": "context_authcontext_decodejwtpayload"
     },
     {
       "relation": "imports",
@@ -52909,9 +53157,9 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_authpage_jsx",
-      "target": "context_authcontext_useauth",
-      "confidence_score": 1.0
+      "target": "context_authcontext_useauth"
     },
     {
       "relation": "imports",
@@ -52920,9 +53168,31 @@
       "source_file": "frontend/src/pages/Landing.jsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_landing_jsx",
-      "target": "context_authcontext_useauth",
-      "confidence_score": 1.0
+      "target": "context_authcontext_useauth"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_ownerdashboard_jsx",
+      "target": "context_authcontext_useauth"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/Portfolio.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_portfolio_jsx",
+      "target": "context_authcontext_useauth"
     },
     {
       "relation": "imports",
@@ -52931,9 +53201,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "context_authcontext_useauth",
-      "confidence_score": 1.0
+      "target": "context_authcontext_useauth"
     },
     {
       "relation": "calls",
@@ -52955,6 +53225,28 @@
       "source_location": "L38",
       "weight": 1.0,
       "source": "pages_landing_landing",
+      "target": "context_authcontext_useauth"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "pages_ownerdashboard_ownerdashboard",
+      "target": "context_authcontext_useauth"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/pages/Portfolio.jsx",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "pages_portfolio_portfolio",
       "target": "context_authcontext_useauth"
     },
     {
@@ -53422,9 +53714,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "frontend_src_context_ugfcontext_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_context_ugfcontext_jsx"
     },
     {
       "relation": "contains",
@@ -53520,9 +53812,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "context_ugfcontext_useugf",
-      "confidence_score": 1.0
+      "target": "context_ugfcontext_useugf"
     },
     {
       "relation": "calls",
@@ -53725,9 +54017,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "frontend_src_context_web3context_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_context_web3context_jsx"
     },
     {
       "relation": "imports_from",
@@ -53835,9 +54127,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "context_web3context_useweb3",
-      "confidence_score": 1.0
+      "target": "context_web3context_useweb3"
     },
     {
       "relation": "imports",
@@ -54245,9 +54537,9 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_authpage_jsx",
-      "target": "pages_authpage_role_options",
-      "confidence_score": 1.0
+      "target": "pages_authpage_role_options"
     },
     {
       "relation": "contains",
@@ -54255,9 +54547,9 @@
       "source_file": "frontend/src/pages/AuthPage.jsx",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_authpage_jsx",
-      "target": "pages_authpage_authpage",
-      "confidence_score": 1.0
+      "target": "pages_authpage_authpage"
     },
     {
       "relation": "contains",
@@ -55612,6 +55904,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L341",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_ownerdashboard_jsx",
+      "target": "pages_ownerdashboard_adminwalletpanel"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L500",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_pages_ownerdashboard_jsx",
+      "target": "pages_ownerdashboard_adminworkflowpanel"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
       "source_location": "L167",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -55647,6 +55959,17 @@
       "source_location": "L117",
       "weight": 1.0,
       "source": "pages_ownerdashboard_ownerdashboard",
+      "target": "scripts_seeddemo_fmtusdc"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "frontend/src/pages/OwnerDashboard.jsx",
+      "source_location": "L554",
+      "weight": 1.0,
+      "source": "pages_ownerdashboard_adminworkflowpanel",
       "target": "scripts_seeddemo_fmtusdc"
     },
     {
@@ -55784,9 +56107,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "pages_tenantdashboard_tenantdashboard",
-      "confidence_score": 1.0
+      "target": "pages_tenantdashboard_tenantdashboard"
     },
     {
       "relation": "contains",
@@ -55794,9 +56117,9 @@
       "source_file": "frontend/src/pages/TenantDashboard.jsx",
       "source_location": "L295",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_pages_tenantdashboard_jsx",
-      "target": "pages_tenantdashboard_tenantkpi",
-      "confidence_score": 1.0
+      "target": "pages_tenantdashboard_tenantkpi"
     },
     {
       "relation": "imports_from",
@@ -55942,6 +56265,46 @@
       "confidence_score": 1.0,
       "source": "scripts_deploy_js",
       "target": "scripts_deploy_main"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "scripts_mintusdc_js",
+      "target": "scripts_mintusdc_ethers"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "scripts_mintusdc_js",
+      "target": "scripts_mintusdc_addresses"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "scripts_mintusdc_js",
+      "target": "scripts_mintusdc_mock_usdc_abi"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/mintUsdc.js",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "scripts_mintusdc_js",
+      "target": "scripts_mintusdc_main"
     },
     {
       "relation": "contains",
@@ -57605,9 +57968,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L791",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "real_estate_tokenization_claude_team_ai_memory_realchain_v2",
-      "target": "real_estate_tokenization_claude_session_landing_floating_badge_removal_2026_05_19",
-      "confidence_score": 1.0
+      "target": "real_estate_tokenization_claude_session_landing_floating_badge_removal_2026_05_19"
     },
     {
       "relation": "contains",
@@ -57615,8 +57978,28 @@
       "source_file": "CLAUDE.md",
       "source_location": "L808",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "real_estate_tokenization_claude_team_ai_memory_realchain_v2",
-      "target": "real_estate_tokenization_claude_session_email_password_auth_rent_payer_role_2026_05_19",
+      "target": "real_estate_tokenization_claude_session_email_password_auth_rent_payer_role_2026_05_19"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L842",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "real_estate_tokenization_claude_team_ai_memory_realchain_v2",
+      "target": "real_estate_tokenization_claude_session_admin_wallet_ownership_cleanup_2026_05_20"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L870",
+      "weight": 1.0,
+      "source": "real_estate_tokenization_claude_team_ai_memory_realchain_v2",
+      "target": "real_estate_tokenization_claude_session_admin_workflow_hardening_rpc_preflight_2026_05_20",
       "confidence_score": 1.0
     },
     {
@@ -58175,9 +58558,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L793",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "real_estate_tokenization_claude_session_landing_floating_badge_removal_2026_05_19",
-      "target": "real_estate_tokenization_claude_what_changed_793",
-      "confidence_score": 1.0
+      "target": "real_estate_tokenization_claude_what_changed_793"
     },
     {
       "relation": "contains",
@@ -58185,9 +58568,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L803",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "real_estate_tokenization_claude_session_landing_floating_badge_removal_2026_05_19",
-      "target": "real_estate_tokenization_claude_verification_803",
-      "confidence_score": 1.0
+      "target": "real_estate_tokenization_claude_verification_803"
     },
     {
       "relation": "contains",
@@ -58195,9 +58578,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L810",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "real_estate_tokenization_claude_session_email_password_auth_rent_payer_role_2026_05_19",
-      "target": "real_estate_tokenization_claude_what_changed_810",
-      "confidence_score": 1.0
+      "target": "real_estate_tokenization_claude_what_changed_810"
     },
     {
       "relation": "contains",
@@ -58205,9 +58588,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L829",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "real_estate_tokenization_claude_session_email_password_auth_rent_payer_role_2026_05_19",
-      "target": "real_estate_tokenization_claude_verification_829",
-      "confidence_score": 1.0
+      "target": "real_estate_tokenization_claude_verification_829"
     },
     {
       "relation": "contains",
@@ -58215,8 +58598,68 @@
       "source_file": "CLAUDE.md",
       "source_location": "L835",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "real_estate_tokenization_claude_session_email_password_auth_rent_payer_role_2026_05_19",
-      "target": "real_estate_tokenization_claude_follow_up",
+      "target": "real_estate_tokenization_claude_follow_up"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L844",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "real_estate_tokenization_claude_session_admin_wallet_ownership_cleanup_2026_05_20",
+      "target": "real_estate_tokenization_claude_what_changed_844"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L857",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "real_estate_tokenization_claude_session_admin_wallet_ownership_cleanup_2026_05_20",
+      "target": "real_estate_tokenization_claude_verification_857"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L864",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "real_estate_tokenization_claude_session_admin_wallet_ownership_cleanup_2026_05_20",
+      "target": "real_estate_tokenization_claude_follow_up_864"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L872",
+      "weight": 1.0,
+      "source": "real_estate_tokenization_claude_session_admin_workflow_hardening_rpc_preflight_2026_05_20",
+      "target": "real_estate_tokenization_claude_what_changed_872",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L894",
+      "weight": 1.0,
+      "source": "real_estate_tokenization_claude_session_admin_workflow_hardening_rpc_preflight_2026_05_20",
+      "target": "real_estate_tokenization_claude_verification_894",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L903",
+      "weight": 1.0,
+      "source": "real_estate_tokenization_claude_session_admin_workflow_hardening_rpc_preflight_2026_05_20",
+      "target": "real_estate_tokenization_claude_follow_up_903",
       "confidence_score": 1.0
     },
     {
@@ -63515,9 +63958,9 @@
       "source_file": "memory/decisions.md",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "memory_decisions_decisions",
-      "target": "memory_decisions_2026_05_19_landing_hero_ornament_cleanup",
-      "confidence_score": 1.0
+      "target": "memory_decisions_2026_05_19_landing_hero_ornament_cleanup"
     },
     {
       "relation": "contains",
@@ -63525,9 +63968,9 @@
       "source_file": "memory/decisions.md",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "memory_decisions_decisions",
-      "target": "memory_decisions_2026_05_19_optional_privy_sdk_loading_avoids_top_level_await",
-      "confidence_score": 1.0
+      "target": "memory_decisions_2026_05_19_optional_privy_sdk_loading_avoids_top_level_await"
     },
     {
       "relation": "contains",
@@ -63535,9 +63978,9 @@
       "source_file": "memory/decisions.md",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "memory_decisions_decisions",
-      "target": "memory_decisions_2026_05_19_email_password_auth_stays_separate_from_wallet_profiles",
-      "confidence_score": 1.0
+      "target": "memory_decisions_2026_05_19_email_password_auth_stays_separate_from_wallet_profiles"
     },
     {
       "relation": "contains",
@@ -63545,9 +63988,9 @@
       "source_file": "memory/decisions.md",
       "source_location": "L130",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "memory_decisions_decisions",
-      "target": "memory_decisions_2026_05_19_wallet_refresh_restores_authorized_metamask_sessions",
-      "confidence_score": 1.0
+      "target": "memory_decisions_2026_05_19_wallet_refresh_restores_authorized_metamask_sessions"
     },
     {
       "relation": "contains",
@@ -63605,9 +64048,9 @@
       "source_file": "memory/flags.md",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "memory_flags_flags",
-      "target": "memory_flags_open_auth_rent_payer_flow",
-      "confidence_score": 1.0
+      "target": "memory_flags_open_auth_rent_payer_flow"
     },
     {
       "relation": "contains",
@@ -63638,6 +64081,16 @@
       "confidence_score": 1.0,
       "source": "memory_flags_flags",
       "target": "memory_flags_cuts_intentional_not_gaps"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "memory/flags.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "memory_flags_flags",
+      "target": "memory_flags_resolved_2026_05_19_late_session"
     },
     {
       "relation": "contains",
@@ -103779,5 +104232,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "43252e0af179e8f7174327f8400a342eef2deb44"
+  "built_at_commit": "c1f1afec1012bd4622c1d8d839f1413d9437e92c"
 }

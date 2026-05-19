@@ -81,7 +81,9 @@ function Navbar() {
   const dashboardHref = isAuthenticated
     ? dashboardForRole(authUser?.role)
     : roleHint === "Owner" ? "/owner" : "/investor";
-  const authRoleLabel = authUser?.role === "tenant" ? "Rent payer" : "Owner";
+  const isOwnerSession = isAuthenticated && authUser?.role === "owner";
+  const isOwnerNav = isOwnerSession || (!isAuthenticated && roleHint === "Owner");
+  const authRoleLabel = authUser?.role === "tenant" ? "Rent payer" : "Admin";
 
   return (
     <>
@@ -100,12 +102,16 @@ function Navbar() {
                 Dashboard
               </NavLink>
             )}
-            <NavLink to="/portfolio" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-              Portfolio
-            </NavLink>
-            <NavLink to="/dividends" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-              Claim rent
-            </NavLink>
+            {!isOwnerNav && (
+              <>
+                <NavLink to="/portfolio" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                  Portfolio
+                </NavLink>
+                <NavLink to="/dividends" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                  Claim rent
+                </NavLink>
+              </>
+            )}
           </div>
 
           <div className="navbar-actions">
@@ -279,6 +285,7 @@ export default function App() {
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
           <Route path="/marketplace" element={<Home />} />
+          <Route path="/admin" element={<OwnerDashboard />} />
           <Route path="/owner" element={<OwnerDashboard />} />
           <Route path="/investor" element={<InvestorDashboard />} />
           <Route path="/tenant" element={<TenantDashboard />} />
