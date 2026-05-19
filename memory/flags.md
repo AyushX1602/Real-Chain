@@ -45,6 +45,7 @@
 - Four Kiro IDE hooks refresh `graphify-out/` automatically on save/create/delete/agent-stop for machines with those hooks installed. Other contributors can opt in via Kiro or `git config core.hooksPath scripts/git-hooks`.
 - Teammates must run `cd backend && npm install` after cloning.
 - After meaningful work, every agent must append a session entry to `CLAUDE.md` and update this file. Stale flags break the next agent's planning.
+- `frontend/package-lock.json` has an unrelated local modification from `npm i`; it was intentionally left unstaged during the merge/push task.
 
 ## Cuts (intentional, not gaps)
 - The V1/V2 distribution comparison and snapshot-attack research surface stays in the repo for the academic paper but is not surfaced to judges. Do not re-add it to the hackathon README, demo, or pitch video.

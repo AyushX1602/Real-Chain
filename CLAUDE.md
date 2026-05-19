@@ -31,11 +31,9 @@ Production URL : None configured
 Started        : May 2026 (inferred from repository docs)
 ```
 
-### Goals
 - [x] Demonstrate secure tokenized-property ownership, rent distribution, and secondary trading.
 - [x] Compare dividend models: V1 epoch-loop claims vs V2 constant-time claims.
 - [ ] Ship the UGF hackathon flow where users pay gas in `TYI_MOCK_USD` instead of ETH.
-- [ ] Non-goal for the current prototype: production KYC/AML, real USDC settlement, or audited production deployment.
 
 ### Active milestone
 
@@ -48,7 +46,6 @@ The authoritative plan is `implementation_plan.md`. It is now organized into thr
 | **Tier 1 — Mandatory** (Phases 1–4) | Base Sepolia deploy, role-based dashboards, UGF-wrapped `claimAll()`, demo recording | Phase 4A end-to-end test passes |
 | **Tier 2 — Differentiators** (Phase 5) | Wrap all four state-changing flows with UGF, on/off toggle, activity feed, cost banner, rename "Dividends" → "Claim Rent", faucet helper, brand pass | 5A + 5B + 5C + 5D + 5E green |
 | **Tier 3 — Stretch** (Phase 6) | Embedded wallet (Privy/Web3Auth), soulbound NFT receipts, pitch video, live demo URL | n/a |
-
 North star demo (still the same):
 1. Investor wallet has token holdings, pending rent, some `TYI_MOCK_USD`, and **0 ETH**.
 2. Investor opens the app on Base Sepolia.
@@ -589,3 +586,13 @@ Do not write code until you confirm the intended direction.
 - Modified: `frontend/src/index.css` (appended ~280 lines of primitive
   styles), `frontend/src/pages/{Home,Portfolio,Dividends,OwnerDashboard,Activity,Analytics}.jsx`.
 - Pre-existing agent scaffold extended (already in repo from prior turns).
+
+---
+Date    : 2026-05-19
+Agent   : Copilot
+Did     : Resolved the pull merge conflicts across `CLAUDE.md`, `memory/decisions.md`, `frontend/dist/index.html`, `frontend/src/main.jsx`, `frontend/src/pages/{Dividends,Landing,OwnerDashboard,Portfolio}.jsx`, keeping both feature streams where they were compatible.
+Did     : Validated the touched frontend sources with `get_errors` and confirmed no syntax or import issues remained after the merge.
+Did     : Created and pushed merge commit `445ebf0` to `origin/main`.
+Decided : Leave the unrelated local `frontend/package-lock.json` edit unstaged; it is not part of the merge result.
+Next    : If needed, review or commit the local `package-lock.json` change separately.
+Blockers: None for the merge/push task.
