@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useWeb3 } from "../context/Web3Context";
 import Icon from "../components/Icon";
-import { LogoMark } from "../components/Logo";
 import useWatchlist from "../hooks/useWatchlist";
+import { propertyImage } from "../utils/propertyImage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Watchlist — properties the user has starred from the marketplace. Reads ids
@@ -93,7 +93,11 @@ export default function Watchlist() {
             <article key={p.id} className="card property-card" onClick={() => navigate(`/property/${p.id}`)} role="button" tabIndex={0}
               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate(`/property/${p.id}`)}>
               <div className="card-body">
-                <div className="property-cover">
+                <div
+                  className="property-cover has-photo"
+                  style={{ backgroundImage: `url(${propertyImage(p, { w: 800, h: 400 })})` }}
+                >
+                  <div className="property-cover-scrim" aria-hidden="true" />
                   <div className="property-tag-row">
                     <span className="badge badge-success"><span className="status-dot" /> Live</span>
                     <button
@@ -105,7 +109,6 @@ export default function Watchlist() {
                       <Icon name="star" size={14} />
                     </button>
                   </div>
-                  <div className="property-cover-glyph" aria-hidden="true"><LogoMark size={56} /></div>
                 </div>
                 <h3 style={{ fontSize: 22, fontWeight: 500, letterSpacing: "-0.01em" }}>{p.name}</h3>
                 <div className="text-sm text-muted" style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>

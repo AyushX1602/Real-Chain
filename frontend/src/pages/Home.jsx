@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useWeb3 } from "../context/Web3Context";
 import Icon from "../components/Icon";
-import { LogoMark } from "../components/Logo";
 import ActivityFeed from "../components/ActivityFeed";
 import FaucetPanel from "../components/FaucetPanel";
 import useWatchlist from "../hooks/useWatchlist";
@@ -13,6 +12,7 @@ import {
   ContractMethodBadge,
 } from "../components/ScreenPrimitives";
 import { BACKEND_URL } from "../config/contracts";
+import { propertyImage } from "../utils/propertyImage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Home — RealChain marketplace.
@@ -78,11 +78,19 @@ export default function Home() {
         const data = await r.json();
         const list = Array.isArray(data) ? data : (data?.properties || []);
         if (list.length > 0) {
+          // Indexer rows can legitimately omit `valueInr` (older docs predate
+          // the totalValue column, or the indexer crashed before populating
+          // it). Coerce to a finite number here so neither sort comparators
+          // nor `fmtInr` downstream ever see NaN/undefined.
+          const num = (v) => {
+            const n = typeof v === "bigint" ? Number(v) : Number(v);
+            return Number.isFinite(n) ? n : 0;
+          };
           setProps(list.map((p) => ({
             id: p.id ?? p._id ?? p.propertyId,
             name: p.name,
             location: p.location,
-            valueInr: p.valueInr,
+            valueInr: num(p.valueInr ?? p.totalValue),
             owner: p.owner,
             propertyToken: p.propertyToken || p.tokenAddress,
             rentalDistribution: p.rentalDistribution || p.rentalAddress,
@@ -342,11 +350,8 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
     return () => obs.disconnect();
   }, [onVisible]);
 
-  const isCoastal = (property.location || "").toLowerCase().includes("goa")
-    || (property.location || "").toLowerCase().includes("beach");
-  const isMetro   = (property.location || "").toLowerCase().includes("mumbai")
-    || (property.location || "").toLowerCase().includes("delhi")
-    || (property.location || "").toLowerCase().includes("bangalore");
+  // Deterministic Unsplash photo for this property — same id ⇒ same image.
+  const coverUrl = propertyImage(property, { w: 800, h: 400 });
 
   // Coerce supply / price into Numbers no matter whether the source was the
   // indexer (numbers, no decimals) or on-chain (BigInts in raw units).
@@ -376,7 +381,11 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
     <article ref={ref} className="card property-card" onClick={onView} role="button" tabIndex={0}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onView()}>
       <div className="card-body">
-        <div className="property-cover">
+        <div
+          className="property-cover has-photo"
+          style={{ backgroundImage: `url(${coverUrl})` }}
+        >
+          <div className="property-cover-scrim" aria-hidden="true" />
           <div className="property-tag-row">
             <span className="badge badge-success"><span className="status-dot" /> Live</span>
             <HolderCountChip count={holderCount} loading={holderCount === undefined} />
@@ -389,9 +398,6 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
             >
               <Icon name="star" size={14} />
             </button>
-          </div>
-          <div className="property-cover-glyph" aria-hidden="true">
-            {isCoastal ? "🌊" : isMetro ? "🏙" : <LogoMark size={56} />}
           </div>
         </div>
 

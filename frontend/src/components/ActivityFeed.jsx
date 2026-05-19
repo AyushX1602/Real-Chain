@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
 import { BACKEND_URL } from "../config/contracts";
 
@@ -50,35 +50,86 @@ function fmtAmount(amount) {
   return `$${n.toFixed(2)}`;
 }
 
+// Classify a fetch failure into something the user can act on. The default
+// browser message ("Failed to fetch") is uniquely unhelpful — it covers
+// connection refused, DNS failures, CORS preflight rejection, mixed-content
+// blocks, and ad-blockers, all under the same string. We can't tell them
+// apart from inside the page, but we can at least hint at the common causes.
+function classifyFetchError(err) {
+  if (err?.name === "AbortError" || err?.name === "TimeoutError") {
+    return "Request timed out — backend may be starting up or overloaded.";
+  }
+  const msg = String(err?.message || err || "");
+  if (/^\d{3}$/.test(msg)) return `Backend responded with HTTP ${msg}.`;
+  if (/Failed to fetch|NetworkError|ERR_CONNECTION/i.test(msg)) {
+    return "Could not reach the backend (connection refused, CORS, or blocked by a browser extension).";
+  }
+  return msg || "Unknown error";
+}
+
 export default function ActivityFeed() {
-  const [items, setItems] = useState([]);
+  const [items, setItems]   = useState([]);
   const [status, setStatus] = useState("loading"); // loading | online | offline
+  const [reason, setReason] = useState(null);      // human-readable failure cause
+
+  // Consecutive-failure counter. We only flip the badge to "offline" after
+  // two failures in a row so a single transient hiccup (slow cold start,
+  // network blip) doesn't spook the user.
+  const failsRef = useRef(0);
+  const aliveRef = useRef(true);
+  const timerRef = useRef(null);
+  const [retryNonce, setRetryNonce] = useState(0);
 
   useEffect(() => {
-    let alive = true;
-    let timer = null;
+    aliveRef.current = true;
 
     async function fetchOnce() {
+      // Per-request timeout. Some misconfigured proxies leave the socket open
+      // forever; without this the UI would sit on "loading" indefinitely.
+      const ctrl = new AbortController();
+      const to   = setTimeout(() => ctrl.abort(), 6000);
       try {
-        const r = await fetch(`${BACKEND_URL}/api/transactions?limit=20`);
+        const r = await fetch(`${BACKEND_URL}/api/transactions?limit=20`, { signal: ctrl.signal });
         if (!r.ok) throw new Error(String(r.status));
         const data = await r.json();
-        if (!alive) return;
+        if (!aliveRef.current) return;
         const list = Array.isArray(data) ? data : (data.transactions || data.items || []);
         setItems(list);
         setStatus("online");
-      } catch (_) {
-        if (!alive) return;
-        setItems([]);
-        setStatus("offline");
+        setReason(null);
+        failsRef.current = 0;
+      } catch (err) {
+        if (!aliveRef.current) return;
+        failsRef.current += 1;
+        setReason(classifyFetchError(err));
+        // First miss: stay on "loading" so the badge doesn't flicker. Second
+        // miss in a row: commit to "offline" and clear the list.
+        if (failsRef.current >= 2) {
+          setItems([]);
+          setStatus("offline");
+        }
       } finally {
-        if (alive) timer = setTimeout(fetchOnce, POLL_MS);
+        clearTimeout(to);
+        if (aliveRef.current) timerRef.current = setTimeout(fetchOnce, POLL_MS);
       }
     }
 
     fetchOnce();
-    return () => { alive = false; if (timer) clearTimeout(timer); };
-  }, []);
+    return () => {
+      aliveRef.current = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [retryNonce]);
+
+  // Manual retry: reset the counter, drop back to "loading", and re-run the
+  // effect. Beats waiting 8 s for the next poll tick.
+  const retry = () => {
+    failsRef.current = 0;
+    setStatus("loading");
+    setReason(null);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setRetryNonce((n) => n + 1);
+  };
 
   return (
     <aside className="activity-card" aria-label="Live activity feed">
@@ -109,12 +160,31 @@ export default function ActivityFeed() {
             <div>
               {status === "offline"
                 ? "Activity feed unavailable"
-                : "No transactions yet"}
+                : status === "loading"
+                  ? "Connecting…"
+                  : "No transactions yet"}
             </div>
-            <div style={{ fontSize: 12, marginTop: 4 }}>
-              {status === "offline"
-                ? "Start the backend at " + BACKEND_URL + " to see live activity."
-                : "Claim, buy, or deposit rent to see it appear here."}
+            <div style={{ fontSize: 12, marginTop: 4, maxWidth: 280 }}>
+              {status === "offline" ? (
+                <>
+                  Backend at <code>{BACKEND_URL}</code> didn’t respond.
+                  {reason && (
+                    <div style={{ marginTop: 4, opacity: 0.75 }}>{reason}</div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={retry}
+                    className="btn btn-ghost"
+                    style={{ marginTop: 10, padding: "4px 10px", fontSize: 12 }}
+                  >
+                    <Icon name="refresh" size={11} /> Retry now
+                  </button>
+                </>
+              ) : status === "loading" ? (
+                "Reaching backend…"
+              ) : (
+                "Claim, buy, or deposit rent to see it appear here."
+              )}
             </div>
           </div>
         ) : items.slice(0, 10).map((t, i) => {

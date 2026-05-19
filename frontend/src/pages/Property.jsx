@@ -12,6 +12,7 @@ import RentChart from "../components/RentChart";
 import HolderList from "../components/HolderList";
 import useWatchlist from "../hooks/useWatchlist";
 import { CONTRACT_ADDRESSES, MARKETPLACE_ABI } from "../config/contracts";
+import { propertyImage } from "../utils/propertyImage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Property — primary + secondary market for a single property.
@@ -217,7 +218,16 @@ export default function Property() {
       </button>
 
       {/* Hero */}
-      <div className="card card-elevated" style={{ marginBottom: 24 }}>
+      <div className="card card-elevated" style={{ marginBottom: 24, overflow: "hidden" }}>
+        {prop && (
+          <div
+            className="property-hero-cover"
+            style={{ backgroundImage: `url(${propertyImage(prop, { w: 1600, h: 600 })})` }}
+            aria-hidden="true"
+          >
+            <div className="property-hero-scrim" />
+          </div>
+        )}
         <div className="card-body">
           <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 16 }}>
             <div>

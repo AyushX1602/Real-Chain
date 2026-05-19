@@ -786,3 +786,21 @@ mode only half-applied.
   still resolve to the brand-static black even in dark mode. They're rare
   (the previous session migrated the visible ones); a future sweep can
   replace them with `var(--text-primary)`.
+
+
+## Session - Landing floating badge removal (2026-05-19)
+
+### What changed
+- Removed the floating `USDC settlement` badge from the landing hero in
+  `frontend/src/pages/Landing.jsx`.
+- Scoped hero SVG sizing in `frontend/src/index.css` to
+  `.lp-hero-illu-float > svg`, preventing inline hero icons from inheriting
+  full illustration dimensions.
+- Fixed the optional Privy embedded-wallet bridge by moving the dynamic
+  `@privy-io/react-auth` import into `PrivyShell` lifecycle state. This
+  removed the Vite top-level-await build failure hit during verification.
+
+### Verification
+- `npm.cmd run build` from `frontend/` passes; Vite still emits only the
+  existing large-chunk warning.
+- `graphify update .` completed and refreshed `graphify-out/`.

@@ -565,9 +565,6 @@ function HeroSection({ account, connect, connecting, networkName, privy }) {
           <span className="lp-hero-illu-pill is-top">
             <Icon name="bolt" size={11} /> ERC-20Votes
           </span>
-          <span className="lp-hero-illu-pill is-bottom">
-            <Icon name="coins" size={11} /> USDC settlement
-          </span>
         </motion.div>
       </section>
     </section>

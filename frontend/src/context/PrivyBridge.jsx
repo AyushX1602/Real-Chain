@@ -33,28 +33,16 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID || "";
 const PRIVY_ENABLED = Boolean(PRIVY_APP_ID);
 
-// We dynamically require `@privy-io/react-auth` so the bundle still builds
-// when the package is not installed. The bundler resolves bare imports
-// statically, so we use a guarded `eval`-deferred dynamic import here. Vite
-// is told to leave this expression alone via the @vite-ignore directive.
-let PrivyModule = null;
-if (PRIVY_ENABLED) {
-  try {
-    // The leading `import(/* @vite-ignore */ ...)` keeps Rollup from trying
-    // to resolve the specifier at build time. The string is computed so even
-    // a static analyser cannot flatten it.
+// Load `@privy-io/react-auth` only when a Privy app id is configured. Keeping
+// this import inside a function avoids top-level await and still lets Vite
+// build when the optional package is absent.
+let privyModulePromise = null;
+function loadPrivyModule() {
+  if (!privyModulePromise) {
     const specifier = "@privy" + "-io/react-auth";
-    PrivyModule = await import(/* @vite-ignore */ specifier);
-  } catch (err) {
-    // The user set VITE_PRIVY_APP_ID but forgot to `npm install`.
-    // Surface a clear console warning and degrade to no-op.
-    // eslint-disable-next-line no-console
-    console.warn(
-      "[PrivyBridge] VITE_PRIVY_APP_ID is set but @privy-io/react-auth is not " +
-      "installed. Run `npm install` in frontend/. Embedded wallet disabled.",
-      err,
-    );
+    privyModulePromise = import(/* @vite-ignore */ specifier);
   }
+  return privyModulePromise;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,8 +69,8 @@ export function usePrivyEmbeddedSignIn() {
 // `window.ethereum` so the existing Web3Context.connect() picks it up.
 // ─────────────────────────────────────────────────────────────────────────────
 
-function PrivyInnerBridge({ children }) {
-  const { usePrivy, useWallets } = PrivyModule;
+function PrivyInnerBridge({ children, privyModule }) {
+  const { usePrivy, useWallets } = privyModule;
   const { ready, authenticated, login, logout, user } = usePrivy();
   const { wallets } = useWallets();
 
@@ -139,12 +127,36 @@ function PrivyInnerBridge({ children }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function PrivyShell({ children }) {
+  const [privyModule, setPrivyModule] = useState(null);
+
+  useEffect(() => {
+    if (!PRIVY_ENABLED) return undefined;
+    let cancelled = false;
+    loadPrivyModule()
+      .then((module) => {
+        if (!cancelled) setPrivyModule(module);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        // The user set VITE_PRIVY_APP_ID but forgot to `npm install`.
+        // Surface a clear console warning and degrade to no-op.
+        // eslint-disable-next-line no-console
+        console.warn(
+          "[PrivyBridge] VITE_PRIVY_APP_ID is set but @privy-io/react-auth is not " +
+          "installed. Run `npm install` in frontend/. Embedded wallet disabled.",
+          err,
+        );
+        setPrivyModule(null);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   // Fast path: Privy disabled. Render children untouched.
-  if (!PRIVY_ENABLED || !PrivyModule) {
+  if (!PRIVY_ENABLED || !privyModule) {
     return children;
   }
 
-  const { PrivyProvider } = PrivyModule;
+  const { PrivyProvider } = privyModule;
 
   return (
     <PrivyProvider
@@ -163,7 +175,7 @@ export function PrivyShell({ children }) {
         },
       }}
     >
-      <PrivyInnerBridge>{children}</PrivyInnerBridge>
+      <PrivyInnerBridge privyModule={privyModule}>{children}</PrivyInnerBridge>
     </PrivyProvider>
   );
 }

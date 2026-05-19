@@ -1,4 +1,9 @@
 {
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\.tmp-status.ps1": {
+    "mtime": 1779180658.6874518,
+    "ast_hash": "0c4964e7c450d262835f01cd638a43a4",
+    "semantic_hash": ""
+  },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\hardhat.config.js": {
     "mtime": 1779037169.0769053,
     "ast_hash": "9135805aaa564292154708507a13cd45",
@@ -30,13 +35,13 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\server.js": {
-    "mtime": 1779167634.6917229,
-    "ast_hash": "4bde457bf73e641347b6c829e55751a8",
+    "mtime": 1779179339.9719806,
+    "ast_hash": "b64f666e9191ec92279d425d1666ac1e",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\jobs\\indexer.js": {
-    "mtime": 1779167634.6867242,
-    "ast_hash": "abd37f49bced0d0366ea515f2132918b",
+    "mtime": 1779179339.9692125,
+    "ast_hash": "dd4ee2e23be3c3cdf730449fb7738c4d",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\middleware\\db.js": {
@@ -65,8 +70,8 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\models\\Property.js": {
-    "mtime": 1779037479.4928052,
-    "ast_hash": "372c54a0caec5944d47f990586e38a19",
+    "mtime": 1779179339.970569,
+    "ast_hash": "9a0310e9dcb36d59d87bc43c165f7a94",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\models\\Transaction.js": {
@@ -89,24 +94,29 @@
     "ast_hash": "e44f6a9102be5ea8bba66947e42aaf7f",
     "semantic_hash": ""
   },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\routes\\market.js": {
+    "mtime": 1779179339.970569,
+    "ast_hash": "5795cbcde930412f8359552a81ad0b70",
+    "semantic_hash": ""
+  },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\routes\\properties.js": {
-    "mtime": 1779167634.6917229,
-    "ast_hash": "a803663cef1c78cfe076666ccd4a66f7",
+    "mtime": 1779179339.970569,
+    "ast_hash": "0f8bba3fcd98eb5253aacda9da6b2244",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\routes\\transactions.js": {
-    "mtime": 1779167634.6917229,
-    "ast_hash": "21e381f640b651eb1f1fb6d4b91e6f83",
+    "mtime": 1779179339.970569,
+    "ast_hash": "7948de00db142b290df7ff6b349a6d72",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\backend\\routes\\users.js": {
-    "mtime": 1779037526.8698542,
-    "ast_hash": "477b1602c58c13a99cd19cb0763ff689",
+    "mtime": 1779180998.402773,
+    "ast_hash": "27f78a2c4cb2792233a98bd597fd87d9",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\package.json": {
-    "mtime": 1779168860.412203,
-    "ast_hash": "5d2081e888c3289ce8bd7bdc92dee06a",
+    "mtime": 1779175879.6484296,
+    "ast_hash": "6069740761439f9928beb543bb5dd373",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\vite.config.js": {
@@ -115,18 +125,93 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\public\\sw.js": {
-    "mtime": 1779167634.702089,
-    "ast_hash": "e68e60f0b92ef3d24fe4cdc4585a1266",
+    "mtime": 1779181128.7483366,
+    "ast_hash": "f3f24a75bb234b8182229d8a33268410",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\App.jsx": {
-    "mtime": 1779167634.703125,
-    "ast_hash": "d6b136e1e77a550b0c32cdc51de8db7a",
+    "mtime": 1779181128.7483366,
+    "ast_hash": "01bada9b600422b0a9b41068eac194cf",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\main.jsx": {
-    "mtime": 1779168660.175205,
-    "ast_hash": "a745151e73e9591afe9f6ae42abdf95d",
+    "mtime": 1779181128.749835,
+    "ast_hash": "42f48e68d7c40f5a727819ff6184e237",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\index.js": {
+    "mtime": 1779175896.9220452,
+    "ast_hash": "58ea87eee311c748bde957d2f35dec05",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\registry.js": {
+    "mtime": 1779175896.9220452,
+    "ast_hash": "381ce6fc558824c8ccc70a8bdda28da9",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\core\\AgentBus.js": {
+    "mtime": 1779175896.919039,
+    "ast_hash": "c17bea945b656666427988651d04ab4a",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\core\\AgentProvider.jsx": {
+    "mtime": 1779175896.919039,
+    "ast_hash": "7dd72d57f9fafc5c3a7fab40b3f65402",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\core\\api.js": {
+    "mtime": 1779175896.9210563,
+    "ast_hash": "70bfc9103f77f4eacbedc3eea3d5706d",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\core\\BaseAgent.js": {
+    "mtime": 1779175896.920045,
+    "ast_hash": "a9983225b8e8a48ac20ab6cac66a1ef3",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\core\\messageTypes.js": {
+    "mtime": 1779175896.9210563,
+    "ast_hash": "b4a3cf8e988fce2724645f4c6df35005",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\core\\Orchestrator.js": {
+    "mtime": 1779175896.920045,
+    "ast_hash": "977c0114c2bd52299b836f379558d1c7",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\core\\ToastBridge.jsx": {
+    "mtime": 1779175896.920045,
+    "ast_hash": "bbeb6d4a45f82db2fd9ce5744220f359",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\screens\\ActivityAgent.js": {
+    "mtime": 1779175896.9220452,
+    "ast_hash": "34294f3eab4ca5830e49a4c8e7cb34f5",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\screens\\AnalysisAgent.js": {
+    "mtime": 1779179339.9774227,
+    "ast_hash": "555b0a05c4785d942423af2e739b3901",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\screens\\ClaimRentAgent.js": {
+    "mtime": 1779175896.9232235,
+    "ast_hash": "2589449c68c418d7f0cb73fe1f554bd6",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\screens\\MarketplaceAgent.js": {
+    "mtime": 1779179339.9787157,
+    "ast_hash": "e7a7ec467891b3f81afc5804818c1671",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\screens\\OwnerControlRoomAgent.js": {
+    "mtime": 1779179339.9787157,
+    "ast_hash": "09b55e3bc9f20b95d34635fecacc361f",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\screens\\PortfolioAgent.js": {
+    "mtime": 1779175896.9242868,
+    "ast_hash": "4caf2a10c1ac49f82d89fd91b139eed3",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\ActivityFeed.jsx": {
@@ -145,8 +230,8 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\CostBanner.jsx": {
-    "mtime": 1779126433.4055052,
-    "ast_hash": "c5ccd6fdee6394dea0a78eff2df03be4",
+    "mtime": 1779179339.9801664,
+    "ast_hash": "6ad431df3b11be7ecfe80c232b92fb10",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\FaucetPanel.jsx": {
@@ -160,8 +245,8 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\HolderList.jsx": {
-    "mtime": 1779167634.7043808,
-    "ast_hash": "d4120efcd48ea38e10fb195d7d345987",
+    "mtime": 1779181657.6053207,
+    "ast_hash": "0b3071d1a5f0a264eb1fa9842443e80e",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\Icon.jsx": {
@@ -182,6 +267,11 @@
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\RentChart.jsx": {
     "mtime": 1779167634.7043808,
     "ast_hash": "ce6c27a4dbef1878643cdfffc31b459b",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\ScreenPrimitives.jsx": {
+    "mtime": 1779175896.9242868,
+    "ast_hash": "e13ce0db883f32bfb6f6cc9b418d5f77",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\components\\Switch.jsx": {
@@ -209,9 +299,19 @@
     "ast_hash": "19fe4ff35db766d0018d0bb58647127a",
     "semantic_hash": ""
   },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\context\\PrivyBridge.jsx": {
+    "mtime": 1779181704.913995,
+    "ast_hash": "1e9a55f5fc01e4e0c4394234e17c90b6",
+    "semantic_hash": ""
+  },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\context\\SmartAgentContext.jsx": {
-    "mtime": 1779167634.7053998,
-    "ast_hash": "a099b9ff6fe63377a7b9dc0edd0c748a",
+    "mtime": 1779179339.9813797,
+    "ast_hash": "a569fad53e4dd7aa029565397c77bcb9",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\context\\ThemeContext.jsx": {
+    "mtime": 1779181128.7483366,
+    "ast_hash": "4b4d62b8338365c8dfc1b54ae289ba24",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\context\\UGFContext.jsx": {
@@ -224,6 +324,11 @@
     "ast_hash": "b5afc75f431ac5d8c5fac07a2f0ffbc1",
     "semantic_hash": ""
   },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\hooks\\useMarketPrice.js": {
+    "mtime": 1779179339.9813797,
+    "ast_hash": "94ec57c58f05a40d62389a809d7ac1b0",
+    "semantic_hash": ""
+  },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\hooks\\useSiweAuth.js": {
     "mtime": 1779167634.7064066,
     "ast_hash": "bb3838dbb428808aa60e1b35f4cab420",
@@ -234,19 +339,24 @@
     "ast_hash": "40431ebb0ace5924c8db094f18a533c4",
     "semantic_hash": ""
   },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Activity.jsx": {
+    "mtime": 1779175896.9268544,
+    "ast_hash": "264a019b11c70aad4060489cd97abc49",
+    "semantic_hash": ""
+  },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Analytics.jsx": {
-    "mtime": 1779167634.7085083,
-    "ast_hash": "42db8e2f29c240088217de1730bcafd1",
+    "mtime": 1779181128.7511084,
+    "ast_hash": "ba7d07f33d31158eecae3ee3aa211f6b",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Dividends.jsx": {
-    "mtime": 1779168818.6003726,
-    "ast_hash": "bf3c00e9abf590b5556d8b7ed286c8ed",
+    "mtime": 1779177452.7531154,
+    "ast_hash": "9f085ee453bb95c5eb94cb7a1a95d0f7",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Home.jsx": {
-    "mtime": 1779167634.709507,
-    "ast_hash": "3e18cd743b78f588010a6ceb82afef67",
+    "mtime": 1779181494.0497487,
+    "ast_hash": "74a2c228bc5b4268a744e5b7049b50ea",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\InvestorDashboard.jsx": {
@@ -255,28 +365,33 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Landing.jsx": {
-    "mtime": 1779167634.710507,
-    "ast_hash": "1caf2379be384d6d82d52541fa04e3c6",
+    "mtime": 1779181632.1196127,
+    "ast_hash": "cc5809e0b30937b4e7d934d71a4d2728",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\OwnerDashboard.jsx": {
-    "mtime": 1779168854.4074407,
-    "ast_hash": "6f019ff287bb64fc22728f96907e7f8b",
+    "mtime": 1779181128.7521896,
+    "ast_hash": "c354876584131d23cc3e12ee3db72ecd",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Portfolio.jsx": {
-    "mtime": 1779168904.134102,
-    "ast_hash": "563a1bb95ed792df6f78e149a849cdff",
+    "mtime": 1779177452.7531154,
+    "ast_hash": "b61ffbc170a1467ca29f30bef48c053e",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Property.jsx": {
-    "mtime": 1779168873.6551561,
-    "ast_hash": "6f7240165642f8f1b90573e36c0b9a69",
+    "mtime": 1779181559.7995229,
+    "ast_hash": "6854ec84ad3c96d894ea81f4b83632a2",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\pages\\Watchlist.jsx": {
-    "mtime": 1779167634.7115765,
-    "ast_hash": "591c2f05feb087c68958b79d4a969fad",
+    "mtime": 1779181530.904815,
+    "ast_hash": "515ee825ce4c7139102d616f4897b59d",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\utils\\propertyImage.js": {
+    "mtime": 1779181421.1154385,
+    "ast_hash": "a8086318fb268ddc065387a42cd7778a",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\scripts\\deploy.js": {
@@ -340,8 +455,8 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\CLAUDE.md": {
-    "mtime": 1779169287.2206342,
-    "ast_hash": "0b32b2495d63dea73749b10d55363a2a",
+    "mtime": 1779181128.7429967,
+    "ast_hash": "113bd0de7b2b0f1ef2679f0e21a7ca93",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\FEATURE_IDEAS.md": {
@@ -380,18 +495,23 @@
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\index.html": {
-    "mtime": 1779167634.6997225,
-    "ast_hash": "6891f1fccf00ec3d56860429c2152cca",
+    "mtime": 1779181128.7469954,
+    "ast_hash": "3bddfd0649e26e624a414c23e20b8d37",
+    "semantic_hash": ""
+  },
+  "D:\\codes\\BlockChain\\Real_estate_tokenization\\frontend\\src\\agents\\README.md": {
+    "mtime": 1779175896.919039,
+    "ast_hash": "816a65544e15349247b82dca635acc4f",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\memory\\decisions.md": {
-    "mtime": 1779169190.143751,
-    "ast_hash": "aa81a9129b54658145ea9f8eaa6d9bcb",
+    "mtime": 1779177452.7501156,
+    "ast_hash": "a9f40d8be01b89c9b575a8a8330c95e3",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\memory\\flags.md": {
-    "mtime": 1779169256.231087,
-    "ast_hash": "0a92e428b000f3a2335a61904f9e68f0",
+    "mtime": 1779177452.7531154,
+    "ast_hash": "3bcf3a19ab58dafeac16aae67e18bdf5",
     "semantic_hash": ""
   },
   "D:\\codes\\BlockChain\\Real_estate_tokenization\\scripts\\git-hooks\\README.md": {

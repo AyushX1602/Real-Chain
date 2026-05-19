@@ -9,6 +9,8 @@
 - ~~UGF SDK API surface unverified before integration~~ - rechecked 2026-05-19 against Tychi's live `ugf-testnet-js` README and installed `@tychilabs/react-ugf` README/types. React UGF uses `<UGFProvider mode="testnet">` and `useUGFModal().openUGF(...)`.
 - ~~ERC-20 approve calls were direct signer transactions~~ - all frontend `.approve()` calls were removed from `frontend/src`; approvals now route through `UGFContext.ugfApprove()`.
 - ~~UGF on/off toggle missing~~ - settings popover exposes the UGF toggle and `UGFBadge` / `CostBanner` react to it.
+- ~~Landing hero showed an oversized floating "USDC settlement" logo~~ - removed the bottom hero badge from `Landing.jsx` and scoped hero SVG sizing so inline icons no longer inherit full-illustration dimensions.
+- ~~Frontend build failed on `PrivyBridge.jsx` top-level await~~ - optional Privy SDK loading now happens inside `PrivyShell` lifecycle state, so Vite builds for the configured browser target.
 
 ## Open - Tier 1 (must clear before demo can run)
 - Live Base Sepolia clean-wallet smoke test still has not been run in this session. Must prove: demo investor has PROP > 0, pending rent > 0, TYI_MOCK_USD for gas, and exactly 0 ETH before clicking claim.

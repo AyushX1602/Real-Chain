@@ -286,10 +286,24 @@ export function Web3Provider({ children }) {
   });
 
   // ── Format helpers ───────────────────────────────────────────────────────────
-  const fmtUsdc = (raw) => `$${(Number(raw) / 1e6).toFixed(2)}`;
-  const fmtProp = (raw) => (Number(ethers.formatEther(raw))).toFixed(2);
+  // Every formatter must survive being handed `undefined`, `null`, `NaN`, an
+  // empty string, or a BigInt. The UI calls these inside render paths where a
+  // single NaN would otherwise leak as the literal text "NaN" on a card.
+  const toFiniteNumber = (raw, fallback = 0) => {
+    if (raw === null || raw === undefined || raw === "") return fallback;
+    // BigInt -> Number is safe for the magnitudes we deal with here (paisa,
+    // USDC 6-decimals, etc.). The actual on-chain BigInts that exceed
+    // Number.MAX_SAFE_INTEGER are token quantities, which use fmtProp().
+    const n = typeof raw === "bigint" ? Number(raw) : Number(raw);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  const fmtUsdc = (raw) => `$${(toFiniteNumber(raw) / 1e6).toFixed(2)}`;
+  const fmtProp = (raw) => {
+    try { return Number(ethers.formatEther(raw ?? 0n)).toFixed(2); }
+    catch { return "0.00"; }
+  };
   const fmtAddr = (addr) => addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : "";
-  const fmtInr  = (raw) => `₹${(Number(raw) / 100).toLocaleString("en-IN")}`;
+  const fmtInr  = (raw) => `₹${(toFiniteNumber(raw) / 100).toLocaleString("en-IN")}`;
 
   return (
     <Web3Context.Provider value={{

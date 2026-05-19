@@ -433,6 +433,26 @@ input, select, textarea { font: inherit; color: inherit; }
   overflow: hidden;
   margin-bottom: var(--space-5);
 }
+/* Photo-backed property covers: full-bleed image with a soft scrim so badges
+   stay legible regardless of the underlying photograph. */
+.property-cover.has-photo {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.property-cover-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.05) 35%,
+    rgba(0, 0, 0, 0) 65%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
 .property-cover-glyph {
   font-size: 64px;
   position: relative;
@@ -445,6 +465,30 @@ input, select, textarea { font: inherit; color: inherit; }
   display: flex;
   justify-content: space-between;
   z-index: 2;
+}
+
+/* Property detail hero — wide cover photo above the metrics. */
+.property-hero-cover {
+  position: relative;
+  height: 280px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid var(--positivus-black);
+}
+.property-hero-cover .property-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .property-hero-cover { height: 180px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1154,7 +1198,7 @@ tr:hover td { background: var(--positivus-grey-warm); }
   align-items: center;
   justify-content: center;
 }
-.lp-hero-illu svg { width: 100%; max-width: 600px; height: auto; }
+.lp-hero-illu-float > svg { width: 100%; max-width: 600px; height: auto; }
 
 .lp-logos {
   display: grid;
@@ -2987,7 +3031,7 @@ tr:hover td { background: var(--positivus-grey-warm); }
     -webkit-backdrop-filter: blur(18px) saturate(140%);
   }
 }
-.lp-hero-illu svg { position: relative; z-index: 1; }
+.lp-hero-illu-float > svg { position: relative; z-index: 1; }
 .lp-hero-illu-glow {
   position: absolute;
   width: 70%;

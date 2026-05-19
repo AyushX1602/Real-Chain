@@ -41,6 +41,31 @@ export default function HolderList({ propertyId, tokenAddress, ownerAddress, lim
     setError(null);
 
     (async () => {
+      // Build a provider once and probe the token contract for deployed
+      // bytecode. If the address has no code on the connected chain (e.g. the
+      // user switched networks, or the indexer is reporting addresses from a
+      // different deployment), `totalSupply()` will revert with BAD_DATA. In
+      // that case we still want to render whatever the indexer gave us using
+      // its own sharePct, instead of failing the whole panel.
+      const provider = window.ethereum
+        ? new ethers.BrowserProvider(window.ethereum)
+        : new ethers.JsonRpcProvider("https://sepolia.base.org");
+
+      let tokenDeployed = false;
+      try {
+        const code = await provider.getCode(tokenAddress);
+        tokenDeployed = !!code && code !== "0x" && code !== "0x0";
+      } catch { tokenDeployed = false; }
+
+      // Safe totalSupply: returns 0n if contract isn't deployed or call reverts.
+      const safeTotalSupply = async () => {
+        if (!tokenDeployed) return 0n;
+        try {
+          const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+          return await token.totalSupply();
+        } catch { return 0n; }
+      };
+
       // 1) Try the backend indexer first — fast, doesn't hit RPC limits.
       if (propertyId !== undefined && propertyId !== null) {
         try {
@@ -51,45 +76,81 @@ export default function HolderList({ propertyId, tokenAddress, ownerAddress, lim
             const rows = Array.isArray(data?.holders) ? data.holders : Array.isArray(data) ? data : [];
             if (rows.length > 0) {
               if (!alive) return;
-              try {
-                const provider = window.ethereum
-                  ? new ethers.BrowserProvider(window.ethereum)
-                  : new ethers.JsonRpcProvider("https://sepolia.base.org");
-                const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
-                const totalSupply = await token.totalSupply();
-                const enriched = rows.map((row) => {
-                  const bal = BigInt(row.balance);
-                  // Prefer server-side sharePct when supplied; fall back to the
-                  // raw chain-derived ratio.
-                  const pct = (typeof row.sharePct === "number")
-                    ? row.sharePct
-                    : (totalSupply > 0n ? (Number(bal) / Number(totalSupply)) * 100 : 0);
-                  return { address: row.wallet, balance: bal, pct };
-                });
-                if (alive) {
-                  setHolders(enriched);
-                  setSource("indexer");
-                  setLoading(false);
-                }
-                return;
-              } catch { /* fall through to on-chain */ }
+              const totalSupply = await safeTotalSupply();
+              const enriched = rows.map((row) => {
+                const bal = (() => { try { return BigInt(row.balance); } catch { return 0n; } })();
+                // Prefer server-side sharePct when supplied; fall back to the
+                // raw chain-derived ratio when we actually have a totalSupply.
+                const pct = (typeof row.sharePct === "number")
+                  ? row.sharePct
+                  : (totalSupply > 0n ? (Number(bal) / Number(totalSupply)) * 100 : 0);
+                return { address: row.wallet, balance: bal, pct };
+              });
+              if (alive) {
+                setHolders(enriched);
+                setSource("indexer");
+                setLoading(false);
+              }
+              return;
             }
           }
         } catch { /* indexer offline — fall through to on-chain */ }
       }
 
-      // 2) On-chain fallback — replay Transfer events.
-      try {
-        const provider = window.ethereum
-          ? new ethers.BrowserProvider(window.ethereum)
-          : new ethers.JsonRpcProvider("https://sepolia.base.org");
+      // 2) On-chain fallback — replay Transfer events. Skip outright if the
+      //    token contract isn't deployed on this chain.
+      if (!tokenDeployed) {
+        if (alive) {
+          setHolders([]);
+          setSource("on-chain");
+          setLoading(false);
+        }
+        return;
+      }
 
-        const logs = await provider.getLogs({
-          address: tokenAddress,
-          topics: [TRANSFER_TOPIC],
-          fromBlock: 0,
-          toBlock: "latest",
-        });
+      try {
+        // Public RPCs (Base Sepolia, Alchemy free tier, …) cap eth_getLogs at
+        // a 2 000-block window. A single `fromBlock:0 → toBlock:"latest"` call
+        // explodes with `query exceeds max block range 2000`. We page backwards
+        // from `latest` in fixed-size windows until we either run out of budget
+        // or the chain itself runs out of blocks. The window size is small
+        // enough to satisfy every public provider we've seen; the total budget
+        // is generous enough to find every holder on a typical testnet
+        // deployment without taking forever.
+        const CHUNK         = 1_900;        // safely under every 2k cap we've hit
+        const MAX_CHUNKS    = 30;           // ≈ 57 000 blocks of history
+        const latest        = await provider.getBlockNumber();
+        const logs          = [];
+        let   toBlock       = latest;
+        for (let i = 0; i < MAX_CHUNKS && toBlock >= 0; i++) {
+          const fromBlock = Math.max(0, toBlock - CHUNK + 1);
+          try {
+            const batch = await provider.getLogs({
+              address: tokenAddress,
+              topics:  [TRANSFER_TOPIC],
+              fromBlock,
+              toBlock,
+            });
+            logs.push(...batch);
+          } catch (chunkErr) {
+            // If even a 1 900-block window is too wide (some providers cap at
+            // 1 000), halve the chunk and retry once before giving up on this
+            // window. We don't loop forever — one retry is plenty.
+            try {
+              const mid = Math.floor((fromBlock + toBlock) / 2);
+              const a = await provider.getLogs({ address: tokenAddress, topics: [TRANSFER_TOPIC], fromBlock: mid + 1, toBlock });
+              const b = await provider.getLogs({ address: tokenAddress, topics: [TRANSFER_TOPIC], fromBlock,       toBlock: mid });
+              logs.push(...a, ...b);
+            } catch {
+              // Give up on this window; keep whatever we've already collected
+              // so the UI can still render a (partial) holder list rather than
+              // erroring out entirely.
+              console.warn("HolderList: getLogs window failed", { fromBlock, toBlock, chunkErr });
+            }
+          }
+          if (fromBlock === 0) break;
+          toBlock = fromBlock - 1;
+        }
 
         const balances = new Map();
         for (const log of logs) {
@@ -110,8 +171,7 @@ export default function HolderList({ propertyId, tokenAddress, ownerAddress, lim
           .sort((a, b) => (b[1] > a[1] ? 1 : -1))
           .slice(0, limit);
 
-        const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
-        const totalSupply = await token.totalSupply();
+        const totalSupply = await safeTotalSupply();
 
         const enriched = ranked.map(([address, balance]) => ({
           address,

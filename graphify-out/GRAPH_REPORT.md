@@ -1,16 +1,16 @@
 # Graph Report - Real_estate_tokenization  (2026-05-19)
 
 ## Corpus Check
-- 76 files · ~84,067 words
+- 100 files · ~105,637 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4504 nodes · 5356 edges · 413 communities (331 shown, 82 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 38 edges (avg confidence: 0.78)
+- 4783 nodes · 5852 edges · 430 communities (340 shown, 90 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 41 edges (avg confidence: 0.79)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9ba8e560`
+- Built from commit: `d244eccd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -427,6 +427,22 @@
 - [[_COMMUNITY_Community 410|Community 410]]
 - [[_COMMUNITY_Community 411|Community 411]]
 - [[_COMMUNITY_Community 412|Community 412]]
+- [[_COMMUNITY_Community 413|Community 413]]
+- [[_COMMUNITY_Community 414|Community 414]]
+- [[_COMMUNITY_Community 415|Community 415]]
+- [[_COMMUNITY_Community 416|Community 416]]
+- [[_COMMUNITY_Community 417|Community 417]]
+- [[_COMMUNITY_Community 418|Community 418]]
+- [[_COMMUNITY_Community 419|Community 419]]
+- [[_COMMUNITY_Community 420|Community 420]]
+- [[_COMMUNITY_Community 421|Community 421]]
+- [[_COMMUNITY_Community 422|Community 422]]
+- [[_COMMUNITY_Community 423|Community 423]]
+- [[_COMMUNITY_Community 424|Community 424]]
+- [[_COMMUNITY_Community 425|Community 425]]
+- [[_COMMUNITY_Community 426|Community 426]]
+- [[_COMMUNITY_Community 427|Community 427]]
+- [[_COMMUNITY_Community 428|Community 428]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Chat Conversation` - 76 edges
@@ -441,18 +457,18 @@
 10. `excluded_lines` - 43 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `PropertyCard()` --calls--> `fmtProp()`  [INFERRED]
-  frontend/src/pages/Home.jsx → scripts/seedDemo.js
 - `Dividends()` --calls--> `fmtUsdc()`  [INFERRED]
   frontend/src/pages/Dividends.jsx → scripts/seedDemo.js
+- `PropertyCard()` --calls--> `fmtProp()`  [INFERRED]
+  frontend/src/pages/Home.jsx → scripts/seedDemo.js
 - `OwnerDashboard()` --calls--> `fmtUsdc()`  [INFERRED]
   frontend/src/pages/OwnerDashboard.jsx → scripts/seedDemo.js
-- `RentCard()` --calls--> `fmtUsdc()`  [INFERRED]
-  frontend/src/pages/Dividends.jsx → scripts/seedDemo.js
-- `RentCard()` --calls--> `fmtProp()`  [INFERRED]
-  frontend/src/pages/Dividends.jsx → scripts/seedDemo.js
+- `Property()` --calls--> `fmtUsdc()`  [INFERRED]
+  frontend/src/pages/Property.jsx → scripts/seedDemo.js
+- `Property()` --calls--> `fmtProp()`  [INFERRED]
+  frontend/src/pages/Property.jsx → scripts/seedDemo.js
 
-## Communities (413 total, 82 thin omitted)
+## Communities (430 total, 90 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.04
@@ -463,8 +479,8 @@ Cohesion: 0.05
 Nodes (37): 6 Figures — where and what to draw, 6 Tables — all with real data, Alternative — just use your existing MetaMask account, code:powershell (Copy-Item .env.example .env), For Right Now (local only), If you don't see that either — try this:, Planner Response, Planner Response (+29 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.17
-Nodes (12): Active milestone, Agent context rules, code:text (Project Name   : RealChain v2), Goals, How to use this file, Key decisions and why, Known bugs / gaps, Links (+4 more)
+Cohesion: 0.25
+Nodes (8): Agent context rules, How to use this file, Key decisions and why, Known bugs / gaps, Links, Team, Team & AI Memory — RealChain v2, What's remaining
 
 ### Community 3 - "Community 3"
 Cohesion: 0.07
@@ -472,7 +488,7 @@ Nodes (28): code:powershell (.\node_modules\.bin\hardhat run scripts/deploy.js -
 
 ### Community 4 - "Community 4"
 Cohesion: 0.15
-Nodes (23): PropertyDividendCard(), RentCard(), HoldingCard(), InvestorDashboard(), OwnedPropertyCard(), HoldingCard(), Property(), ETH_PREFUND_INVESTOR (+15 more)
+Nodes (22): PropertyDividendCard(), RentCard(), HoldingCard(), InvestorDashboard(), OwnedPropertyCard(), HoldingCard(), ETH_PREFUND_INVESTOR, FACTORY_ABI (+14 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.08
@@ -491,8 +507,8 @@ Cohesion: 0.08
 Nodes (25): Final Answer, My Recommendation, Planner Response, Planner Response, Planner Response, Planner Response, Planner Response, Planner Response (+17 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.11
-Nodes (18): dependencies, ethers, framer-motion, react, react-dom, react-router-dom, @tychilabs/react-ugf, devDependencies (+10 more)
+Cohesion: 0.08
+Nodes (20): dependencies, ethers, framer-motion, @privy-io/react-auth, react, react-dom, react-router-dom, @tychilabs/react-ugf (+12 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.13
@@ -503,8 +519,8 @@ Cohesion: 0.16
 Nodes (14): claimAllGas, claimEpochGas, deploy(), depositEpochs(), epochCounts, estimateUSD(), { ethers }, gasRow() (+6 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.17
-Nodes (13): 3A. Install UGF SDK, 3B. Build UGFContext.jsx, 3C. Wrap claimAll() with UGF in InvestorDashboard, 3D. Gas-in-USDC UI indicators, code:jsx (import { UGFProvider } from "@tychilabs/react-ugf";), code:jsx (import { useUGFModal } from "@tychilabs/react-ugf";), code:jsx (<button className="btn btn-primary btn-full" onClick={handle), code:powershell (cd frontend) (+5 more)
+Cohesion: 0.12
+Nodes (17): 3A. Install UGF SDK, 3B. Build UGFContext.jsx, 3C. Wrap claimAll() with UGF in InvestorDashboard, 3D. Gas-in-USDC UI indicators, 4A. End-to-end test, 4B. Record 60-second demo, code:jsx (import { UGFProvider } from "@tychilabs/react-ugf";), code:jsx (import { useUGFModal } from "@tychilabs/react-ugf";) (+9 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.15
@@ -622,6 +638,10 @@ Nodes (3): code:powershell (# In hardhat.config.js, Base Sepolia is already adda
 Cohesion: 0.67
 Nodes (3): Planner Response, User Input, Why This is Actually a Big Deal
 
+### Community 48 - "Community 48"
+Cohesion: 0.5
+Nodes (3): 2026-05-19 — Multi-agent orchestration architecture, 2026-05-19 — Shared screen primitives over per-screen one-offs, Decisions
+
 ### Community 49 - "Community 49"
 Cohesion: 0.22
 Nodes (8): Cuts (intentional, not gaps), Flags, Open - Tier 1 (must clear before demo can run), Open - Tier 2 (only relevant after Tier 1 demo runs), Open - Tier 3 (stretch only), Process / team, Resolved, Risks (need a decision, not just a task)
@@ -640,7 +660,7 @@ Nodes (44): code:block1 (Professional logo design for [brand/industry]:), code:b
 
 ### Community 53 - "Community 53"
 Cohesion: 0.04
-Nodes (53): Chat Conversation, code:env (SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KE), code:env (ETHERSCAN_API_KEY=your_etherscan_api_key), code:block3 (Timeline:), code:block38 (User (has only USDC) → UGF → pays ETH gas → transaction exec), code:block39 (User wants to claimAll() dividends), code:javascript (// This loops through EVERY epoch to find unclaimed ones), code:block40 (Ethereum = A country) (+45 more)
+Nodes (53): Chat Conversation, code:solidity (uint256 userBalance = propertyToken.balanceOf(user); // ← li), code:env (SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KE), code:env (ETHERSCAN_API_KEY=your_etherscan_api_key), code:block3 (Timeline:), code:block38 (User (has only USDC) → UGF → pays ETH gas → transaction exec), code:block39 (User wants to claimAll() dividends), code:javascript (// This loops through EVERY epoch to find unclaimed ones) (+45 more)
 
 ### Community 54 - "Community 54"
 Cohesion: 0.05
@@ -663,8 +683,8 @@ Cohesion: 0.08
 Nodes (21): main(), Add custom font families.          Args:             fonts: Dict of font_type, Add custom spacing values.          Args:             spacing: Dict of name:, Add custom breakpoints.          Args:             breakpoints: Dict of name:, Add plugin requirements.          Args:             plugins: List of plugin n, Get plugin recommendations based on configuration.          Returns:, Generate Tailwind CSS configuration files., Generate configuration file content.          Returns:             Configurat (+13 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.14
-Nodes (12): mongoose, TransactionSchema, days, express, filter, limit, router, since (+4 more)
+Cohesion: 0.09
+Nodes (17): mongoose, UserSchema, ACTION_ALIASES, cursor, days, express, filter, limit (+9 more)
 
 ### Community 73 - "Community 73"
 Cohesion: 0.08
@@ -675,8 +695,8 @@ Cohesion: 0.11
 Nodes (19): 1A. Add Base Sepolia network to hardhat.config.js, 1B. Get testnet funds + Deploy to Base Sepolia, 1C. Update frontend network config, 1D. Update Web3Context for Base Sepolia, 1E. Deterministic demo-state seeding, 1E. Fix deploy script for clean demo state, 1F. Add convenience scripts to package.json, code:js (baseSepolia: {) (+11 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.11
-Nodes (16): HoldingSchema, mongoose, mongoose, PropertySchema, count, { ethers }, express, factory (+8 more)
+Cohesion: 0.1
+Nodes (19): count, { ethers }, express, factory, factoryABI, filter, holders, Holding (+11 more)
 
 ### Community 76 - "Community 76"
 Cohesion: 0.12
@@ -752,7 +772,7 @@ Nodes (26): Banner Design Tasks, Brand Identity Tasks, code:block1 (1. brand →
 
 ### Community 94 - "Community 94"
 Cohesion: 0.09
-Nodes (27): TailwindConfigGenerator.add_breakpoints, TailwindConfigGenerator.add_color_palette, TailwindConfigGenerator.add_fonts, TailwindConfigGenerator.add_plugins, TailwindConfigGenerator.write_config, num_statements, functions, excluded_lines (+19 more)
+Nodes (27): TailwindConfigGenerator.add_breakpoints, TailwindConfigGenerator.add_color_palette, TailwindConfigGenerator.add_plugins, TailwindConfigGenerator._format_plugins, TailwindConfigGenerator.recommend_plugins, num_statements, functions, excluded_lines (+19 more)
 
 ### Community 95 - "Community 95"
 Cohesion: 0.08
@@ -919,8 +939,8 @@ Cohesion: 0.18
 Nodes (11): ShadcnInstaller, shadcn_add.py, classes, excluded_lines, executed_lines, missing_lines, summary, excluded_lines (+3 more)
 
 ### Community 136 - "Community 136"
-Cohesion: 0.15
-Nodes (12): Agent context rules, code:text (---), code:text (Read CLAUDE.md in full. Then:), How to use this file, Key decisions and why, Known bugs / gaps, Links, New chat quickstart (+4 more)
+Cohesion: 0.05
+Nodes (43): Active milestone, Agent context rules, Architecture, Central components, code:text (Project Name   : RealChain v2), code:text (User / MetaMask), code:text (User / MetaMask), code:bash (pip install graphifyy) (+35 more)
 
 ### Community 137 - "Community 137"
 Cohesion: 0.05
@@ -1034,17 +1054,13 @@ Nodes (12): code:block1 (Primary Colors (1-2)), code:markdown (## Logo Usage), C
 Cohesion: 0.15
 Nodes (13): code:bash (python3 skills/ui-ux-pro-max/scripts/search.py "<keyword>" -), code:bash (python3 skills/ui-ux-pro-max/scripts/search.py "<keyword>" -), code:bash (python3 skills/ui-ux-pro-max/scripts/search.py "<product_typ), code:bash (python3 skills/ui-ux-pro-max/scripts/search.py "beauty spa w), code:bash (python3 skills/ui-ux-pro-max/scripts/search.py "<query>" --d), code:bash (python3 skills/ui-ux-pro-max/scripts/search.py "<query>" --d), code:block9 (I am building the [Page Name] page. Please read design-syste), How to Use This Skill (+5 more)
 
-### Community 165 - "Community 165"
-Cohesion: 0.4
-Nodes (5): TailwindConfigGenerator._base_config, excluded_lines, executed_lines, missing_lines, summary
-
 ### Community 166 - "Community 166"
 Cohesion: 0.17
 Nodes (12): code:powershell (cd e:\Reel-Estate-BT-master\Reel-Estate-BT-master), code:powershell (.\node_modules\.bin\hardhat test test/SnapshotAttack.test.js), code:powershell (.\node_modules\.bin\hardhat test test/GasBenchmark.test.js), code:powershell (.\node_modules\.bin\hardhat run scripts/deploy.js --network ), code:powershell (.\node_modules\.bin\hardhat run scripts/simulate.js --networ), Demo Flow — RealChain v2, Demo Script for Viva (3–5 minute version), Part 1: Smart Contract Tests (Terminal — no UI needed) (+4 more)
 
 ### Community 167 - "Community 167"
-Cohesion: 0.23
-Nodes (12): code:text (User / MetaMask), code:bash (pip install graphifyy), code:bash (graphify query "how does dividend distribution work?"), code:text (---), code:text (Read CLAUDE.md in full. Then:), Current status, Graphify commands, If the team adopts Graphify (+4 more)
+Cohesion: 0.38
+Nodes (7): code:bash (pip install graphifyy), code:bash (graphify query "how does dividend distribution work?"), code:text (---), code:text (Read CLAUDE.md in full. Then:), Graphify commands, New chat quickstart, Session log
 
 ### Community 168 - "Community 168"
 Cohesion: 0.17
@@ -1067,8 +1083,8 @@ Cohesion: 0.17
 Nodes (11): author, description, displayName, homepage, install, keywords, license, name (+3 more)
 
 ### Community 173 - "Community 173"
-Cohesion: 0.18
-Nodes (11): Definition of done — Tier 1, Definition of done — Tier 2, Definition of done — Tier 3, Hackathon implementation brief, Preferred implementation shape, Settlement-token policy (resolved 2026-05-18), Verified UGF implementation facts, What must ship in Tier 1 (+3 more)
+Cohesion: 0.22
+Nodes (8): ApiError, TimeoutError, withRetry(), AGENT_STATUS, AGENT_IDS, MSG, DEFAULT_SHARED_STATE, VALID_WINDOWS
 
 ### Community 174 - "Community 174"
 Cohesion: 0.18
@@ -1108,15 +1124,15 @@ Nodes (11): TailwindConfigGenerator, tailwind_config_gen.py, classes, excluded_l
 
 ### Community 183 - "Community 183"
 Cohesion: 0.18
-Nodes (11): ShadcnInstaller.add_components, TailwindConfigGenerator.add_colors, excluded_lines, executed_lines, missing_lines, summary, excluded_lines, excluded_lines (+3 more)
+Nodes (11): ShadcnInstaller.add_components, TailwindConfigGenerator.add_fonts, excluded_lines, executed_lines, missing_lines, summary, excluded_lines, excluded_lines (+3 more)
 
 ### Community 184 - "Community 184"
 Cohesion: 0.18
-Nodes (11): ShadcnInstaller.get_installed_components, TailwindConfigGenerator._indent_json, excluded_lines, executed_lines, missing_lines, summary, percent_covered_display, excluded_lines (+3 more)
+Nodes (11): ShadcnInstaller.get_installed_components, TailwindConfigGenerator._generate_typescript, excluded_lines, executed_lines, missing_lines, summary, percent_covered_display, excluded_lines (+3 more)
 
 ### Community 185 - "Community 185"
 Cohesion: 0.18
-Nodes (11): ShadcnInstaller.check_shadcn_config, TailwindConfigGenerator._default_content_paths, excluded_lines, executed_lines, missing_lines, summary, missing_lines, excluded_lines (+3 more)
+Nodes (11): ShadcnInstaller.check_shadcn_config, TailwindConfigGenerator._base_config, excluded_lines, executed_lines, missing_lines, summary, missing_lines, excluded_lines (+3 more)
 
 ### Community 186 - "Community 186"
 Cohesion: 0.18
@@ -1169,10 +1185,6 @@ Nodes (9): code:tsx (// Good: High contrast), code:tsx (// Use semantic muted fo
 ### Community 198 - "Community 198"
 Cohesion: 0.2
 Nodes (10): Background Colors, code:html (<p class="text-black">Black</p>), code:html (<div class="bg-white">White</div>), code:html (<div class="bg-black/75">75% opacity</div>), code:html (<div class="bg-gradient-to-r from-blue-500 to-purple-600">), Color Scale, Colors, Gradients (+2 more)
-
-### Community 199 - "Community 199"
-Cohesion: 0.4
-Nodes (5): Core protocol, Frontend, Scripts and local runtime, Tests, What's built
 
 ### Community 200 - "Community 200"
 Cohesion: 0.22
@@ -1267,8 +1279,8 @@ Cohesion: 0.29
 Nodes (7): Activity feed payload (frontend → backend, 5C), code:json (POST /api/transactions), code:json ({), code:block12 (ClaimReceipt (ERC-721, soulbound)), Data Models, Demo wallet manifest (1E output), Tier 3 — `ClaimReceipt` token (6B, optional)
 
 ### Community 223 - "Community 223"
-Cohesion: 0.14
-Nodes (13): code:mermaid (graph TD), Dependency Graph (Tiers 1–3), RealChain v2 — Hackathon Implementation Plan, Risks To Resolve Before Phase 1, Team Split (3–4 People), Tier 2 — Differentiators (Phase 5), What We're Deliberately Cutting From The Hackathon Submission, Win Strategy: Tiered Build (+5 more)
+Cohesion: 0.2
+Nodes (9): code:mermaid (graph TD), Dependency Graph (Tiers 1–3), RealChain v2 — Hackathon Implementation Plan, Risks To Resolve Before Phase 1, Team Split (3–4 People), Tier 2 — Differentiators (Phase 5), What We're Deliberately Cutting From The Hackathon Submission, Win Strategy: Tiered Build (+1 more)
 
 ### Community 224 - "Community 224"
 Cohesion: 0.29
@@ -1311,8 +1323,8 @@ Cohesion: 0.25
 Nodes (8): 2.1 RealChain vs alternatives comparison table, 2.2 Marketplace search & filters, 2.3 Watchlist / favorites, 2.4 Yield calculator, 2.5 Property image upload via IPFS, 2.6 Live rent counter on the landing hero, 2.7 PWA manifest + offline marketplace, 2. Quick wins (can ship in a day each)
 
 ### Community 235 - "Community 235"
-Cohesion: 0.33
-Nodes (6): code:bash (pip install graphifyy), code:bash (graphify query "how does dividend distribution work?"), Current status, Graphify commands, Memory layer setup, Team-sharing rule
+Cohesion: 0.18
+Nodes (21): TechAuth(), TechBase(), TechEthers(), TechExpress(), TechFramer(), TechHardhat(), TechIndexer(), TechMetaMask() (+13 more)
 
 ### Community 236 - "Community 236"
 Cohesion: 0.33
@@ -1367,8 +1379,8 @@ Cohesion: 0.4
 Nodes (4): format_output(), generate_design_brief(), Format results for Claude consumption (token-optimized), Generate a comprehensive logo design brief based on query
 
 ### Community 249 - "Community 249"
-Cohesion: 0.4
-Nodes (5): Architecture, Central components, code:text (User / MetaMask), code:text (User / MetaMask), Key files
+Cohesion: 0.14
+Nodes (9): ToastCtx, ToastProvider(), SmartAgentProvider(), ThemeCtx, ThemeProvider(), useTheme(), VALID, Web3Provider() (+1 more)
 
 ### Community 250 - "Community 250"
 Cohesion: 0.4
@@ -1391,8 +1403,8 @@ Cohesion: 0.4
 Nodes (5): code:html (<div class="w-full">100%</div>), code:html (<div class="h-full">100%</div>), Height, Width, Width & Height
 
 ### Community 255 - "Community 255"
-Cohesion: 0.15
-Nodes (16): ConnectGate(), CostBanner(), FaucetPanel(), ToastCtx, useToast(), UGFBadge(), APPROVE_ABI, resultHash() (+8 more)
+Cohesion: 0.16
+Nodes (15): ConnectGate(), CostBanner(), FaucetPanel(), useToast(), UGFBadge(), APPROVE_ABI, resultHash(), UGFContextProvider() (+7 more)
 
 ### Community 256 - "Community 256"
 Cohesion: 0.1
@@ -1410,17 +1422,13 @@ Nodes (13): 5A. Wrap all four state-changing flows with UGF, 5B. UGF on/off togg
 Cohesion: 0.4
 Nodes (5): TailwindConfigGenerator._default_output_path, excluded_lines, executed_lines, missing_lines, summary
 
-### Community 260 - "Community 260"
-Cohesion: 0.4
-Nodes (5): TailwindConfigGenerator._format_plugins, excluded_lines, executed_lines, missing_lines, summary
-
 ### Community 261 - "Community 261"
 Cohesion: 0.4
 Nodes (5): TailwindConfigGenerator.generate_config_string, excluded_lines, executed_lines, missing_lines, summary
 
 ### Community 262 - "Community 262"
-Cohesion: 0.4
-Nodes (5): TailwindConfigGenerator._generate_typescript, excluded_lines, executed_lines, missing_lines, summary
+Cohesion: 0.15
+Nodes (12): Adding a new screen, code:block1 (agents/), code:block2 (URL change ──▶ Orchestrator.setRoute(pathname)), code:block3 (Agent A.dispatch(MSG.X, payload, "*")), code:jsx (import { useAgent, useAgentState, AGENT_IDS } from "../agent), Consumer pattern (how a screen reads its agent), Hard rules (enforced by convention + registry), Layout (+4 more)
 
 ### Community 263 - "Community 263"
 Cohesion: 0.4
@@ -1436,7 +1444,7 @@ Nodes (5): TestShadcnInstaller.test_add_components_with_overwrite, excluded_line
 
 ### Community 266 - "Community 266"
 Cohesion: 0.12
-Nodes (7): PATHS, formatUsd(), LiveRentCounter(), formatDate(), formatUsd(), PAD, RentChart()
+Nodes (20): PATHS, ContractMethodBadge(), EpochCadenceIndicator(), EXPLORERS, explorerUrlForAddress(), explorerUrlForTx(), FractionalOwnershipBar(), GasMethodBadge() (+12 more)
 
 ### Community 267 - "Community 267"
 Cohesion: 0.4
@@ -1478,10 +1486,6 @@ Nodes (4): Common Sticking Points, Pre-Delivery Checklist, Query Strategy, Tips 
 Cohesion: 0.5
 Nodes (4): code:block2 (frontend/src/context/UGFContext.jsx), code:js (async function ugfExecute(target, abi, fnName, args, opts = ), code:jsx (<UGFProvider>      {/* SDK provider */}), Tier 1 — UGFContext interface (Phase 3A–3B)
 
-### Community 277 - "Community 277"
-Cohesion: 0.5
-Nodes (4): Active milestone, code:text (Project Name   : RealChain v2), Goals, Project overview
-
 ### Community 278 - "Community 278"
 Cohesion: 0.5
 Nodes (4): 1. Implementation quality — excellent for B.Tech level, 2. Empirical gas formula — useful engineering data, 3. Side-by-side attack demonstration — clear and reproducible, What's Genuinely Good
@@ -1511,12 +1515,12 @@ Cohesion: 0.5
 Nodes (4): How Does a User Get USDC?, In the Hackathon (Base Sepolia), In the Real World, In Your Project (MockUSDC)
 
 ### Community 285 - "Community 285"
-Cohesion: 0.5
-Nodes (4): Architecture, Central components, code:text (User / MetaMask), Key files
+Cohesion: 0.25
+Nodes (9): Architecture, Central components, code:text (User / MetaMask), code:text (User / MetaMask), Current status, If the team adopts Graphify, Key files, Memory layer setup (+1 more)
 
 ### Community 286 - "Community 286"
-Cohesion: 0.2
-Nodes (13): ERC20_ABI, HolderList(), TRANSFER_TOPIC, BASE_SEPOLIA_ADDRESSES, CONTRACT_ADDRESSES, LOCAL_ADDRESSES, MARKETPLACE_ABI, MOCK_USDC_ABI (+5 more)
+Cohesion: 0.14
+Nodes (14): ERC20_ABI, HolderList(), TRANSFER_TOPIC, formatUsd(), LiveRentCounter(), BASE_SEPOLIA_ADDRESSES, LOCAL_ADDRESSES, MARKETPLACE_ABI (+6 more)
 
 ### Community 287 - "Community 287"
 Cohesion: 0.5
@@ -1595,12 +1599,12 @@ Cohesion: 0.67
 Nodes (3): Planner Response, Summary in One Line Each, User Input
 
 ### Community 307 - "Community 307"
-Cohesion: 0.11
-Nodes (8): SAMPLE_FEED, VERB, LogoMark(), useWatchlist(), Home(), PropertyCard(), SORTS, Watchlist()
+Cohesion: 0.12
+Nodes (13): LogoMark(), HolderCountChip(), useWatchlist(), Home(), PropertyCard(), SORTS, Property(), Watchlist() (+5 more)
 
 ### Community 308 - "Community 308"
-Cohesion: 0.05
-Nodes (35): AGENT_FEATURES, AGENT_PROVIDER_CHIPS, ARCH_LAYERS, COMPARE_COLS, COMPARE_ROWS, FEATURE_TABS, Landing(), NETWORK_LABEL (+27 more)
+Cohesion: 0.04
+Nodes (14): AGENT_FEATURES, AGENT_PROVIDER_CHIPS, ARCH_LAYERS, COMPARE_COLS, COMPARE_ROWS, FEATURE_TABS, HERO_TITLE_PARTS, NETWORK_LABEL (+6 more)
 
 ### Community 309 - "Community 309"
 Cohesion: 0.67
@@ -1635,8 +1639,8 @@ Cohesion: 0.18
 Nodes (11): AuthNonce, { ethers }, isAddress(), issueNonce(), requireSignedWallet(), AuthNonceSchema, mongoose, express (+3 more)
 
 ### Community 317 - "Community 317"
-Cohesion: 0.12
-Nodes (14): AgentSuggestions(), GasIndicator(), TONE, ToastProvider(), AGENT_PROVIDERS, Ctx, KEYS, readBool() (+6 more)
+Cohesion: 0.11
+Nodes (21): AgentSuggestions(), GasIndicator(), TONE, AGENT_PROVIDERS, Ctx, KEYS, readBool(), readLs() (+13 more)
 
 ### Community 329 - "Community 329"
 Cohesion: 0.22
@@ -1655,8 +1659,8 @@ Cohesion: 0.25
 Nodes (7): 0. Relationship to `Real-Estate Project Audit.md`, 10. Quick reference for new contributors, 1. Snapshot of the system today, 9. Risks and open questions, Backend & Blockchain Implementation Plan, code:block1 (┌──────────────────────────┐), What ships today
 
 ### Community 353 - "Community 353"
-Cohesion: 0.25
-Nodes (6): mongoose, UserSchema, express, limit, router, User
+Cohesion: 0.1
+Nodes (18): HoldingSchema, mongoose, mongoose, PropertySchema, activity, express, heldIds, Holding (+10 more)
 
 ### Community 363 - "Community 363"
 Cohesion: 0.4
@@ -1701,6 +1705,10 @@ Nodes (5): TestShadcnInstaller.test_check_shadcn_config_exists, excluded_lines, 
 ### Community 389 - "Community 389"
 Cohesion: 0.5
 Nodes (4): 8.1 Tier 0 — Local Hardhat (today, working), 8.2 Tier 1 — Base Sepolia (target for hackathon), 8.3 Tier 2 — Mainnet **(future, out of scope for the hackathon)**, 8. Deployment roadmap
+
+### Community 390 - "Community 390"
+Cohesion: 0.22
+Nodes (8): logger, pino, cache, express, fetchCoingecko(), getEthUsd(), logger, router
 
 ### Community 391 - "Community 391"
 Cohesion: 0.25
@@ -1758,10 +1766,6 @@ Nodes (5): TailwindConfigGenerator._generate_javascript, excluded_lines, execute
 Cohesion: 0.4
 Nodes (5): TailwindConfigGenerator.__init__, excluded_lines, executed_lines, missing_lines, summary
 
-### Community 409 - "Community 409"
-Cohesion: 0.4
-Nodes (5): TailwindConfigGenerator.recommend_plugins, excluded_lines, executed_lines, missing_lines, summary
-
 ### Community 410 - "Community 410"
 Cohesion: 0.4
 Nodes (5): TestShadcnInstaller.test_add_components_no_components, excluded_lines, executed_lines, missing_lines, summary
@@ -1774,22 +1778,66 @@ Nodes (5): TestShadcnInstaller.test_get_installed_components_with_files, exclude
 Cohesion: 0.5
 Nodes (4): 8.1 Tier 0 — Local Hardhat (today, working), 8.2 Tier 1 — Base Sepolia (target for hackathon), 8.3 Tier 2 — Mainnet **(future, out of scope for the hackathon)**, 8. Deployment roadmap
 
+### Community 416 - "Community 416"
+Cohesion: 0.25
+Nodes (5): PRIVY_ENABLED, PrivyBridgeContext, PrivyShell(), usePrivyEmbeddedSignIn(), Landing()
+
+### Community 417 - "Community 417"
+Cohesion: 0.6
+Nodes (4): formatDate(), formatUsd(), PAD, RentChart()
+
+### Community 418 - "Community 418"
+Cohesion: 0.4
+Nodes (5): Backend integration cleanup, Frontend refactor — dynamic data over hardcoded constants, Known integration limits, Session — End-to-end audit + dynamic-data refactor (2026-05-19), Verification
+
+### Community 419 - "Community 419"
+Cohesion: 0.4
+Nodes (5): Files touched, Multi-agent system, Screen-enhancement primitives, Session — Multi-agent orchestration + screen-enhancement primitives (2026-05-19), Verification
+
+### Community 420 - "Community 420"
+Cohesion: 0.4
+Nodes (5): Not yet covered, Session — Dark mode v2 (proper redesign) (2026-05-19), Verification, What changed, Why this round
+
+### Community 421 - "Community 421"
+Cohesion: 0.4
+Nodes (5): TailwindConfigGenerator.add_colors, excluded_lines, executed_lines, missing_lines, summary
+
+### Community 422 - "Community 422"
+Cohesion: 0.4
+Nodes (5): TailwindConfigGenerator._default_content_paths, excluded_lines, executed_lines, missing_lines, summary
+
+### Community 423 - "Community 423"
+Cohesion: 0.4
+Nodes (5): TailwindConfigGenerator._indent_json, excluded_lines, executed_lines, missing_lines, summary
+
+### Community 424 - "Community 424"
+Cohesion: 0.4
+Nodes (5): TailwindConfigGenerator.write_config, excluded_lines, executed_lines, missing_lines, summary
+
+### Community 425 - "Community 425"
+Cohesion: 0.5
+Nodes (4): Active milestone, code:text (Project Name   : RealChain v2), Goals, Project overview
+
+### Community 426 - "Community 426"
+Cohesion: 0.5
+Nodes (4): Session — Dark mode (2026-05-19), Things to know if extending, Verification, What shipped
+
 ## Knowledge Gaps
-- **2412 isolated node(s):** `name`, `version`, `description`, `main`, `compile` (+2407 more)
+- **2473 isolated node(s):** `name`, `version`, `description`, `main`, `compile` (+2468 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **82 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **90 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+- **Why does `Chat Conversation` connect `Community 53` to `Community 278`, `Community 279`, `Community 280`, `Community 281`, `Community 283`, `Community 284`, `Community 166`, `Community 296`, `Community 297`, `Community 298`, `Community 299`, `Community 300`, `Community 301`, `Community 302`, `Community 303`, `Community 428`, `Community 305`, `Community 306`, `Community 304`, `Community 193`, `Community 80`, `Community 214`, `Community 91`, `Community 95`, `Community 96`, `Community 225`, `Community 98`, `Community 224`, `Community 237`, `Community 250`, `Community 251`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Why does `Chat Conversation` connect `Community 0` to `Community 1`, `Community 3`, `Community 5`, `Community 6`, `Community 8`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 23`, `Community 24`, `Community 25`, `Community 27`, `Community 28`, `Community 29`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 41`, `Community 42`, `Community 43`, `Community 44`, `Community 45`, `Community 46`, `Community 53`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Why does `Chat Conversation` connect `Community 53` to `Community 385`, `Community 278`, `Community 279`, `Community 280`, `Community 281`, `Community 283`, `Community 284`, `Community 166`, `Community 296`, `Community 297`, `Community 298`, `Community 299`, `Community 300`, `Community 301`, `Community 302`, `Community 303`, `Community 304`, `Community 305`, `Community 306`, `Community 193`, `Community 80`, `Community 214`, `Community 91`, `Community 95`, `Community 96`, `Community 225`, `Community 98`, `Community 224`, `Community 237`, `Community 250`, `Community 251`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Why does `path` connect `Community 150` to `Community 4`, `Community 397`, `Community 143`, `Community 212`, `Community 149`, `Community 57`, `Community 190`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `description` to the rest of the system?**
-  _2612 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _2673 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.04 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**

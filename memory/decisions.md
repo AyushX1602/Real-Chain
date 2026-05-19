@@ -84,3 +84,29 @@ Analysis (KPI tiles with source citation + concentration leaderboard).
 **Block-explorer URL derivation**: centralised in `explorerUrlForTx` /
 `explorerUrlForAddress`, keyed by `NETWORK_CHAIN_ID`. Hardhat returns null
 (no explorer); Sepolia / Base Sepolia map to their respective chain explorers.
+
+## 2026-05-19 - Landing hero ornament cleanup
+
+**Decision**: Remove the floating `USDC settlement` badge from the landing
+hero and scope hero illustration SVG sizing to `.lp-hero-illu-float > svg`.
+
+**Rationale**: The badge read as a stray floating logo in the first viewport,
+and the broad `.lp-hero-illu svg` selector could accidentally stretch inline
+SVG icons inside hero overlays.
+
+**Implementation**: `frontend/src/pages/Landing.jsx` no longer renders the
+bottom `lp-hero-illu-pill`; `frontend/src/index.css` now applies full-width
+hero SVG sizing only to the root illustration SVG.
+
+## 2026-05-19 - Optional Privy SDK loading avoids top-level await
+
+**Decision**: Load `@privy-io/react-auth` from `PrivyShell` component
+lifecycle instead of awaiting the dynamic import at module top level.
+
+**Rationale**: Vite's configured production target rejects top-level await.
+Privy is optional, so the app should still build and boot when no
+`VITE_PRIVY_APP_ID` is configured or the optional SDK is absent.
+
+**Implementation**: `frontend/src/context/PrivyBridge.jsx` caches the dynamic
+import promise, stores the loaded module in React state, and keeps rendering
+children unchanged until the optional provider is available.
