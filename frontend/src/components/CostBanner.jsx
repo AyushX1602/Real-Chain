@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import Icon from "./Icon";
 import { useWeb3 } from "../context/Web3Context";
 import { useUGF } from "../context/UGFContext";
-import { ETH_USD_RATE } from "../config/contracts";
+import useMarketPrice from "../hooks/useMarketPrice";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CostBanner — side-by-side "Without UGF" vs "With UGF" cost preview.
@@ -17,6 +17,7 @@ import { ETH_USD_RATE } from "../config/contracts";
 export default function CostBanner({ target, abi, fnName, args = [], value = 0n, estimate, className = "" }) {
   const { provider, account } = useWeb3();
   const { isUGFEnabled, getQuote } = useUGF();
+  const ethUsdRate = useMarketPrice();
   const [ethCost, setEthCost] = useState(null);
   const [ugfCost, setUgfCost] = useState(null);
 
@@ -45,7 +46,7 @@ export default function CostBanner({ target, abi, fnName, args = [], value = 0n,
 
         const wei = gas * gasPrice;
         const eth = Number(ethers.formatEther(wei));
-        const usd = eth * (ETH_USD_RATE || 2000);
+        const usd = eth * (ethUsdRate || 2000);
         if (!cancelled) setEthCost(usd);
       } catch (_) {
         if (!cancelled) setEthCost(null);
@@ -59,7 +60,7 @@ export default function CostBanner({ target, abi, fnName, args = [], value = 0n,
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, fnName, JSON.stringify(args?.map(String)), isUGFEnabled, account]);
+  }, [target, fnName, JSON.stringify(args?.map(String)), isUGFEnabled, account, ethUsdRate]);
 
   const fmt = (n) => (n == null ? "—" : `$${n.toFixed(2)}`);
 

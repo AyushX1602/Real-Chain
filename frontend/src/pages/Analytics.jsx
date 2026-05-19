@@ -56,10 +56,17 @@ export default function Analytics() {
             const h = await fetch(`${BACKEND_URL}/api/properties/${p.id ?? p._id}/holders`);
             if (!h.ok) continue;
             const dh = await h.json();
-            const sorted = (dh?.holders || []).slice().sort((x, y) => Number(y.balance) - Number(x.balance));
-            const total = sorted.reduce((s, x) => s + Number(x.balance), 0);
-            if (total === 0) continue;
-            const top5 = sorted.slice(0, 5).map((x) => Math.round((Number(x.balance) / total) * 1000) / 10);
+            const holders = Array.isArray(dh?.holders) ? dh.holders : Array.isArray(dh) ? dh : [];
+            // Server-side sharePct is preferred when present; otherwise compute.
+            let top5;
+            if (holders.length > 0 && typeof holders[0]?.sharePct === "number") {
+              top5 = holders.slice(0, 5).map((x) => Number(x.sharePct));
+            } else {
+              const sorted = holders.slice().sort((x, y) => Number(y.balance) - Number(x.balance));
+              const total = sorted.reduce((s, x) => s + Number(x.balance), 0);
+              if (total === 0) continue;
+              top5 = sorted.slice(0, 5).map((x) => Math.round((Number(x.balance) / total) * 1000) / 10);
+            }
             out.push({ propertyId: p.id ?? p._id, name: p.name, top5 });
           } catch { /* skip property */ }
         }

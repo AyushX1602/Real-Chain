@@ -44,15 +44,18 @@ const ABI_FACTORY = [
 const ABI_TOKEN = [
   "event Transfer(address indexed from, address indexed to, uint256 value)",
   "function totalSupply() view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
 ];
 const ABI_RENTAL = [
   "event RentalDeposited(uint256 indexed epochIndex,uint256 amount,uint256 timestamp)",
   "event AllDividendsClaimed(address indexed user,uint256 totalAmount,uint256 epochCount)",
+  "function epochCount() view returns (uint256)",
 ];
 const ABI_MARKET = [
   "event TokensBought(address indexed buyer,address indexed seller,uint256 tokenAmount,uint256 usdcCost)",
   "event ListingCreated(uint256 indexed listingId,address indexed seller,uint256 amount,uint256 pricePerToken)",
   "event ListingCancelled(uint256 indexed listingId,address indexed seller)",
+  "function pricePerToken() view returns (uint256)",
 ];
 
 function loadDeployedAddresses() {
@@ -257,6 +260,68 @@ async function indexProperty(provider, doc, chainId) {
       chainId,
     });
   }, ctx);
+
+  // ── Denormalised property snapshot ─────────────────────────────────────
+  // Tokens-remaining + price-per-token are read live each tick so the
+  // Marketplace card / Owner panel always render fresh values without the
+  // frontend having to walk every contract.
+  try {
+    const [totalSupplyRaw, ownerBalanceRaw, pricePerTokenRaw] = await Promise.all([
+      token.totalSupply(),
+      token.balanceOf(doc.owner),
+      market.pricePerToken().catch(() => 0n),
+    ]);
+    const totalSupply = Number(ethers.formatEther(totalSupplyRaw));
+    const ownerSupply = Number(ethers.formatEther(ownerBalanceRaw));
+    const tokensRemaining = Math.max(0, totalSupply - ownerSupply);
+    const pricePerToken = Number(pricePerTokenRaw) / 1e6;
+
+    // Pull rent aggregates from the rows we just persisted so cadence /
+    // last-deposit projections come straight off the same source of truth
+    // the Claim Rent / Owner screens already consume.
+    const [recentDeposits, totalRentRow, epochCountVal] = await Promise.all([
+      Transaction.find({ propertyId: doc.propertyId, type: "deposit" })
+        .sort({ createdAt: -1 })
+        .limit(12),
+      Transaction.aggregate([
+        { $match: { propertyId: doc.propertyId, type: "deposit" } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+      rental.epochCount().then((n) => Number(n)).catch(() => null),
+    ]);
+
+    let cadenceDays = null;
+    let lastDepositAt = null;
+    if (recentDeposits.length >= 1) {
+      lastDepositAt = recentDeposits[0].createdAt;
+    }
+    if (recentDeposits.length >= 2) {
+      const sorted = [...recentDeposits].sort((a, b) => a.createdAt - b.createdAt);
+      const gaps = [];
+      for (let k = 1; k < sorted.length; k++) {
+        gaps.push((sorted[k].createdAt - sorted[k - 1].createdAt) / 86_400_000);
+      }
+      gaps.sort((a, b) => a - b);
+      cadenceDays = Math.max(1, Math.round(gaps[Math.floor(gaps.length / 2)]));
+    }
+
+    await Property.findOneAndUpdate(
+      { propertyId: doc.propertyId },
+      {
+        totalSupply,
+        availableSupply: tokensRemaining,
+        tokensRemaining,
+        pricePerToken,
+        epochCount: epochCountVal ?? doc.epochCount ?? 0,
+        totalRentDeposited: totalRentRow[0]?.total || 0,
+        lastDepositAt,
+        cadenceDays,
+      },
+      { new: true }
+    );
+  } catch (err) {
+    logger.debug({ propertyId: doc.propertyId, err: err.message }, "indexer: snapshot read failed");
+  }
 }
 
 async function tick() {

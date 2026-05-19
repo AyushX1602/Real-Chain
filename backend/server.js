@@ -83,6 +83,10 @@ app.use("/api/users", requireDb, (req, res, next) => {
 // Faucet doesn't depend on MongoDB — direct on-chain mint. Stricter limiter.
 app.use("/api/faucet", writeLimiter, require("./routes/faucet"));
 
+// Market data — ETH/USD price feed for the cost banner / SmartAgent. Cached.
+// No DB dependency, so it lives outside the requireDb wrapper.
+app.use("/api/market", require("./routes/market"));
+
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({

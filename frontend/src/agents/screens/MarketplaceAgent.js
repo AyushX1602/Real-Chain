@@ -85,7 +85,11 @@ export default class MarketplaceAgent extends BaseAgent {
     if (this._state.holderCounts[propertyId] !== undefined) return;
     try {
       const data = await getJson(`/api/properties/${propertyId}/holders`, { timeoutMs: 5_000 });
-      const count = Array.isArray(data?.holders) ? data.holders.length : (data?.count ?? null);
+      // Tolerate { count, holders }, { holders }, or bare array — see backend.
+      const count = (typeof data?.count === "number") ? data.count
+        : Array.isArray(data?.holders) ? data.holders.length
+        : Array.isArray(data) ? data.length
+        : null;
       this.setState({ holderCounts: { ...this._state.holderCounts, [propertyId]: count } });
     } catch {
       this.setState({ holderCounts: { ...this._state.holderCounts, [propertyId]: null } });

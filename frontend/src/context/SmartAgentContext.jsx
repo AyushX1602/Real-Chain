@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { ethers } from "ethers";
 import { useWeb3 } from "./Web3Context";
 import { ETH_USD_RATE } from "../config/contracts";
+import { getEthUsdRateSync, getEthUsdRateAsync } from "../hooks/useMarketPrice";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SmartAgentContext — opt-in helper that adds two value-adds on top of UGF:
@@ -114,6 +115,15 @@ export function SmartAgentProvider({ children }) {
   const [aiKey,      setAiKeyState] = useState(() => readLs(KEYS.apiKey, ""));
   const [aiModel,    setAiModelState] = useState(() => readLs(KEYS.model, ""));
 
+  // Live ETH/USD rate — fetched once on provider mount. The imperative
+  // getter is what `analyzeHoldings` consults during its synchronous
+  // computation; the async getter primes the cache here so the first
+  // suggestion list is computed against the same number the cost banner uses.
+  useEffect(() => {
+    getEthUsdRateAsync().catch(() => { /* fallback handled internally */ });
+  }, []);
+
+  // Live gas reading — populated by the polling effect below.
   const [gasNowGwei, setGasNowGwei] = useState(null);
   const historyRef = useRef([]);
 
@@ -200,11 +210,14 @@ export function SmartAgentProvider({ children }) {
 
     // 2) Worth-it check per property: claim only when pending exceeds an
     // estimated cost floor. Without UGF: ~120k gas × current price × ETH/USD.
+    // ETH/USD comes from /api/market/price (cached), with the env constant
+    // as the deterministic fallback.
     const estCostUsd = (() => {
       if (gasNowGwei == null) return 0.40;
       const wei = BigInt(Math.round(gasNowGwei * 1e9)) * 120000n;
       const eth = Number(ethers.formatEther(wei));
-      return eth * (ETH_USD_RATE || 2000);
+      const rate = getEthUsdRateSync() || ETH_USD_RATE || 2000;
+      return eth * rate;
     })();
 
     holdings.forEach((h) => {

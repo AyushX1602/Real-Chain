@@ -596,3 +596,95 @@ Did     : Created and pushed merge commit `445ebf0` to `origin/main`.
 Decided : Leave the unrelated local `frontend/package-lock.json` edit unstaged; it is not part of the merge result.
 Next    : If needed, review or commit the local `package-lock.json` change separately.
 Blockers: None for the merge/push task.
+
+
+## Session — End-to-end audit + dynamic-data refactor (2026-05-19)
+
+### Backend integration cleanup
+- `backend/routes/properties.js` rewritten as the single translation layer:
+  every response presents both the storage-friendly names (`tokenAddress` /
+  `rentalAddress` / `marketAddress` / `totalValue`) and the on-chain names
+  the frontend uses (`propertyToken` / `rentalDistribution` / `marketplace` /
+  `valueInr`). Adds `tokensRemaining`, `pricePerToken`, `cadenceDays`,
+  `lastDepositAt`, `holderCount` so the Marketplace + Owner + Claim Rent
+  screens render correctly on indexer-backed loads.
+- `GET /api/properties/:id/holders` now returns `{ count, holders[] }`.
+  Each holder row carries `wallet`, raw `balance` (BigInt-as-string),
+  `balanceFormatted`, `sharePct`, `updatedAt`. Frontends still tolerate the
+  legacy bare-array shape.
+- `backend/routes/transactions.js` rewritten:
+  - Accepts `?action=` (alias for `?type=`), `?gasMethod=`, `?property=`,
+    `?wallet=`, `?txHash=`, `?cursor=`, `?limit=`.
+  - Keyset pagination via opaque base64 cursor (`{ t, id }`) — stable,
+    cheap, no skip/offset weirdness.
+  - Response envelope: `{ transactions, nextCursor, count }`.
+  - Surfaces `action` alias on every row.
+- `GET /api/transactions/stats` now also reports `ethTransactions`,
+  `ugfShare`, `totalVolume`, `distinctWallets`, `distinctProperties`.
+- `GET /api/transactions/timeseries` accepts both `?window=` (spec) and
+  `?days=` (legacy). Adds `rent`, `buys`, `deposits` series alongside the
+  existing `count` / `volume`.
+- New route `backend/routes/market.js` → `GET /api/market/price` serves an
+  ETH/USD rate. Resolution: `MARKET_ETH_USD_RATE` env override → cached
+  Coingecko (5-minute TTL) → hardcoded fallback. No paid feed dep.
+- `backend/jobs/indexer.js` extended:
+  - Reads each property's `totalSupply`, `balanceOf(owner)`,
+    `pricePerToken`, `epochCount` after every event scan; stores the
+    denormalised values on the `Property` row so the frontend gets real
+    numbers without walking every contract on render.
+  - Computes `cadenceDays` (median of last 12 deposits) and
+    `lastDepositAt` from the same Transaction rows that drive the Claim
+    Rent / Owner screens.
+- `backend/models/Property.js` schema gains `totalSupply`,
+  `tokensRemaining`, `pricePerToken`, `lastDepositAt`, `cadenceDays` (and
+  an index on `tokenAddress`). `availableSupply` kept for compatibility.
+
+### Frontend refactor — dynamic data over hardcoded constants
+- New `frontend/src/hooks/useMarketPrice.js`:
+  - Single-flight ETH/USD fetch shared across consumers.
+  - Returns the env constant immediately on first render so layouts never
+    block on the network.
+  - Exposes imperative `getEthUsdRateSync()` / `getEthUsdRateAsync()` for
+    non-React callers (e.g. SmartAgent's `analyzeHoldings` heuristic).
+- `CostBanner.jsx` no longer imports `ETH_USD_RATE` directly — pulls the
+  live rate via `useMarketPrice()`. Re-runs the cost preview when the rate
+  refreshes.
+- `SmartAgentContext.jsx` warms the price cache on provider mount and
+  feeds the live rate into the worth-it heuristic. Falls back to the env
+  constant when the network is unreachable.
+- `Home.jsx`, `OwnerDashboard.jsx`, `Analytics.jsx`, `HolderList.jsx`
+  updated to consume the new `{ count, holders }` envelope. Each call site
+  also tolerates the legacy bare-array shape so older indexer builds keep
+  working.
+- Per-screen agents updated: `MarketplaceAgent.fetchHolderCount`,
+  `OwnerControlRoomAgent._fetchHolderConcentration`,
+  `AnalysisAgent._fetchHolders` all read the new envelope and prefer
+  server-side `sharePct` when present.
+- `PrivyBridge.jsx` was failing the production bundle (top-level
+  `await import("@privy-io/react-auth")` could not be tree-shaken when the
+  package was missing). Replaced with a `@vite-ignore` deferred import
+  using a string-built specifier so Rollup doesn't try to resolve at
+  build time.
+
+### Verification
+- `npx vite build` → 576 modules, exit 0. CSS 85 kB, JS 828 kB (~260 kB
+  gzipped).
+- Diagnostics zero across all 10 touched files.
+- Backend `node -e "require(...)"` smoke test passes for every route
+  module + the indexer job.
+- Live HTTP probe against a running backend confirmed:
+  - `GET /api/market/price` → `{ pair: "ETH/USD", value: 2133.69, source: "coingecko", ttlSeconds: 300 }`.
+  - `GET /api/transactions?limit=3` → `{ transactions: [], nextCursor: null, count: 0 }`.
+  - `GET /api/transactions/stats` → extended-field envelope.
+  - `GET /api/transactions/timeseries?window=30` → `{ daily, bucket, days, window }`.
+  - `GET /api/properties/:id/holders` → `{ count, holders }`.
+- All endpoints respond 200 on an empty database (graceful empty states).
+
+### Known integration limits
+- The indexer's denormalisation pass runs on every tick (12s when
+  `ENABLE_INDEXER=true`). With a paid RPC the `INDEXER_CHUNK_BLOCKS` ceiling
+  can be raised so a property's full history scans in a single tick.
+- The indexer-as-source path is the recommended first read for every
+  screen; the on-chain fallback path stays as the safety net for fresh
+  deployments where the indexer has yet to populate the denormalised
+  fields.

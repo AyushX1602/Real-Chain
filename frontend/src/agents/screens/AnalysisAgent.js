@@ -103,9 +103,16 @@ export default class AnalysisAgent extends BaseAgent {
       const rows = await Promise.all(list.slice(0, 25).map(async (p) => {
         try {
           const r = await getJson(`/api/properties/${p.id ?? p._id}/holders`, { timeoutMs: 10_000 });
-          const holders = (r?.holders || []).slice().sort((a, b) => Number(b.balance) - Number(a.balance));
-          const total = holders.reduce((s, h) => s + Number(h.balance), 0) || 1;
-          const top5 = holders.slice(0, 5).map((h) => Math.round((Number(h.balance) / total) * 1000) / 10);
+          const holders = Array.isArray(r?.holders) ? r.holders : Array.isArray(r) ? r : [];
+          // Prefer server-side sharePct when present; fall back to local calc.
+          let top5;
+          if (holders.length > 0 && typeof holders[0]?.sharePct === "number") {
+            top5 = holders.slice(0, 5).map((h) => Number(h.sharePct));
+          } else {
+            const sorted = holders.slice().sort((a, b) => Number(b.balance) - Number(a.balance));
+            const total = sorted.reduce((s, h) => s + Number(h.balance), 0) || 1;
+            top5 = sorted.slice(0, 5).map((h) => Math.round((Number(h.balance) / total) * 1000) / 10);
+          }
           return { propertyId: p.id ?? p._id, name: p.name, top5 };
         } catch {
           return { propertyId: p.id ?? p._id, name: p.name, top5: [] };

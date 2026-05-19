@@ -101,10 +101,19 @@ export default function OwnerDashboard() {
       });
       if (!r.ok) throw new Error(String(r.status));
       const data = await r.json();
-      const holders = (data?.holders || []).slice().sort((a, b) => Number(b.balance) - Number(a.balance));
-      const total = holders.reduce((s, h) => s + Number(h.balance), 0);
-      if (total === 0) return;
-      const top5 = holders.slice(0, 5).map((h) => Math.round((Number(h.balance) / total) * 1000) / 10);
+      // Tolerate both new envelope { count, holders } and legacy bare array.
+      const list = Array.isArray(data?.holders) ? data.holders : Array.isArray(data) ? data : [];
+      // Server may already return sharePct; fall back to local computation.
+      const haveServerShare = list.length > 0 && typeof list[0]?.sharePct === "number";
+      let top5;
+      if (haveServerShare) {
+        top5 = list.slice(0, 5).map((h) => Number(h.sharePct));
+      } else {
+        const sorted = list.slice().sort((a, b) => Number(b.balance) - Number(a.balance));
+        const total = sorted.reduce((s, h) => s + Number(h.balance), 0);
+        if (total === 0) return;
+        top5 = sorted.slice(0, 5).map((h) => Math.round((Number(h.balance) / total) * 1000) / 10);
+      }
       setProps((prev) => prev.map((p) => p.id === id ? { ...p, holderShares: top5 } : p));
     } catch { /* leave as null — strip renders "—" */ }
   }

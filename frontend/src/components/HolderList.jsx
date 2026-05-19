@@ -46,8 +46,10 @@ export default function HolderList({ propertyId, tokenAddress, ownerAddress, lim
         try {
           const r = await fetch(`${BACKEND_URL}/api/properties/${propertyId}/holders?limit=${limit}`);
           if (r.ok) {
-            const rows = await r.json();
-            if (Array.isArray(rows) && rows.length > 0) {
+            const data = await r.json();
+            // Tolerate { count, holders } envelope and the legacy bare-array shape.
+            const rows = Array.isArray(data?.holders) ? data.holders : Array.isArray(data) ? data : [];
+            if (rows.length > 0) {
               if (!alive) return;
               try {
                 const provider = window.ethereum
@@ -55,11 +57,15 @@ export default function HolderList({ propertyId, tokenAddress, ownerAddress, lim
                   : new ethers.JsonRpcProvider("https://sepolia.base.org");
                 const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
                 const totalSupply = await token.totalSupply();
-                const enriched = rows.map((row) => ({
-                  address: row.wallet,
-                  balance: BigInt(row.balance),
-                  pct: totalSupply > 0n ? (Number(BigInt(row.balance)) / Number(totalSupply)) * 100 : 0,
-                }));
+                const enriched = rows.map((row) => {
+                  const bal = BigInt(row.balance);
+                  // Prefer server-side sharePct when supplied; fall back to the
+                  // raw chain-derived ratio.
+                  const pct = (typeof row.sharePct === "number")
+                    ? row.sharePct
+                    : (totalSupply > 0n ? (Number(bal) / Number(totalSupply)) * 100 : 0);
+                  return { address: row.wallet, balance: bal, pct };
+                });
                 if (alive) {
                   setHolders(enriched);
                   setSource("indexer");

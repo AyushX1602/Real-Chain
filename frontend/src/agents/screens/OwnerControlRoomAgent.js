@@ -163,10 +163,18 @@ export default class OwnerControlRoomAgent extends BaseAgent {
   async _fetchHolderConcentration(propertyId) {
     try {
       const data = await getJson(`/api/properties/${propertyId}/holders`, { timeoutMs: 10_000 });
-      const holders = (data?.holders || []).slice().sort((a, b) => Number(b.balance) - Number(a.balance));
-      const top5 = holders.slice(0, 5).reduce((s, h) => s + Number(h.balance), 0);
-      const total = holders.reduce((s, h) => s + Number(h.balance), 0);
-      const pct = total > 0 ? Math.round((top5 / total) * 1000) / 10 : null;
+      const list = Array.isArray(data?.holders) ? data.holders : Array.isArray(data) ? data : [];
+      // Server may already return sharePct; otherwise compute locally.
+      let pct = null;
+      if (list.length > 0 && typeof list[0]?.sharePct === "number") {
+        pct = Math.min(100, list.slice(0, 5).reduce((s, h) => s + Number(h.sharePct || 0), 0));
+        pct = Math.round(pct * 10) / 10;
+      } else {
+        const holders = list.slice().sort((a, b) => Number(b.balance) - Number(a.balance));
+        const top5 = holders.slice(0, 5).reduce((s, h) => s + Number(h.balance), 0);
+        const total = holders.reduce((s, h) => s + Number(h.balance), 0);
+        pct = total > 0 ? Math.round((top5 / total) * 1000) / 10 : null;
+      }
       this.setState((s) => ({
         panels: s.panels.map((p) => p.id === propertyId ? { ...p, top5SharePct: pct } : p),
       }));

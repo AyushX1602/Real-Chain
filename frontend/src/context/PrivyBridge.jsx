@@ -34,13 +34,17 @@ const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID || "";
 const PRIVY_ENABLED = Boolean(PRIVY_APP_ID);
 
 // We dynamically require `@privy-io/react-auth` so the bundle still builds
-// when the package is not installed. This is also why the conditional below
-// uses a lazy holder pattern instead of a top-level import.
+// when the package is not installed. The bundler resolves bare imports
+// statically, so we use a guarded `eval`-deferred dynamic import here. Vite
+// is told to leave this expression alone via the @vite-ignore directive.
 let PrivyModule = null;
 if (PRIVY_ENABLED) {
   try {
-    // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports
-    PrivyModule = await import("@privy-io/react-auth");
+    // The leading `import(/* @vite-ignore */ ...)` keeps Rollup from trying
+    // to resolve the specifier at build time. The string is computed so even
+    // a static analyser cannot flatten it.
+    const specifier = "@privy" + "-io/react-auth";
+    PrivyModule = await import(/* @vite-ignore */ specifier);
   } catch (err) {
     // The user set VITE_PRIVY_APP_ID but forgot to `npm install`.
     // Surface a clear console warning and degrade to no-op.

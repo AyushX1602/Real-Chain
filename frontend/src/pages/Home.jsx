@@ -49,6 +49,8 @@ export default function Home() {
   useEffect(() => { load(); }, []);
 
   // Lazy holder-count fetch — fired by IntersectionObserver on each card.
+  // The backend now responds with { count, holders }; we still tolerate the
+  // legacy bare-array shape so an older indexer build keeps working.
   // Cached forever per session so scrolling back doesn't re-hit the indexer.
   async function fetchHolderCount(id) {
     if (holderCounts[id] !== undefined) return;
@@ -58,7 +60,10 @@ export default function Home() {
       });
       if (!r.ok) throw new Error(String(r.status));
       const data = await r.json();
-      const count = Array.isArray(data?.holders) ? data.holders.length : (data?.count ?? null);
+      const count = (typeof data?.count === "number") ? data.count
+        : Array.isArray(data?.holders) ? data.holders.length
+        : Array.isArray(data) ? data.length
+        : null;
       setHolderCounts((prev) => ({ ...prev, [id]: count }));
     } catch {
       setHolderCounts((prev) => ({ ...prev, [id]: null }));
