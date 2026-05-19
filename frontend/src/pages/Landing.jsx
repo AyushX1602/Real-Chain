@@ -137,72 +137,13 @@ export default function Landing() {
   return (
     <div className="container reveal">
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="lp-hero-stage">
-        {/* Ambient glow orbs — give the glass something to refract */}
-        <span className="lp-hero-orb is-lime" aria-hidden="true" />
-        <span className="lp-hero-orb is-mint" aria-hidden="true" />
-        <span className="lp-hero-orb is-cool" aria-hidden="true" />
-        <span className="lp-hero-grid" aria-hidden="true" />
-
-        <section className="lp-hero">
-          <div className="lp-hero-text">
-            <span className="lp-hero-eyebrow">
-              <span className="lp-hero-eyebrow-dot" />
-              {networkName}
-              <span className="lp-hero-eyebrow-sep">·</span>
-              UGF gasless · USDC rent
-            </span>
-            <h1 className="lp-hero-title">
-              Tokenized real estate, <span className="hl">zero-ETH</span> claim
-            </h1>
-            <p className="lp-hero-sub">
-              Buy fractional ownership of real properties, earn USDC rent every
-              epoch, and trade anytime. Gas is paid in Mock USD via the Universal
-              Gas Framework — your wallet never needs ETH.
-            </p>
-            <div className="flex gap-3 flex-wrap">
-              {account ? (
-                <Link to="/marketplace" className="btn btn-primary btn-xl">
-                  Open marketplace <Icon name="arrowRight" size={16} />
-                </Link>
-              ) : (
-                <button className="btn btn-primary btn-xl" onClick={connect} disabled={connecting}>
-                  {connecting ? "Connecting…" : "Connect wallet"}
-                </button>
-              )}
-              <a href="#how-it-works" className="btn btn-secondary btn-xl">How it works</a>
-              {/* Tier 3 / 6.1 — embedded wallet CTA. Renders only when
-                  VITE_PRIVY_APP_ID is configured, so judges without a Privy
-                  app see the same page as before. After Privy sign-in, the
-                  embedded wallet is exposed as window.ethereum and the user
-                  can press "Connect wallet" exactly like a MetaMask user. */}
-              {privy.enabled && !account && (
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-xl"
-                  onClick={() => privy.login()}
-                  disabled={!privy.ready || privy.authenticated}
-                  title="No wallet? Create one with email or Google in 10 seconds."
-                >
-                  <Icon name="bolt" size={14} />
-                  {privy.authenticated ? "Signed in — connect wallet" : "Or sign in with email"}
-                </button>
-              )}
-            </div>
-            <LiveRentCounter className="lp-hero-counter" />
-          </div>
-          <div className="lp-hero-illu" aria-hidden="true">
-            <span className="lp-hero-illu-glow" />
-            <HeroIllustration />
-            <span className="lp-hero-illu-pill is-top">
-              <Icon name="bolt" size={11} /> ERC-20Votes
-            </span>
-            <span className="lp-hero-illu-pill is-bottom">
-              <Icon name="coins" size={11} /> USDC settlement
-            </span>
-          </div>
-        </section>
-      </section>
+      <HeroSection
+        account={account}
+        connect={connect}
+        connecting={connecting}
+        networkName={networkName}
+        privy={privy}
+      />
 
       {/* ── Trust / status strip — every value is dynamic ────────────────── */}
       <div className="trust-strip">
@@ -452,8 +393,212 @@ export default function Landing() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Sub-components
+// HeroSection — full-viewport, "living" hero per the redesign spec.
+// Layered above the page in three planes:
+//   1) Ambient orbs (slow lime / mint / cool drifts, blurred 80px)
+//   2) Floating ETH + USDC coins with mouse parallax
+//   3) Frosted text + illustration plates with staggered word reveal
+//
+// Reduced-motion: every long animation collapses to a static state. Parallax
+// is also disabled — the cursor effect would be more distracting than useful.
 // ─────────────────────────────────────────────────────────────────────────────
+
+const HERO_TITLE_PARTS = [
+  { text: "Tokenized" },
+  { text: "real" },
+  { text: "estate," },
+  { text: "zero-ETH", chip: true },
+  { text: "claim" },
+];
+
+function HeroSection({ account, connect, connecting, networkName, privy }) {
+  const reduce = useReducedMotion();
+  const stageRef = useRef(null);
+  // Parallax offsets are kept in CSS variables on the stage element so the
+  // floating coins can opt in via var(--hero-px-*). Avoids re-rendering React
+  // on every mousemove — everything stays GPU-only.
+  useEffect(() => {
+    if (reduce) return undefined;
+    const el = stageRef.current;
+    if (!el) return undefined;
+    let raf = 0;
+    let pendingX = 0, pendingY = 0;
+    const onMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      pendingX = e.clientX - cx;
+      pendingY = e.clientY - cy;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        // ETH at 0.03, USDC at 0.02 per spec
+        el.style.setProperty("--hero-px-eth-x", `${(pendingX * 0.03).toFixed(1)}px`);
+        el.style.setProperty("--hero-px-eth-y", `${(pendingY * 0.03).toFixed(1)}px`);
+        el.style.setProperty("--hero-px-usdc-x", `${(pendingX * 0.02).toFixed(1)}px`);
+        el.style.setProperty("--hero-px-usdc-y", `${(pendingY * 0.02).toFixed(1)}px`);
+      });
+    };
+    const onLeave = () => {
+      el.style.setProperty("--hero-px-eth-x", "0px");
+      el.style.setProperty("--hero-px-eth-y", "0px");
+      el.style.setProperty("--hero-px-usdc-x", "0px");
+      el.style.setProperty("--hero-px-usdc-y", "0px");
+    };
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [reduce]);
+
+  return (
+    <section ref={stageRef} className="lp-hero-stage lp-hero-stage--living" aria-label="Hero">
+      {/* Ambient orbs — atmospheric depth, soft drift */}
+      <span className="lp-hero-orb lp-hero-orb--xl is-lime" aria-hidden="true" />
+      <span className="lp-hero-orb lp-hero-orb--xl is-mint" aria-hidden="true" />
+      <span className="lp-hero-orb lp-hero-orb--xl is-cool" aria-hidden="true" />
+      <span className="lp-hero-orb lp-hero-orb--xl is-warm" aria-hidden="true" />
+      <span className="lp-hero-grid" aria-hidden="true" />
+
+      {/* Floating coins — distributed across the canvas. ETH coins have
+          been removed by request: their Ξ glyph rendered as a 3-line shape
+          that read like a hamburger menu icon. USDC coins remain to give
+          the canvas the same depth without that ambiguity. */}
+      <CoinUsdc size={64} pos="top-right"     duration={4}   delay={0}     />
+      <CoinUsdc size={56} pos="mid-right"     duration={4}   delay={1.2}   />
+      <CoinUsdc size={42} pos="bottom-mid"    duration={4}   delay={2.5}   background />
+      <CoinUsdc size={38} pos="top-left"      duration={4}   delay={0.7}   background />
+      <CoinUsdc size={44} pos="bottom-left"   duration={4}   delay={1.9}   background />
+
+      <section className="lp-hero lp-hero--living">
+        <div className="lp-hero-text lp-hero-text--living">
+          <span className="lp-hero-eyebrow lp-hero-eyebrow--zero" data-pulse>
+            <span className="lp-hero-eyebrow-dot" />
+            zero-ETH claim
+            <span className="lp-hero-eyebrow-sep">·</span>
+            {networkName}
+          </span>
+          <h1 className="lp-hero-title lp-hero-title--staggered">
+            {HERO_TITLE_PARTS.map((part, i) => (
+              <motion.span
+                key={`${part.text}-${i}`}
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * i, duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
+                className={part.chip ? "hl-word" : "lp-hero-word"}
+              >
+                {part.chip ? <span className="hl">{part.text}</span> : part.text}
+                {i < HERO_TITLE_PARTS.length - 1 ? " " : ""}
+              </motion.span>
+            ))}
+          </h1>
+          <motion.p
+            className="lp-hero-sub"
+            initial={reduce ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
+          >
+            Buy fractional ownership of real properties, earn USDC rent every
+            epoch, and trade anytime. Gas is paid in Mock USD via the Universal
+            Gas Framework — your wallet never needs ETH.
+          </motion.p>
+          <motion.div
+            className="flex gap-3 flex-wrap lp-hero-cta-row"
+            initial={reduce ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.85, duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
+          >
+            {account ? (
+              <Link to="/marketplace" className="btn btn-primary btn-xl lp-cta-connect">
+                Open marketplace <Icon name="arrowRight" size={16} />
+              </Link>
+            ) : (
+              <button className="btn btn-primary btn-xl lp-cta-connect" onClick={connect} disabled={connecting}>
+                {connecting ? "Connecting…" : "Connect wallet"}
+              </button>
+            )}
+            {/* Tier 3 / 6.1 — Privy email/social sign-in. Renders only when
+                VITE_PRIVY_APP_ID is configured; otherwise privy.enabled is
+                false and this branch collapses to nothing. */}
+            {!account && privy?.enabled && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-xl lp-cta-privy"
+                onClick={privy.login}
+                disabled={privy.loading}
+              >
+                {privy.loading ? "Opening…" : "Sign in with email"}
+              </button>
+            )}
+            <a href="#how-it-works" className="btn btn-secondary btn-xl lp-cta-howitworks">
+              How it works
+              <span className="lp-cta-shimmer" aria-hidden="true" />
+            </a>
+          </motion.div>
+          <LiveRentCounter className="lp-hero-counter" />
+        </div>
+
+        <motion.div
+          className="lp-hero-illu lp-hero-illu--living"
+          aria-hidden="true"
+          initial={reduce ? false : { opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, duration: 0.65, ease: [0.2, 0.8, 0.2, 1] }}
+        >
+          <span className="lp-hero-illu-glow" />
+          <div className="lp-hero-illu-float">
+            <HeroIllustration />
+            {/* Micro-animated accent: lightning bolt rotation */}
+            <span className="lp-hero-bolt" aria-hidden="true">
+              <Icon name="bolt" size={26} />
+            </span>
+            {/* Primary dollar coin with scale pulse */}
+            <span className="lp-hero-dollar lp-hero-dollar--primary" aria-hidden="true">$</span>
+            {/* Orbiting USDC settle coin around the primary */}
+            <span className="lp-hero-orbit" aria-hidden="true">
+              <span className="lp-hero-orbit-coin">$</span>
+            </span>
+          </div>
+          <span className="lp-hero-illu-pill is-top">
+            <Icon name="bolt" size={11} /> ERC-20Votes
+          </span>
+          <span className="lp-hero-illu-pill is-bottom">
+            <Icon name="coins" size={11} /> USDC settlement
+          </span>
+        </motion.div>
+      </section>
+    </section>
+  );
+}
+
+function CoinUsdc({ size = 56, pos = "mid-right", duration = 4, delay = 0, background = false }) {
+  // Outer wrapper: positions the coin and consumes the mouse-parallax CSS
+  // variables. This element does NOT animate, so the parallax `translate`
+  // never collides with the keyframe's `translateY`.
+  // Inner element: runs the floatCoin keyframes on its own. Stacking the
+  // two means the parallax shift composes cleanly with the float bob.
+  return (
+    <span
+      className={`lp-coin-wrap pos-${pos} ${background ? "is-bg" : ""}`}
+      aria-hidden="true"
+    >
+      <span
+        className="lp-coin lp-coin-usdc"
+        style={{
+          "--coin-size": `${size}px`,
+          "--coin-dur": `${duration}s`,
+          "--coin-delay": `${delay}s`,
+        }}
+      >
+        <span className="lp-coin-rim" />
+        <span className="lp-coin-glyph">$</span>
+      </span>
+    </span>
+  );
+}
 
 const STEPS = [
   {
@@ -975,6 +1120,12 @@ const FEATURE_TABS = [
     key: "shared",
     label: "Shared UX",
     items: [
+      { title: "FractionalOwnershipBar",   href: "/portfolio",   desc: "Lime-on-black progress bar shared across Marketplace, Portfolio, Claim Rent, and Owner Control Room. 2dp rounding.", icon: "trending" },
+      { title: "OnChainBadge",             href: "/activity",    desc: "Tx hash → explorer URL derived from chain id. Disabled state when no explorer is mapped (Hardhat).", icon: "external" },
+      { title: "GasMethodBadge",           href: "/dividends",   desc: "Lime UGF / dark ETH pill rendered next to every state-changing CTA.", icon: "bolt" },
+      { title: "ContractMethodBadge",      href: "/owner",       desc: "Surfaces the exact Contract.method(args) a button will fire — links to the contract on the explorer.", icon: "info" },
+      { title: "HolderConcentrationStrip", href: "/analytics",   desc: "Stacked top-5 holder share bar; opacity-graded segments, fail-soft when indexer is empty.", icon: "users" },
+      { title: "EpochCadenceIndicator",    href: "/dividends",   desc: "Median over the last 12 RentalDeposited events; renders 'Cadence unavailable' under that threshold.", icon: "history" },
       { title: "UGF gasless mode",         href: "/dividends",   desc: "Every state-changing call routes through UGF — settle gas in Mock USD.",       icon: "drop" },
       { title: "UGF on/off toggle",        href: "/dividends",   desc: "Settings popover lets judges flip the switch and see the failure mode live.",  icon: "settings" },
       { title: "Cost banner",              href: "/marketplace", desc: "Side-by-side ETH vs UGF cost comparison renders before each call.",            icon: "info" },
@@ -985,6 +1136,24 @@ const FEATURE_TABS = [
       { title: "Network detection",        href: "/marketplace", desc: "Wrong-network banner switches MetaMask to the configured chain id in one tap.", icon: "alert" },
       { title: "Live rent counter",        href: "/",            desc: "Hero pill ticks the protocol-wide rent claimed total upward, polled from the stats endpoint.", icon: "coins" },
       { title: "Recent activity table",    href: "/",            desc: "The five most recent backend-logged transactions surface on the landing page when data exists.", icon: "history" },
+    ],
+  },
+  {
+    key: "agents",
+    label: "Multi-agent",
+    items: [
+      { title: "Hub-and-spoke orchestrator", href: "/marketplace", desc: "Single Orchestrator + AgentBus route every cross-screen message; agents never call each other directly.", icon: "layers" },
+      { title: "MarketplaceAgent",          href: "/marketplace", desc: "Owns property catalog, holder badges, buy flow. Falls back to on-chain reads when the indexer is offline.", icon: "building" },
+      { title: "PortfolioAgent",            href: "/portfolio",   desc: "Owns per-wallet holdings, fractional ownership %, projected next-deposit cadence.", icon: "briefcase" },
+      { title: "ClaimRentAgent",            href: "/dividends",   desc: "Owns epoch-by-epoch claim flow. The only agent that submits claim transactions.", icon: "coins" },
+      { title: "OwnerControlRoomAgent",     href: "/owner",       desc: "Owns deposit forms, deposit history, top-5 holder concentration metric.", icon: "star" },
+      { title: "ActivityAgent",             href: "/activity",    desc: "Owns the activity feed in two modes — full page and right-rail. Polls every 8s, capped at 200 rows.", icon: "history" },
+      { title: "AnalysisAgent",             href: "/analytics",   desc: "Owns platform KPIs, time-series chart, holder concentration, lifetime-rent leaderboard.", icon: "trending" },
+      { title: "Strict route isolation",    href: "/marketplace", desc: "Each agent appears in exactly one registry entry and is the only mutator of state for its routes.", icon: "lock" },
+      { title: "Auto activate / deactivate", href: "/marketplace", desc: "Orchestrator syncs React Router pathname; activates / deactivates agents on every navigation.", icon: "bolt" },
+      { title: "Service injection",         href: "/marketplace", desc: "Web3 + UGF + SmartAgent injected once at startup; agents read services through this.ctx.services.", icon: "settings" },
+      { title: "Typed event bus",           href: "/marketplace", desc: "TX_SUBMITTED / TX_CONFIRMED / TX_FAILED / HOLDINGS_CHANGED envelopes drive cross-screen reactions.", icon: "info" },
+      { title: "REQUEST_NAVIGATE",          href: "/portfolio",   desc: "Portfolio's Claim All routes the user to Claim Rent via the orchestrator's navigate handler — no direct nav imports.", icon: "arrowRight" },
     ],
   },
   {

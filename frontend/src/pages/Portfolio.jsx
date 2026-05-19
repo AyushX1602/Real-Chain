@@ -7,6 +7,12 @@ import { useToast } from "../components/Toast";
 import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import ConnectGate from "../components/ConnectGate";
+import {
+  FractionalOwnershipBar,
+  GasMethodBadge,
+  ContractMethodBadge,
+  OnChainBadge,
+} from "../components/ScreenPrimitives";
 import { MARKETPLACE_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -38,10 +44,11 @@ export default function Portfolio() {
           marketplace: p.marketplace,
         });
 
-        const [pricePerToken, listCount, bal] = await Promise.all([
+        const [pricePerToken, listCount, bal, totalSupply] = await Promise.all([
           market.pricePerToken(),
           market.getListingCount(),
           token.balanceOf(account),
+          token.totalSupply(),
         ]);
 
         const myListings = [];
@@ -53,7 +60,7 @@ export default function Portfolio() {
         }
 
         if (bal > 0n || myListings.length > 0) {
-          h.push({ propId: i, prop: p, balance: bal, pricePerToken, myListings });
+          h.push({ propId: i, prop: p, balance: bal, totalSupply, pricePerToken, myListings });
         }
       }
       setHoldings(h);
@@ -124,12 +131,15 @@ export default function Portfolio() {
 }
 
 function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, ugfApprove, isUGFEnabled, logTx, toast }) {
-  const { prop, balance, pricePerToken, myListings, propId } = holding;
+  const { prop, balance, totalSupply, pricePerToken, myListings, propId } = holding;
   const [listAmount, setListAmount] = useState("");
   const [listPrice, setListPrice] = useState("");
   const [busy, setBusy] = useState(null);
+  const [lastTxHash, setLastTxHash] = useState(null);
 
-  const pct = ((Number(ethers.formatEther(balance)) / 100) * 100).toFixed(1);
+  const balanceNum = Number(ethers.formatEther(balance));
+  const supplyNum = totalSupply ? Number(ethers.formatEther(totalSupply)) : 0;
+  const pct = supplyNum > 0 ? ((balanceNum / supplyNum) * 100).toFixed(2) : "0.00";
 
   async function handleCreateListing() {
     if (!listAmount || !listPrice) return;
@@ -142,6 +152,7 @@ function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, ugfAppr
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "createListing", [amount, priceVal]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
+      setLastTxHash(txHash);
 
       logTx({
         txHash, type: "listing",
@@ -200,8 +211,13 @@ function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, ugfAppr
           </div>
         </div>
 
-        <div className="progress-bar" style={{ marginBottom: 22 }}>
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
+        {/* True fractional ownership bar — holding / totalSupply */}
+        <div style={{ marginBottom: 18 }}>
+          <FractionalOwnershipBar
+            holding={balanceNum}
+            totalSupply={supplyNum}
+            label="Your fractional ownership"
+          />
         </div>
 
         {/* Create listing */}
@@ -237,7 +253,12 @@ function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, ugfAppr
               {busy === "create" ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Listing…</> : <><Icon name="bolt" size={13} /> List for sale</>}
             </button>
           </div>
-          <div style={{ marginTop: 12 }}><UGFBadge /></div>
+          <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <UGFBadge />
+            <GasMethodBadge method={isUGFEnabled ? "ugf" : "eth"} compact />
+            <ContractMethodBadge contractName="Marketplace" methodName="createListing" address={prop.marketplace} />
+            {lastTxHash && <OnChainBadge txHash={lastTxHash} label="Last listing tx" />}
+          </div>
         </div>
 
         {/* My active listings */}

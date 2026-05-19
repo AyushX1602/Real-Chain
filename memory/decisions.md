@@ -33,3 +33,54 @@
 | 2026-05-19 | Default Base Sepolia frontend addresses to the recorded deployment, not localhost | `VITE_NETWORK_MODE=baseSepolia` must never point judges at Hardhat fallback addresses. Localhost defaults are now scoped to `VITE_NETWORK_MODE=local`. | Codex |
 | 2026-05-19 | Route UI ERC-20 approvals through `ugfApprove()` | Approvals are state-changing transactions too. A 0-ETH investor can still fail before `buy`, `deposit`, or `list` unless the approval itself goes through UGF. | Codex |
 | 2026-05-19 | Treat owner primary-supply approval as a seed/owner prerequisite, not something the buyer UI can fix | The buyer cannot approve the owner's PROP balance. The property page now surfaces the missing approval instead of sending a useless buyer-side token approval. | Codex |
+
+
+## 2026-05-19 — Multi-agent orchestration architecture
+
+**Decision**: Adopt hub-and-spoke multi-agent orchestration where each of the
+six in-scope screens (Marketplace, Portfolio, Claim Rent, Owner Control Room,
+Activity, Analysis) is owned by exactly one specialised agent. All cross-screen
+interaction routes through a single `Orchestrator` + `AgentBus`. Agents never
+import or call each other directly.
+
+**Rationale**: Screen ownership becomes greppable, the wire format is a small
+set of constants in `messageTypes.js`, and a regression in one screen cannot
+silently mutate another's state. The orchestrator owns the React Router sync,
+service injection (Web3 / UGF / SmartAgent), and shared-state mirroring; agents
+own domain logic, fetches, and contract calls.
+
+**Implementation**: `frontend/src/agents/` with `core/` (bus, orchestrator,
+provider, base agent, message types, api helper, toast bridge) and `screens/`
+(one file per agent). `AgentProvider` wraps the app inside the provider tree.
+`useAgent(id)` + `useAgentState(id)` hooks are the only React-side surface;
+screens dispatch commands on the agent and re-render from its state snapshot.
+
+**Tradeoffs**: Some indirection vs direct `useState` in each page. Migration
+of existing pages is incremental — the agent layer mirrors page behaviour so
+pages can adopt `useAgent` + `useAgentState` one at a time. `Activity.jsx` is
+the reference consumer.
+
+## 2026-05-19 — Shared screen primitives over per-screen one-offs
+
+**Decision**: Centralise visible blockchain / tokenization markers
+(`OnChainBadge`, `GasMethodBadge`, `ContractMethodBadge`,
+`FractionalOwnershipBar`, `HolderCountChip`, `HolderConcentrationStrip`,
+`EpochCadenceIndicator`, `KpiTile`, `IndexerStatus`, `WalletShort`) in a
+single component file `frontend/src/components/ScreenPrimitives.jsx`.
+
+**Rationale**: Every screen needs the same building blocks (link to explorer,
+contract-method context, fractional ownership visualisation). One source of
+truth keeps the Positivus visual language consistent (lime / black / white,
+1px borders, 5px hard shadows, opaque on dense data) and avoids drift as new
+screens land.
+
+**Where they appear**: Marketplace cards (holder count, ownership-progress,
+contract method), Portfolio rows (fractional ownership, gas + contract +
+on-chain badges), Claim Rent (cadence + ownership + contract method), Owner
+Control Room (holder concentration strip + cadence + distribution bar +
+last-deposit explorer link), Activity (gas + wallet + on-chain badges),
+Analysis (KPI tiles with source citation + concentration leaderboard).
+
+**Block-explorer URL derivation**: centralised in `explorerUrlForTx` /
+`explorerUrlForAddress`, keyed by `NETWORK_CHAIN_ID`. Hardhat returns null
+(no explorer); Sepolia / Base Sepolia map to their respective chain explorers.

@@ -6,6 +6,13 @@ import { LogoMark } from "../components/Logo";
 import ActivityFeed from "../components/ActivityFeed";
 import FaucetPanel from "../components/FaucetPanel";
 import useWatchlist from "../hooks/useWatchlist";
+import {
+  FractionalOwnershipBar,
+  HolderCountChip,
+  IndexerStatus,
+  ContractMethodBadge,
+} from "../components/ScreenPrimitives";
+import { BACKEND_URL } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Home — RealChain marketplace.
@@ -26,6 +33,9 @@ export default function Home() {
   const [props, setProps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [indexerOffline, setIndexerOffline] = useState(false);
+  const [lastUpdatedMs, setLastUpdatedMs] = useState(null);
+  const [holderCounts, setHolderCounts] = useState({}); // id → number | null
   const [showFaucet, setShowFaucet] = useState(false);
   const navigate = useNavigate();
   const watch = useWatchlist();
@@ -37,8 +47,57 @@ export default function Home() {
   const [onlyWatched, setOnlyWatched] = useState(false);
 
   useEffect(() => { load(); }, []);
+
+  // Lazy holder-count fetch — fired by IntersectionObserver on each card.
+  // Cached forever per session so scrolling back doesn't re-hit the indexer.
+  async function fetchHolderCount(id) {
+    if (holderCounts[id] !== undefined) return;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/properties/${id}/holders`, {
+        signal: AbortSignal.timeout?.(5_000),
+      });
+      if (!r.ok) throw new Error(String(r.status));
+      const data = await r.json();
+      const count = Array.isArray(data?.holders) ? data.holders.length : (data?.count ?? null);
+      setHolderCounts((prev) => ({ ...prev, [id]: count }));
+    } catch {
+      setHolderCounts((prev) => ({ ...prev, [id]: null }));
+    }
+  }
   async function load() {
     setLoading(true); setErr(null);
+    // Try the indexer first — it has tokensRemaining + cadence baked in.
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/properties`, { signal: AbortSignal.timeout?.(10_000) });
+      if (r.ok) {
+        const data = await r.json();
+        const list = Array.isArray(data) ? data : (data?.properties || []);
+        if (list.length > 0) {
+          setProps(list.map((p) => ({
+            id: p.id ?? p._id ?? p.propertyId,
+            name: p.name,
+            location: p.location,
+            valueInr: p.valueInr,
+            owner: p.owner,
+            propertyToken: p.propertyToken || p.tokenAddress,
+            rentalDistribution: p.rentalDistribution || p.rentalAddress,
+            marketplace: p.marketplace || p.marketplaceAddress,
+            totalSupply: p.totalSupply,
+            tokensRemaining: p.tokensRemaining,
+            pricePerToken: p.pricePerToken,
+          })));
+          setIndexerOffline(false);
+          setLastUpdatedMs(Date.now());
+          setLoading(false);
+          return;
+        }
+      }
+      // Fall through to chain when indexer returns nothing useful.
+      throw new Error("indexer empty");
+    } catch {
+      setIndexerOffline(true);
+    }
+
     try {
       const factory = getReadFactory();
       const count = Number(await factory.getPropertiesCount());
@@ -61,6 +120,7 @@ export default function Home() {
         list.push({ id: i, ...p, totalSupply, pricePerToken });
       }
       setProps(list);
+      setLastUpdatedMs(Date.now());
     } catch (e) {
       console.error(e);
       setErr("Could not reach the network. Make sure the chain is online.");
@@ -214,8 +274,9 @@ export default function Home() {
           <div className="section">
             <h2 className="section-title">
               <Icon name="building" size={14} /> Available properties
-              <span className="text-sm text-muted" style={{ marginLeft: "auto", fontWeight: 400 }}>
-                {loading ? "" : `${filtered.length} of ${props.length}`}
+              <span className="text-sm text-muted" style={{ marginLeft: "auto", fontWeight: 400, display: "inline-flex", alignItems: "center", gap: 10 }}>
+                <IndexerStatus offline={indexerOffline} lastUpdatedMs={lastUpdatedMs} />
+                {!loading && <span>{filtered.length} of {props.length}</span>}
               </span>
             </h2>
             {loading ? (
@@ -243,6 +304,8 @@ export default function Home() {
                     onView={() => navigate(`/property/${p.id}`)}
                     starred={watch.has(p.id)}
                     onToggleStar={() => watch.toggle(p.id)}
+                    holderCount={holderCounts[p.id]}
+                    onVisible={() => fetchHolderCount(p.id)}
                   />
                 ))}
               </div>
@@ -256,27 +319,62 @@ export default function Home() {
   );
 }
 
-function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar }) {
+function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar, holderCount, onVisible }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || !onVisible || typeof IntersectionObserver !== "function") return undefined;
+    const obs = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting && e.intersectionRatio >= 0.5) {
+          onVisible();
+          obs.disconnect();
+          break;
+        }
+      }
+    }, { threshold: [0, 0.5, 1] });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [onVisible]);
+
   const isCoastal = (property.location || "").toLowerCase().includes("goa")
     || (property.location || "").toLowerCase().includes("beach");
   const isMetro   = (property.location || "").toLowerCase().includes("mumbai")
     || (property.location || "").toLowerCase().includes("delhi")
     || (property.location || "").toLowerCase().includes("bangalore");
 
+  // Coerce supply / price into Numbers no matter whether the source was the
+  // indexer (numbers, no decimals) or on-chain (BigInts in raw units).
+  const totalSupplyNum = (() => {
+    const ts = property.totalSupply;
+    if (ts == null) return null;
+    if (typeof ts === "number") return ts;
+    try { return Number(ts) / 1e18; } catch { return null; }
+  })();
+  const tokensRemainingNum = (() => {
+    const tr = property.tokensRemaining;
+    if (tr == null) return null;
+    if (typeof tr === "number") return tr;
+    try { return Number(tr) / 1e18; } catch { return null; }
+  })();
+  const tokensSold = totalSupplyNum != null && tokensRemainingNum != null
+    ? Math.max(0, totalSupplyNum - tokensRemainingNum)
+    : null;
   const supplyLabel = property.totalSupply != null
-    ? `${fmtProp(property.totalSupply)} PROP`
+    ? `${typeof property.totalSupply === "number" ? property.totalSupply.toLocaleString() : fmtProp(property.totalSupply)} PROP`
     : "—";
   const priceLabel = property.pricePerToken != null
-    ? `$${(Number(property.pricePerToken) / 1e6).toFixed(2)} / token`
+    ? `$${(typeof property.pricePerToken === "number" ? property.pricePerToken : Number(property.pricePerToken) / 1e6).toFixed(2)} / token`
     : "Price loading…";
 
   return (
-    <article className="card property-card" onClick={onView} role="button" tabIndex={0}
+    <article ref={ref} className="card property-card" onClick={onView} role="button" tabIndex={0}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onView()}>
       <div className="card-body">
         <div className="property-cover">
           <div className="property-tag-row">
             <span className="badge badge-success"><span className="status-dot" /> Live</span>
+            <HolderCountChip count={holderCount} loading={holderCount === undefined} />
             <button
               type="button"
               className={`star-btn ${starred ? "is-on" : ""}`}
@@ -307,8 +405,24 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
             <div style={{ fontWeight: 700, fontSize: 16, color: "var(--positivus-black)" }}>{supplyLabel}</div>
           </div>
         </div>
-        <div className="text-sm text-muted" style={{ marginBottom: 14 }}>
+
+        {/* Fractional-ownership progress: tokens sold / total supply */}
+        {totalSupplyNum != null && tokensSold != null && (
+          <div style={{ marginBottom: 12 }}>
+            <FractionalOwnershipBar
+              holding={tokensSold}
+              totalSupply={totalSupplyNum}
+              label="Tokens sold"
+            />
+          </div>
+        )}
+
+        <div className="text-sm text-muted" style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
           <Icon name="dollar" size={12} /> {priceLabel}
+        </div>
+
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+          <ContractMethodBadge contractName="Marketplace" methodName="buyFromOwner" address={property.marketplace} />
         </div>
 
         <button className="btn btn-primary btn-full">

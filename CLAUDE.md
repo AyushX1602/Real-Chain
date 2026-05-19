@@ -520,3 +520,72 @@ Do not write code until you confirm the intended direction.
 ---
 
 *Last updated: 2026-05-19 by Claude (audit pass + Tier 3 kickoff)*
+
+*Previously updated: 2026-05-18 by Codex*
+
+
+## Session — Multi-agent orchestration + screen-enhancement primitives (2026-05-19)
+
+### Multi-agent system
+- Built `frontend/src/agents/` orchestrator system per the screen-enhancements
+  spec. Hub-and-spoke: `Orchestrator` + `AgentBus` route every cross-agent
+  message; agents never talk directly. Each screen owned by exactly one agent:
+  - `MarketplaceAgent` → `/marketplace`
+  - `PortfolioAgent` → `/portfolio`
+  - `ClaimRentAgent` → `/dividends`
+  - `OwnerControlRoomAgent` → `/owner`
+  - `ActivityAgent` → `/activity` (and right-rail on `/marketplace`)
+  - `AnalysisAgent` → `/analytics`
+- `BaseAgent` enforces lifecycle (`init`/`activate`/`deactivate`/`destroy`),
+  state with subscriber list, dispatch-only inter-agent comms.
+- `AgentProvider` injects services (Web3, UGF, SmartAgent), mirrors shared
+  state (account, chainId, gas, UGF toggle), and syncs route → activation.
+- `Activity.jsx` is the reference consumer (`useAgent` + `useAgentState`).
+- `agents/README.md` documents the contract for adding new screen agents.
+
+### Screen-enhancement primitives
+- New `frontend/src/components/ScreenPrimitives.jsx` exports reusable building
+  blocks: `OnChainBadge`, `GasMethodBadge`, `ContractMethodBadge`,
+  `FractionalOwnershipBar`, `HolderCountChip`, `HolderConcentrationStrip`,
+  `EpochCadenceIndicator`, `KpiTile` (hover-revealed source citation),
+  `IndexerStatus`, `WalletShort`. All render in opaque Positivus tokens — no
+  glassmorphism on dense data per cross-cutting requirement.
+- Wired into all six in-scope screens:
+  - **Marketplace** (`Home.jsx`): indexer-first catalog load with on-chain
+    fallback, `IndexerStatus` chip, holder-count chips fed by lazy
+    `IntersectionObserver` 50%-viewport rule, `FractionalOwnershipBar` on
+    every card showing tokens-sold / total supply, contract-method badge for
+    `Marketplace.buyFromOwner`.
+  - **Portfolio** (`Portfolio.jsx`): true `FractionalOwnershipBar` showing
+    `holding / totalSupply`, gas-method + contract-method badges on every
+    listing CTA, on-chain badge after each successful listing tx.
+  - **Claim Rent** (`Dividends.jsx`): cadence indicator (median over last 12
+    deposits), fractional-ownership bar per property, contract-method badge
+    `RentalDistribution.claimAll`, on-chain badge after each successful claim.
+  - **Owner Control Room** (`OwnerDashboard.jsx`): holder-concentration strip
+    (top-5 share via `/api/properties/:id/holders`), distributed-tokens bar,
+    cadence indicator, deposit form with explicit 0.01–1M validation, gas /
+    contract / on-chain badges next to the deposit CTA, last-deposit txhash
+    link in the panel header.
+  - **Activity** (`Activity.jsx`): `IndexerStatus` chip, `WalletShort` for
+    every row, `GasMethodBadge` (compact), `OnChainBadge` linking to the
+    chain-derived explorer URL.
+  - **Analysis** (`Analytics.jsx`): KPI tiles with hover-revealed source
+    citations ("Sourced from Marketplace + RentalDistribution events"),
+    holder concentration leaderboard panel (per-property top-5), lifetime
+    rent leaderboard with WalletShort + chain links.
+- Block-explorer URL derivation centralised in
+  `ScreenPrimitives.explorerUrlForTx` / `explorerUrlForAddress`, keyed by
+  `NETWORK_CHAIN_ID` (Hardhat / Sepolia / Base Sepolia).
+
+### Verification
+- `npx vite build` clean: 574 modules, no errors. CSS grew by ~7 kB to absorb
+  the new primitives. JS bundle delta minor.
+- Diagnostics: zero issues across all 7 touched files.
+
+### Files touched
+- New: `frontend/src/components/ScreenPrimitives.jsx`,
+  `frontend/src/agents/README.md`.
+- Modified: `frontend/src/index.css` (appended ~280 lines of primitive
+  styles), `frontend/src/pages/{Home,Portfolio,Dividends,OwnerDashboard,Activity,Analytics}.jsx`.
+- Pre-existing agent scaffold extended (already in repo from prior turns).

@@ -18,6 +18,7 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
 import Watchlist from "./pages/Watchlist";
 import Analytics from "./pages/Analytics";
+import Activity from "./pages/Activity";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Navbar — Positivus-style: white bar, black text, lime accent, rounded buttons.
@@ -325,6 +326,7 @@ export default function App() {
           <Route path="/dividends" element={<Dividends />} />
           <Route path="/watchlist" element={<Watchlist />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/activity" element={<Activity />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
