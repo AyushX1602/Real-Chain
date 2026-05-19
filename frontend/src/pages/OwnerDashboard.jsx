@@ -173,9 +173,6 @@ export default function OwnerDashboard() {
       />
     );
   }
-  if (account && roleHint === "Investor") {
-    return <Navigate to="/investor" replace />;
-  }
 
   return (
     <div className="container reveal">

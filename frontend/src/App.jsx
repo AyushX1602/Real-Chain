@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useWeb3 } from "./context/Web3Context";
 import { useUGF } from "./context/UGFContext";
-import { useSmartAgent, AGENT_PROVIDERS } from "./context/SmartAgentContext";
+import { useSmartAgent } from "./context/SmartAgentContext";
 import { useTheme } from "./context/ThemeContext";
 import Icon from "./components/Icon";
 import Logo from "./components/Logo";
@@ -178,18 +178,8 @@ function Navbar() {
 }
 
 function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
-  const {
-    smartGas, setSmartGas,
-    smartAi, setSmartAi,
-    aiProvider, setAiProvider,
-    aiKey, setAiKey,
-    aiModel, setAiModel,
-    llmReady,
-  } = useSmartAgent();
+  const { smartGas, setSmartGas } = useSmartAgent();
   const { theme, setTheme } = useTheme();
-  const [showKey, setShowKey] = useState(false);
-
-  const provider = AGENT_PROVIDERS.find((p) => p.id === aiProvider) || AGENT_PROVIDERS[0];
 
   return (
     <div
@@ -199,7 +189,7 @@ function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
     >
       <div className="settings-section-head">Appearance</div>
 
-      {/* Theme pill toggle — Light is the deterministic default */}
+      {/* Theme toggle */}
       <div className="theme-toggle" role="radiogroup" aria-label="Theme">
         <button
           type="button"
@@ -238,98 +228,18 @@ function SettingsPopover({ isUGFEnabled, setUGFEnabled, onClose }) {
 
       <div className="settings-section-head" style={{ marginTop: 18 }}>Smart Agent</div>
 
-      {/* Smart gas optimizer */}
+      {/* Smart gas optimizer — no API key needed */}
       <div className="settings-row">
         <div className="settings-row-text">
           <div className="settings-row-title">
             <Icon name="trending" size={12} /> Smart gas optimizer
           </div>
           <div className="settings-row-desc">
-            Live gas pill in the navbar plus rule-based timing and batch suggestions on your dashboard.
+            Live gas readings and rule-based timing suggestions. No API key needed.
           </div>
         </div>
         <Switch checked={smartGas} onChange={setSmartGas} id="smart-gas-toggle" />
       </div>
-
-      {/* AI assistant */}
-      <div className="settings-row">
-        <div className="settings-row-text">
-          <div className="settings-row-title">
-            <Icon name="spark" size={12} /> AI assistant
-          </div>
-          <div className="settings-row-desc">
-            Adds a free-text question box on the dashboard. Brings your own API key — calls go directly from your browser to the provider.
-          </div>
-        </div>
-        <Switch checked={smartAi} onChange={setSmartAi} id="smart-ai-toggle" />
-      </div>
-
-      {/* AI provider config — only when the assistant is on */}
-      {smartAi && (
-        <div className="settings-card">
-          <label className="form-group" style={{ marginBottom: 12 }}>
-            <span className="form-label">Provider</span>
-            <select className="form-input" value={aiProvider} onChange={(e) => setAiProvider(e.target.value)}>
-              {AGENT_PROVIDERS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-            </select>
-          </label>
-
-          <label className="form-group" style={{ marginBottom: 12 }}>
-            <span className="form-label">API key</span>
-            <span className="form-input-prefix" style={{ paddingLeft: 14 }}>
-              <span className="prefix"><Icon name="lock" size={12} /></span>
-              <input
-                className="form-input"
-                type={showKey ? "text" : "password"}
-                value={aiKey}
-                onChange={(e) => setAiKey(e.target.value)}
-                placeholder={`${provider.keyPrefix}…`}
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => setShowKey((v) => !v)}
-                aria-label={showKey ? "Hide key" : "Reveal key"}
-                style={{ padding: "4px 10px" }}
-              >
-                <Icon name={showKey ? "eyeOff" : "eye"} size={12} />
-              </button>
-            </span>
-          </label>
-
-          <label className="form-group" style={{ marginBottom: 8 }}>
-            <span className="form-label">Model (optional)</span>
-            <input
-              className="form-input"
-              type="text"
-              value={aiModel}
-              onChange={(e) => setAiModel(e.target.value)}
-              placeholder={provider.defaultModel}
-              autoComplete="off"
-              spellCheck={false}
-            />
-          </label>
-
-          <div className="settings-meta">
-            <span className={`badge ${llmReady ? "badge-success" : "badge-muted"}`}>
-              <Icon name={llmReady ? "check" : "info"} size={11} />
-              {llmReady ? "Ready" : "Add a key"}
-            </span>
-            <a href={provider.docsUrl} target="_blank" rel="noreferrer" className="settings-link">
-              Get a {provider.label} key <Icon name="external" size={11} />
-            </a>
-          </div>
-
-          <div className="settings-warn">
-            <Icon name="alert" size={12} />
-            <span>
-              Keys live in this browser's localStorage and are sent directly to {provider.label}. Don't paste production keys on a shared machine.
-            </span>
-          </div>
-        </div>
-      )}
 
       <button className="btn btn-ghost btn-sm full-width" style={{ marginTop: 14 }} onClick={onClose}>Close</button>
     </div>

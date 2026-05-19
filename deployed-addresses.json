@@ -1,10 +1,10 @@
 {
-  "network": "baseSepolia",
+  "network": "localhost",
   "distributionMode": "v1",
-  "mockUsdc": "0xc90610277191F7Dbe7Ddf18319Bd28D3aAAe9a38",
-  "factory": "0xa8bb0D4923C1aBB9294cBc115c6FF81B2DaC0168",
-  "deployedAt": "2026-05-18T09:39:24.370Z",
-  "demoInvestor": "0x25e6f47Fbf5a4Fc83dE6C5D6a5dF3247Ee71c08F",
-  "demoOwner": "0xa7Fa1328E32a69C6989C4956D9C7e1f088fbBC3b",
-  "seededAt": "2026-05-18T09:57:52.649Z"
+  "mockUsdc": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+  "factory": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+  "deployedAt": "2026-05-19T15:09:47.213Z",
+  "demoInvestor": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "demoOwner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "seededAt": "2026-05-19T15:09:48.871Z"
 }

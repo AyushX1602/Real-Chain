@@ -21,3 +21,4 @@ Thumbs.db
 # Local AI tooling
 # Machine-specific Graphify/Codex hook paths are generated per developer.
 .codex/hooks.json
+.env.baseSepolia
