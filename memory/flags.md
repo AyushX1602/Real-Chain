@@ -56,3 +56,7 @@
 
 ## Cuts (intentional, not gaps)
 - The V1/V2 distribution comparison and snapshot-attack research surface stays in the repo for the academic paper but is not surfaced to judges. Do not re-add it to the hackathon README, demo, or pitch video.
+
+
+## Resolved (2026-05-19, late session)
+- ~~Landing recent-activity table threw "Encountered two children with the same key" warning when backend returned multiple rows sharing one txHash~~ - `Landing.jsx` row key now composes `${_id || txHash || "row"}-${i}` so duplicates can't collide. `ActivityFeed.jsx` still uses the old `txHash || _id || i` pattern; flag if a similar warning appears there.

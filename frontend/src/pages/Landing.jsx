@@ -303,7 +303,11 @@ export default function Landing() {
                 </thead>
                 <tbody>
                   {recent.map((t, i) => (
-                    <tr key={t.txHash || t._id || i}>
+                    // Backend can emit multiple rows per txHash (e.g. Transfer
+                    // + Purchase from one buy, or rent deposit + UGF settle).
+                    // Combine the row identifier with the index so React keys
+                    // stay unique even when several rows share a hash.
+                    <tr key={`${t._id || t.txHash || "row"}-${i}`}>
                       <td><span className="badge badge-muted">{t.type}</span></td>
                       <td className="font-mono text-sm">{t.from ? `${t.from.slice(0, 6)}…${t.from.slice(-4)}` : "—"}</td>
                       <td className="font-bold">${Number(t.amount || 0).toFixed(2)}</td>
