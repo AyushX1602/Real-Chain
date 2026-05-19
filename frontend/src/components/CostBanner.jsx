@@ -39,8 +39,11 @@ export default function CostBanner({ target, abi, fnName, args = [], value = 0n,
         let gasPrice = 1_000_000_000n; // 1 gwei default
         try {
           if (rp) {
-            const fee = await rp.getFeeData();
-            gasPrice = fee.gasPrice ?? fee.maxFeePerGas ?? gasPrice;
+            // Base L2 doesn't support eth_maxPriorityFeePerGas (used by
+            // getFeeData), so fall back to the legacy eth_gasPrice RPC call
+            // which all chains support.
+            const raw = await rp.send("eth_gasPrice", []);
+            gasPrice = BigInt(raw);
           }
         } catch (_) { /* keep default */ }
 

@@ -151,8 +151,10 @@ export function SmartAgentProvider({ children }) {
         const rp = walletProvider || new ethers.JsonRpcProvider(
           import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org"
         );
-        const fee = await rp.getFeeData();
-        const wei = fee.gasPrice ?? fee.maxFeePerGas;
+        // Base L2 doesn't support eth_maxPriorityFeePerGas (used by
+        // getFeeData), so use the legacy eth_gasPrice RPC call instead.
+        const raw = await rp.send("eth_gasPrice", []);
+        const wei = BigInt(raw);
         if (!wei) return;
         const gwei = Number(wei) / 1e9;
         if (!alive) return;

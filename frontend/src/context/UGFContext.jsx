@@ -125,9 +125,15 @@ export function UGFContextProvider({ children }) {
     ugfExecute(tokenAddress, opts.abi || APPROVE_ABI, "approve", [spender, amount], opts)
   ), [ugfExecute]);
 
+  // Track whether the gateway is reachable so we don't spam 401s on every render.
+  const quoteBlocked = useRef(false);
+
   const getQuote = useCallback(async (target, abi, fnName, args = [], opts = {}) => {
     try {
       if (!signer || !account || NETWORK_CHAIN_ID !== 84532) return null;
+      // Once the gateway returns 401/403 (no API key), stop retrying for this
+      // session to avoid flooding the console with browser-level network errors.
+      if (quoteBlocked.current) return null;
       const iface = new ethers.Interface(abi);
       const data = iface.encodeFunctionData(fnName, args);
       const value = opts.value ?? 0n;
@@ -149,7 +155,13 @@ export function UGFContextProvider({ children }) {
           dest_chain_type: "evm",
         }),
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          console.warn("[UGF] Gateway returned", res.status, "— quote requests disabled for this session. Check your UGF API key.");
+          quoteBlocked.current = true;
+        }
+        return null;
+      }
       const quote = await res.json();
       const feeUsd = quoteToUsd(quote);
       return { ...quote, feeUsd, totalUsd: feeUsd };

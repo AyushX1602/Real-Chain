@@ -29,43 +29,44 @@ async function main() {
 
   // ── Step 3: Create 2 Mock Properties ─────────────────────────────────────
   console.log("\n[3/3] Creating initial properties...");
-  // Price per token in USDC (6 decimals): 10 USDC = 10_000_000
-  const PRICE_1 = 10_000_000n;   // 10 USDC / token
-  const PRICE_2 = 50_000_000n;   // 50 USDC / token
+  // Price per token in USDC (6 decimals):
+  // TESTING MODE: super cheap so you can test with almost no balance
+  const PRICE_1 = 100n;          // 0.0001 USDC / token  (100 micro-USDC)
+  const PRICE_2 = 500n;          // 0.0005 USDC / token  (500 micro-USDC)
 
   let tx1 = useV2
     ? await factory.createPropertyWithMode(
         "Palm Heights Residency",
         "Bandra West, Mumbai",
-        1_00_00_00_000n,
+        10_000n,            // valueInr — tiny for testing
         PRICE_1,
         true
       )
     : await factory.createProperty(
         "Palm Heights Residency",
         "Bandra West, Mumbai",
-        1_00_00_00_000n,
+        10_000n,
         PRICE_1
       );
   await tx1.wait();
-  console.log("  -> Palm Heights created!");
+  console.log("  -> Palm Heights created! (0.0001 USDC/token)");
 
   let tx2 = useV2
     ? await factory.createPropertyWithMode(
         "Ocean View Villas",
         "Goa, India",
-        5_00_00_00_000n,
+        50_000n,            // valueInr — tiny for testing
         PRICE_2,
         true
       )
     : await factory.createProperty(
         "Ocean View Villas",
         "Goa, India",
-        5_00_00_00_000n,
+        50_000n,
         PRICE_2
       );
   await tx2.wait();
-  console.log("  -> Ocean View Villas created!");
+  console.log("  -> Ocean View Villas created! (0.0005 USDC/token)");
 
   // ── Summary ───────────────────────────────────────────────────────────────
   console.log("\n╔══════════════════════════════════════════════════════════╗");
