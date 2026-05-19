@@ -34,7 +34,7 @@ async function issueNonce(wallet) {
   await AuthNonce.findOneAndUpdate(
     { wallet: wallet.toLowerCase() },
     { wallet: wallet.toLowerCase(), nonce, expiresAt },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
   );
   return { nonce, message: SIWE_PREFIX + nonce, expiresAt };
 }

@@ -32,8 +32,12 @@ const Holding = require("../models/Holding");
 const IndexerCheckpoint = require("../models/IndexerCheckpoint");
 const logger = require("../logger");
 
-const POLL_MS = 12_000;
+const POLL_MS = 20_000;
 const CHUNK_BLOCKS = Number(process.env.INDEXER_CHUNK_BLOCKS) || 10; // tuned for Base Sepolia free-tier RPC (10-block cap); raise on paid RPC
+const CHUNK_DELAY_MS = 300;  // pause between chunks to avoid Alchemy 429s
+const RETRY_DELAY_MS = 3000; // backoff on rate-limit before retrying
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const START_BLOCK = Number(process.env.INDEXER_START_BLOCK) || 0; // set near deploy block to avoid scanning from genesis
 const ZERO = ethers.ZeroAddress;
 
 const ABI_FACTORY = [
@@ -74,29 +78,40 @@ async function getCheckpoint(chainId, addr, event) {
   const row = await IndexerCheckpoint.findOne({
     chainId, contractAddress: addr.toLowerCase(), eventName: event,
   });
-  return row?.lastBlock ?? 0;
+  return row?.lastBlock ?? START_BLOCK;
 }
 async function setCheckpoint(chainId, addr, event, block) {
   await IndexerCheckpoint.findOneAndUpdate(
     { chainId, contractAddress: addr.toLowerCase(), eventName: event },
     { lastBlock: block },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
   );
 }
 
 // Generic chunked log scanner. Calls `handler(log)` for every event found,
 // persists the new checkpoint after each chunk so a crash mid-scan resumes
 // from the last successful chunk rather than the start.
+// Includes retry-with-backoff for 429 rate limits (Alchemy free tier).
 async function scanLogs(provider, contract, eventName, fromBlock, latest, handler, ctx) {
   let cursor = fromBlock;
   while (cursor <= latest) {
     const to = Math.min(cursor + CHUNK_BLOCKS - 1, latest);
     let logs = [];
-    try {
-      logs = await contract.queryFilter(eventName, cursor, to);
-    } catch (e) {
-      logger.warn({ event: eventName, range: [cursor, to], err: e.message }, "indexer: queryFilter failed; retry next tick");
-      return; // bail out; next tick will retry the same range
+    let retries = 0;
+    while (retries < 3) {
+      try {
+        logs = await contract.queryFilter(eventName, cursor, to);
+        break; // success
+      } catch (e) {
+        const is429 = e.message?.includes('429') || e.message?.includes('exceeded');
+        if (is429 && retries < 2) {
+          retries++;
+          await sleep(RETRY_DELAY_MS * retries);
+          continue;
+        }
+        logger.warn({ event: eventName, range: [cursor, to] }, "indexer: queryFilter failed; retry next tick");
+        return; // bail out; next tick will retry the same range
+      }
     }
     for (const log of logs) {
       try { await handler(log, ctx); }
@@ -104,6 +119,7 @@ async function scanLogs(provider, contract, eventName, fromBlock, latest, handle
     }
     await setCheckpoint(ctx.chainId, contract.target, eventName, to);
     cursor = to + 1;
+    if (cursor <= latest) await sleep(CHUNK_DELAY_MS); // pace requests
   }
 }
 
@@ -120,7 +136,7 @@ async function upsertTransfer(log, ctx) {
     await Holding.findOneAndUpdate(
       { propertyId, wallet: from },
       { balance: next, chainId: ctx.chainId },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
     );
   }
   if (to !== ZERO) {
@@ -129,7 +145,7 @@ async function upsertTransfer(log, ctx) {
     await Holding.findOneAndUpdate(
       { propertyId, wallet: to },
       { balance: next, chainId: ctx.chainId },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
     );
   }
 }
@@ -170,7 +186,7 @@ async function indexFactory(provider, factoryAddr, chainId) {
         owner: owner.toLowerCase(),
         chainId,
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
     );
   }, { chainId });
 }
@@ -317,7 +333,7 @@ async function indexProperty(provider, doc, chainId) {
         lastDepositAt,
         cadenceDays,
       },
-      { new: true }
+      { returnDocument: "after" }
     );
   } catch (err) {
     logger.debug({ propertyId: doc.propertyId, err: err.message }, "indexer: snapshot read failed");
@@ -337,9 +353,10 @@ async function tick() {
   await indexFactory(provider, addrs.factory, chainId);
 
   const properties = await Property.find({ chainId });
-  for (const p of properties) {
+  for (let i = 0; i < properties.length; i++) {
     // eslint-disable-next-line no-await-in-loop
-    await indexProperty(provider, p, chainId);
+    await indexProperty(provider, properties[i], chainId);
+    if (i < properties.length - 1) await sleep(500); // pace between properties
   }
 }
 

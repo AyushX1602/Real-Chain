@@ -101,6 +101,10 @@ app.get("/api/health", (req, res) => {
 // ── MongoDB Connection ───────────────────────────────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/realchain";
 
+// Mongoose 9 deprecates { new: true } in favour of { returnDocument: 'after' }.
+// Set the default globally so existing code stops spamming warnings.
+mongoose.set("returnDocument", "after");
+
 mongoose
   .connect(MONGODB_URI)
   .then(() => {

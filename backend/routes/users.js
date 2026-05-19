@@ -19,7 +19,7 @@ router.post("/connect", async (req, res) => {
           ...(role && { role: role.toLowerCase() }),
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
 
     res.json(user);

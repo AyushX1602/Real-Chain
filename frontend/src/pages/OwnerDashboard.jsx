@@ -16,7 +16,7 @@ import {
   EpochCadenceIndicator,
   FractionalOwnershipBar,
 } from "../components/ScreenPrimitives";
-import { BACKEND_URL, CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import { BACKEND_URL, CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI, PROPERTY_TOKEN_ABI } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OwnerDashboard — properties you own, rent you have deposited, quick deposit
@@ -24,7 +24,7 @@ import { BACKEND_URL, CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI } from "../con
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function OwnerDashboard() {
-  const { account, roleHint, getReadFactory, getReadPropertyContracts, getFactory, fmtUsdc, fmtProp, fmtAddr, fmtInr } = useWeb3();
+  const { account, signer, roleHint, getReadFactory, getReadPropertyContracts, getFactory, fmtUsdc, fmtProp, fmtAddr, fmtInr } = useWeb3();
   const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
   const [props, setProps] = useState([]);
@@ -131,6 +131,31 @@ export default function OwnerDashboard() {
       const tx = await factory.createProperty(name, location, inrPaisa, usdc6);
       toast.info("Creating property…", { msg: "Confirm in MetaMask." });
       await tx.wait();
+
+      // Auto-approve: the new Marketplace must be allowed to transfer the
+      // owner's PROP tokens so buyFromOwner works immediately.
+      try {
+        const readFactory = getReadFactory();
+        const count = Number(await readFactory.getPropertiesCount());
+        if (count > 0) {
+          const newest = await readFactory.properties(count - 1);
+          if (newest.owner.toLowerCase() === account.toLowerCase()) {
+            toast.info("Approving marketplace…", { msg: "One more confirmation to enable token sales." });
+            const tokenContract = new ethers.Contract(newest.propertyToken, PROPERTY_TOKEN_ABI, signer);
+            const approveTx = await tokenContract.approve(
+              newest.marketplace,
+              ethers.MaxUint256
+            );
+            await approveTx.wait();
+            toast.success("Marketplace approved", { msg: "Investors can now buy tokens." });
+          }
+        }
+      } catch (approveErr) {
+        // Non-fatal — owner can approve later. Log for debugging.
+        console.warn("Auto-approve failed:", approveErr);
+        toast.info("Created but approval pending", { msg: "Approve the marketplace manually before investors can buy." });
+      }
+
       toast.success("Property created", { msg: `${name} is now live on-chain.` });
       setCreatingNew(false);
       setNewProp({ name: "", location: "", valueInr: "", price: "" });

@@ -139,7 +139,7 @@ router.post("/sync", async (req, res) => {
           ...(totalSupply != null ? { totalSupply, availableSupply: tokensRemaining, tokensRemaining } : {}),
           ...(pricePerToken != null ? { pricePerToken } : {}),
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
       );
       synced.push(shape(doc));
     }
