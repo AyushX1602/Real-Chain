@@ -3381,14 +3381,21 @@ tr:hover td { background: var(--positivus-grey-warm); }
    ═══════════════════════════════════════════════════════════════════════ */
 
 .lp-hero-stage--living {
-  /* Edge-to-edge canvas — break out of the .container's inline padding */
+  /* Edge-to-edge canvas — break out of the .container's inline padding
+     and the parent .page-content's vertical padding so the hero sits
+     flush against the navbar with no dead space. */
   position: relative;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  margin-top: 0;
+  /* Pull up over the .page-content top padding (var(--space-10)) and the
+     parent .container's reveal margin so the navbar's bottom border meets
+     the hero's top edge with no visible gap. */
+  margin-top: calc(-1 * var(--space-10));
   margin-bottom: var(--space-12);
-  min-height: 100vh;
+  /* Total = viewport minus the 80px sticky navbar height defined in
+     .navbar-inner. min-height (not height) so taller text wraps cleanly. */
+  min-height: calc(100vh - 80px);
   padding: clamp(24px, 6vh, 64px) clamp(24px, 6vw, 80px);
   border: none;
   border-radius: 0;
@@ -3600,54 +3607,58 @@ tr:hover td { background: var(--positivus-grey-warm); }
   to   { transform: rotate(360deg); }
 }
 
-/* ── Floating coins (background depth) ───────────────────────────────────── */
-.lp-coin {
+/* ── Floating coins (background depth) ───────────────────────────────────
+   The coin layer is split into two elements:
+     1) `.lp-coin-wrap` — absolutely positioned, applies the mouse-parallax
+        translate driven by the stage's CSS variables. Does NOT animate.
+     2) `.lp-coin` — child element, runs the floatCoin keyframe animation
+        on its own transform. Stacking the two prevents the parallax shift
+        from clobbering the float bob (a single element animating `translate`
+        cannot also receive a wrapper-driven parallax `translate`).
+   Mounted at the section level so route-driven remounts don't reset the
+   animation. */
+.lp-coin-wrap {
   position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  /* Apply parallax shift here — composes with the inner float keyframe */
+  transform: translate(var(--hero-px-usdc-x), var(--hero-px-usdc-y));
+  transition: transform 0.18s ease-out;
+  will-change: transform;
+}
+.lp-coin-wrap.is-bg { opacity: 0.45; }
+
+.lp-coin-wrap.pos-top-right    { top: 8%;   right: 6%;  }
+.lp-coin-wrap.pos-mid-right    { top: 40%;  right: 22%; }
+.lp-coin-wrap.pos-bottom-mid   { bottom: 8%; left: 48%; }
+.lp-coin-wrap.pos-top-left     { top: 14%;  left: 22%;  }
+.lp-coin-wrap.pos-bottom-left  { bottom: 6%; left: 8%;  }
+
+.lp-coin {
+  display: flex; align-items: center; justify-content: center;
   width: var(--coin-size, 56px);
   height: var(--coin-size, 56px);
-  display: flex; align-items: center; justify-content: center;
   border-radius: 50%;
   border: 1px solid var(--positivus-black, #191A23);
   box-shadow: 0 6px 14px rgba(25, 26, 35, 0.18);
   font-family: var(--font-mono, monospace);
   font-weight: 800;
   letter-spacing: 0;
-  pointer-events: none;
-  z-index: 1;
-  animation: lpCoinFloat var(--coin-dur, 6s) ease-in-out infinite;
-  animation-delay: var(--coin-delay, 0s);
+  /* floatCoin: translateY(0 ↔ -16px), 4s ease-in-out infinite per spec.
+     Each instance is staggered via --coin-delay for organic motion. */
+  animation: floatCoin var(--coin-dur, 4s) ease-in-out var(--coin-delay, 0s) infinite;
   will-change: transform;
 }
-.lp-coin.is-bg { opacity: 0.42; }
 .lp-coin .lp-coin-glyph { position: relative; z-index: 2; }
 
-/* ETH coin — dark hex/diamond badge with Ξ */
-.lp-coin-eth {
-  background: linear-gradient(135deg, #2C2D38 0%, #191A23 50%, #0E0F17 100%);
-  color: #FFFFFF;
-  font-size: calc(var(--coin-size) * 0.5);
-  /* Diamond/hex feel via clip-path (subtle — mostly stays a circle) */
-  border-radius: 50%;
-}
-.lp-coin-eth .lp-coin-shine {
-  position: absolute; inset: -1px;
-  border-radius: 50%;
-  background: conic-gradient(from 90deg, transparent 0deg, rgba(255,255,255,0.18) 60deg, transparent 120deg);
-  mix-blend-mode: screen;
-  animation: lpCoinShimmer 6s linear infinite;
-  animation-delay: var(--coin-delay, 0s);
-  pointer-events: none;
-}
-.lp-coin-eth.pos-top-right    { top: 8%;  right: 6%;  transform: translate(var(--hero-px-eth-x), var(--hero-px-eth-y)); }
-.lp-coin-eth.pos-bottom-left  { bottom: 6%; left: 8%; transform: translate(var(--hero-px-eth-x), var(--hero-px-eth-y)); }
-.lp-coin-eth.pos-mid-left     { top: 42%; left: 4%;   transform: translate(var(--hero-px-eth-x), var(--hero-px-eth-y)); }
-@keyframes lpCoinShimmer {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+@keyframes floatCoin {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-16px); }
 }
 
 /* USDC coin — blue circular badge with $ */
 .lp-coin-usdc {
+  position: relative;
   background: linear-gradient(135deg, #2775CA 0%, #1E5BAE 60%, #143C7A 100%);
   color: #FFFFFF;
   font-size: calc(var(--coin-size) * 0.46);
@@ -3661,14 +3672,9 @@ tr:hover td { background: var(--positivus-grey-warm); }
   animation-delay: var(--coin-delay, 0s);
   pointer-events: none;
 }
-.lp-coin-usdc.pos-mid-right   { top: 40%;  right: 22%;  transform: translate(var(--hero-px-usdc-x), var(--hero-px-usdc-y)); }
-.lp-coin-usdc.pos-top-left    { top: 14%;  left: 22%;   transform: translate(var(--hero-px-usdc-x), var(--hero-px-usdc-y)); }
-.lp-coin-usdc.pos-bottom-mid  { bottom: 8%; left: 48%;  transform: translate(var(--hero-px-usdc-x), var(--hero-px-usdc-y)); }
-
-/* Coin float animation — kept in sync with the spec's 5s/6.5s targets */
-@keyframes lpCoinFloat {
-  0%, 100% { translate: 0 0; }
-  50%      { translate: 0 -10px; }
+@keyframes lpCoinShimmer {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /* ── CTA hover states ─────────────────────────────────────────────────────── */
@@ -3705,12 +3711,12 @@ tr:hover td { background: var(--positivus-grey-warm); }
   .lp-hero-dollar--primary,
   .lp-hero-orbit,
   .lp-coin,
-  .lp-coin-eth .lp-coin-shine,
   .lp-coin-usdc .lp-coin-rim,
   .lp-hero-eyebrow--zero[data-pulse],
   .lp-hero-orb--xl {
     animation: none !important;
   }
+  .lp-coin-wrap { transition: none !important; transform: none !important; }
   .lp-cta-howitworks:hover .lp-cta-shimmer { animation: none !important; transform: translateX(110%); }
   .lp-hero-stage--living {
     --hero-px-eth-x: 0px; --hero-px-eth-y: 0px;

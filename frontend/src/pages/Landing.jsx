@@ -458,13 +458,15 @@ function HeroSection({ account, connect, connecting, networkName }) {
       <span className="lp-hero-orb lp-hero-orb--xl is-warm" aria-hidden="true" />
       <span className="lp-hero-grid" aria-hidden="true" />
 
-      {/* Floating coins — distributed across the canvas */}
-      <CoinEth  size={68} pos="top-right"     duration={5}   delay={0}     />
-      <CoinEth  size={40} pos="bottom-left"   duration={5.6} delay={-1.4}  background />
-      <CoinUsdc size={56} pos="mid-right"     duration={6.5} delay={-0.8}  />
-      <CoinUsdc size={38} pos="top-left"      duration={7.2} delay={-2.1}  background />
-      <CoinUsdc size={42} pos="bottom-mid"    duration={7.8} delay={-3.0}  background />
-      <CoinEth  size={36} pos="mid-left"      duration={6.2} delay={-0.6}  background />
+      {/* Floating coins — distributed across the canvas. ETH coins have
+          been removed by request: their Ξ glyph rendered as a 3-line shape
+          that read like a hamburger menu icon. USDC coins remain to give
+          the canvas the same depth without that ambiguity. */}
+      <CoinUsdc size={64} pos="top-right"     duration={4}   delay={0}     />
+      <CoinUsdc size={56} pos="mid-right"     duration={4}   delay={1.2}   />
+      <CoinUsdc size={42} pos="bottom-mid"    duration={4}   delay={2.5}   background />
+      <CoinUsdc size={38} pos="top-left"      duration={4}   delay={0.7}   background />
+      <CoinUsdc size={44} pos="bottom-left"   duration={4}   delay={1.9}   background />
 
       <section className="lp-hero lp-hero--living">
         <div className="lp-hero-text lp-hero-text--living">
@@ -554,36 +556,28 @@ function HeroSection({ account, connect, connecting, networkName }) {
   );
 }
 
-function CoinEth({ size = 64, pos = "top-right", duration = 5, delay = 0, background = false }) {
+function CoinUsdc({ size = 56, pos = "mid-right", duration = 4, delay = 0, background = false }) {
+  // Outer wrapper: positions the coin and consumes the mouse-parallax CSS
+  // variables. This element does NOT animate, so the parallax `translate`
+  // never collides with the keyframe's `translateY`.
+  // Inner element: runs the floatCoin keyframes on its own. Stacking the
+  // two means the parallax shift composes cleanly with the float bob.
   return (
     <span
-      className={`lp-coin lp-coin-eth pos-${pos} ${background ? "is-bg" : ""}`}
-      style={{
-        "--coin-size": `${size}px`,
-        "--coin-dur": `${duration}s`,
-        "--coin-delay": `${delay}s`,
-      }}
+      className={`lp-coin-wrap pos-${pos} ${background ? "is-bg" : ""}`}
       aria-hidden="true"
     >
-      <span className="lp-coin-shine" />
-      <span className="lp-coin-glyph">Ξ</span>
-    </span>
-  );
-}
-
-function CoinUsdc({ size = 56, pos = "mid-right", duration = 6.5, delay = 0, background = false }) {
-  return (
-    <span
-      className={`lp-coin lp-coin-usdc pos-${pos} ${background ? "is-bg" : ""}`}
-      style={{
-        "--coin-size": `${size}px`,
-        "--coin-dur": `${duration}s`,
-        "--coin-delay": `${delay}s`,
-      }}
-      aria-hidden="true"
-    >
-      <span className="lp-coin-rim" />
-      <span className="lp-coin-glyph">$</span>
+      <span
+        className="lp-coin lp-coin-usdc"
+        style={{
+          "--coin-size": `${size}px`,
+          "--coin-dur": `${duration}s`,
+          "--coin-delay": `${delay}s`,
+        }}
+      >
+        <span className="lp-coin-rim" />
+        <span className="lp-coin-glyph">$</span>
+      </span>
     </span>
   );
 }
