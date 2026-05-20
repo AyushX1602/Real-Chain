@@ -72,6 +72,13 @@ export default function Property() {
       setOwnerBalance(ownerBal);
       setTotalSupply(supply);
 
+      // Default the buy input to 1 token once a non-zero listing price is
+      // known. Only fills it in when the user hasn't already typed a value;
+      // re-pulling the page (e.g. after a tx) shouldn't clobber pending edits.
+      if (price > 0n) {
+        setBuyAmount((prev) => (prev && prev.trim() !== "" ? prev : "1"));
+      }
+
       // Listings
       const ls = [];
       for (let i = 0; i < Number(count); i++) {
@@ -211,6 +218,13 @@ export default function Property() {
     ? BigInt(Math.floor(Number(buyAmount))) * pricePerToken
     : 0n;
 
+  // Whole-token cap available from the owner's primary stock. ownerBalance is
+  // raw 18-decimal PROP; the input deals in whole tokens.
+  const availableSupply = ownerBalance > 0n ? Math.floor(Number(ownerBalance) / 1e18) : 0;
+  const buyAmountNum = Number(buyAmount || 0);
+  const exceedsSupply = buyAmountNum > availableSupply;
+  const buyAmountInvalid = !buyAmount || buyAmountNum <= 0 || exceedsSupply;
+
   return (
     <div className="container-narrow reveal">
       <button className="btn btn-ghost btn-sm" style={{ marginBottom: 18 }} onClick={() => navigate("/")}>
@@ -310,20 +324,38 @@ export default function Property() {
 
                 <div className="flex gap-3 items-end flex-wrap">
                   <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
-                    <label className="form-label">Tokens to buy</label>
+                    <label className="form-label">Number of tokens</label>
                     <input
                       className="form-input"
                       type="number"
                       min="1"
-                      placeholder="e.g. 5"
+                      step="1"
+                      max={availableSupply || undefined}
                       value={buyAmount}
                       onChange={(e) => setBuyAmount(e.target.value)}
+                      aria-invalid={exceedsSupply || undefined}
+                      aria-describedby="buy-helper"
                     />
+                    <div
+                      id="buy-helper"
+                      className="text-xs text-muted"
+                      style={{ marginTop: 6 }}
+                    >
+                      Price per token: <strong style={{ color: "var(--text-primary, var(--positivus-black))", fontFeatureSettings: "'tnum' on" }}>
+                        {fmtUsdc(pricePerToken)}
+                      </strong>
+                      <span style={{ opacity: 0.55 }}> · {availableSupply.toLocaleString()} available</span>
+                    </div>
+                    {exceedsSupply && (
+                      <div className="text-xs" style={{ marginTop: 6, color: "var(--red-500, #DC2626)", fontWeight: 600 }}>
+                        Exceeds available supply
+                      </div>
+                    )}
                   </div>
                   <div style={{ minWidth: 160 }}>
                     <div className="form-label" style={{ marginBottom: 4 }}>Total cost</div>
-                    <div style={{ fontWeight: 800, fontSize: 22, color: "var(--positivus-black)", lineHeight: 1.2, fontFeatureSettings: "'tnum' on" }}>
-                      {buyAmount ? fmtUsdc(buyTotal) : "$0.00"}
+                    <div style={{ fontWeight: 800, fontSize: 22, color: "var(--text-primary, var(--positivus-black))", lineHeight: 1.2, fontFeatureSettings: "'tnum' on" }}>
+                      {buyAmount && Number(buyAmount) > 0 ? fmtUsdc(buyTotal) : "$0.00"}
                     </div>
                   </div>
                 </div>
@@ -332,13 +364,13 @@ export default function Property() {
                   className="btn btn-primary btn-lg btn-full"
                   style={{ marginTop: 18 }}
                   onClick={handleBuyFromOwner}
-                  disabled={busy === "primary" || !account || !buyAmount}
+                  disabled={busy === "primary" || !account || buyAmountInvalid}
                 >
                   {!account
                     ? <><Icon name="wallet" size={14} /> Connect wallet to buy</>
                     : busy === "primary"
                       ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 1.5 }} /> Processing…</>
-                      : <><Icon name="bolt" size={14} /> Buy {buyAmount || ""} PROP</>}
+                      : <><Icon name="bolt" size={14} /> Buy {buyAmount || "1"} PROP</>}
                 </button>
 
                 {account && buyAmount && (
