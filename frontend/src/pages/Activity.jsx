@@ -20,6 +20,14 @@ export default function Activity() {
   const agent = useAgent(AGENT_IDS.ACTIVITY);
   const state = useAgentState(AGENT_IDS.ACTIVITY);
 
+  // Live refresh — when any tx fires through UGFContext.logTx, force the
+  // agent to re-fetch from page 0 instead of waiting for the next 8s poll.
+  React.useEffect(() => {
+    function onTx() { agent?.refresh?.(); }
+    window.addEventListener("realchain:tx", onTx);
+    return () => window.removeEventListener("realchain:tx", onTx);
+  }, [agent]);
+
   const rows = state?.rows ?? [];
   const filters = state?.filters ?? { action: "all", gasMethod: "all", wallet: "" };
 

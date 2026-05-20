@@ -31,6 +31,15 @@ export default function Dividends() {
 
   useEffect(() => { if (account) load(); else { setLoading(false); setProperties([]); } }, [account]);
 
+  // Live refresh — pending rent and epoch state shift on every claim/deposit
+  // dispatched anywhere in the app.
+  useEffect(() => {
+    function onTx() { if (account) load(); }
+    window.addEventListener("realchain:tx", onTx);
+    return () => window.removeEventListener("realchain:tx", onTx);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
+
   async function load() {
     setLoading(true);
     try {

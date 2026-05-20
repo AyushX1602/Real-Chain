@@ -83,6 +83,17 @@ export default function OwnerDashboard() {
     setWalletDraft(savedAssetWallet || "");
   }, [savedAssetWallet]);
 
+  // Live refresh — owner panels (deposited, epochs, holder concentration)
+  // shift on every tx fired anywhere in the app. The dependency uses
+  // `effectiveOwnerWallet` so impersonation by an admin re-fetches against
+  // the impersonated owner.
+  useEffect(() => {
+    function onTx() { if (effectiveOwnerWallet) load(); }
+    window.addEventListener("realchain:tx", onTx);
+    return () => window.removeEventListener("realchain:tx", onTx);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveOwnerWallet]);
+
   useEffect(() => {
     if (!effectiveOwnerWallet) {
       setProps([]);

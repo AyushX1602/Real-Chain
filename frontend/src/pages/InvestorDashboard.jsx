@@ -30,6 +30,14 @@ export default function InvestorDashboard() {
 
   useEffect(() => { if (account) load(); else { setItems([]); setLoading(false); } }, [account]);
 
+  // Live refresh — re-pull holdings + pending rent + USDC after any logTx.
+  useEffect(() => {
+    function onTx() { if (account) load(); }
+    window.addEventListener("realchain:tx", onTx);
+    return () => window.removeEventListener("realchain:tx", onTx);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
+
   async function load() {
     setLoading(true);
     try {

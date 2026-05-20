@@ -42,6 +42,17 @@ export default function Portfolio() {
     else { setLoading(false); setHoldings([]); }
   }, [account, isAdminSession]);
 
+  // Live refresh on cross-screen transactions. UGFContext.logTx fires a
+  // `realchain:tx` window event after every successful tx; we re-pull
+  // holdings so balances + listings reflect the new chain state without
+  // a manual reload. No-op when no wallet is connected.
+  useEffect(() => {
+    function onTx() { if (account && !isAdminSession) load(); }
+    window.addEventListener("realchain:tx", onTx);
+    return () => window.removeEventListener("realchain:tx", onTx);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, isAdminSession]);
+
   async function load() {
     setLoading(true);
     try {

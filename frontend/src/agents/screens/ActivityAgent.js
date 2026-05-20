@@ -59,6 +59,12 @@ export default class ActivityAgent extends BaseAgent {
   }
 
   // ── Public commands ─────────────────────────────────────────────────────
+  // Force a fresh fetch from page 0. Used by the Activity page to react to
+  // `realchain:tx` window events without waiting for the next 8s poll.
+  async refresh() {
+    await this._fetchInitial();
+  }
+
   setFilter(patch) {
     const next = { ...this._state.filters, ...patch };
     if (typeof next.wallet === "string" && next.wallet && !ADDR_RX.test(next.wallet)) {
