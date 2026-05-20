@@ -225,6 +225,17 @@ export function Web3Provider({ children }) {
     }
   }, [hydrateWallet]);
 
+  // ── Disconnect — clears local state (MetaMask has no programmatic disconnect) ─
+  const disconnect = useCallback(() => {
+    setProvider(null);
+    setSigner(null);
+    setAccount(null);
+    setChainId(null);
+    setUsdcBalance("0");
+    setRoleHint(null);
+    setError(null);
+  }, []);
+
   // ── Fetch USDC balance ───────────────────────────────────────────────────────
   const refreshUsdcBalance = useCallback(async () => {
     if (!signer || !account) return;
@@ -351,7 +362,7 @@ export function Web3Provider({ children }) {
     <Web3Context.Provider value={{
       provider, signer, account, chainId,
       isCorrectNetwork, usdcBalance, roleHint, connecting, error, nodeOnline,
-      connect, refreshUsdcBalance, switchToExpectedNetwork, switchAccount,
+      connect, refreshUsdcBalance, switchToExpectedNetwork, switchAccount, disconnect,
       // Read-write (MetaMask required)
       getFactory, getUsdc, getPropertyContracts,
       // Read-only (no MetaMask — for browsing)

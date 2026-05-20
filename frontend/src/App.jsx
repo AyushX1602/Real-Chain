@@ -34,8 +34,20 @@ function Navbar() {
   const { user: authUser, isAuthenticated, logout, dashboardForRole } = useAuth();
   const {
     account, usdcBalance, connecting, connect, error, fmtAddr,
-    isCorrectNetwork, roleHint, switchToExpectedNetwork,
+    isCorrectNetwork, roleHint, switchToExpectedNetwork, switchAccount, disconnect,
   } = useWeb3();
+  const [walletOpen, setWalletOpen] = useState(false);
+  const walletWrapRef = useRef(null);
+
+  // Close wallet dropdown on outside click
+  useEffect(() => {
+    if (!walletOpen) return undefined;
+    function onDown(e) {
+      if (walletWrapRef.current && !walletWrapRef.current.contains(e.target)) setWalletOpen(false);
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [walletOpen]);
   const { isUGFEnabled, setUGFEnabled } = useUGF();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -115,12 +127,6 @@ function Navbar() {
           </div>
 
           <div className="navbar-actions">
-            {account && (
-              <span className="usdc-chip" title="Mock USDC balance">
-                <span className="dot" />
-                ${usdcBalance} USDC
-              </span>
-            )}
             <GasIndicator />
             {account && roleHint && roleHint !== "Unknown" && (
               <span className={`role-badge ${roleHint === "Owner" ? "is-owner" : "is-investor"}`}>
@@ -160,20 +166,66 @@ function Navbar() {
               {settingsOpen && <SettingsPopover isUGFEnabled={isUGFEnabled} setUGFEnabled={setUGFEnabled} onClose={() => setSettingsOpen(false)} />}
             </div>
 
-            <button
-              className={`btn-wallet ${account ? "connected" : ""}`}
-              onClick={connect}
-              disabled={connecting}
-              aria-label={account ? `Connected as ${fmtAddr(account)}` : "Connect wallet"}
-            >
-              {connecting ? (
-                <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 1.5 }} /> Connecting…</>
-              ) : account ? (
-                <><span className="wallet-dot" />{fmtAddr(account)}</>
-              ) : (
-                <><Icon name="wallet" size={14} /> Connect wallet</>
-              )}
-            </button>
+            {/* ── Wallet button / dropdown ───────────────────────────── */}
+            {account ? (
+              <div ref={walletWrapRef} style={{ position: "relative" }}>
+                <button
+                  className="btn-wallet connected"
+                  onClick={() => setWalletOpen((o) => !o)}
+                  aria-label={`Wallet: ${fmtAddr(account)}`}
+                  aria-expanded={walletOpen}
+                >
+                  <span className="wallet-dot" />
+                  {fmtAddr(account)}
+                  <Icon name="chevronDown" size={11} style={{ marginLeft: 4, opacity: 0.7 }} />
+                </button>
+
+                {walletOpen && (
+                  <div className="wallet-dropdown" role="menu">
+                    {/* Balance row */}
+                    <div className="wallet-dropdown-balance">
+                      <span className="wallet-dropdown-label">Balance</span>
+                      <span className="wallet-dropdown-usdc">${usdcBalance} USDC</span>
+                    </div>
+                    {/* Full address */}
+                    <div className="wallet-dropdown-addr" title={account}>
+                      {account}
+                    </div>
+                    <hr className="wallet-dropdown-divider" />
+                    {/* Switch account */}
+                    <button
+                      className="wallet-dropdown-btn"
+                      role="menuitem"
+                      onClick={async () => {
+                        setWalletOpen(false);
+                        await switchAccount();
+                      }}
+                    >
+                      <Icon name="users" size={13} /> Switch account
+                    </button>
+                    {/* Disconnect */}
+                    <button
+                      className="wallet-dropdown-btn wallet-dropdown-btn--danger"
+                      role="menuitem"
+                      onClick={() => { setWalletOpen(false); disconnect(); }}
+                    >
+                      <Icon name="logout" size={13} /> Disconnect
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                className="btn-wallet"
+                onClick={connect}
+                disabled={connecting}
+                aria-label="Connect wallet"
+              >
+                {connecting
+                  ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 1.5 }} /> Connecting…</>
+                  : <><Icon name="wallet" size={14} /> Connect wallet</>}
+              </button>
+            )}
           </div>
         </div>
       </nav>
