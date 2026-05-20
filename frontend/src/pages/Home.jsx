@@ -48,6 +48,29 @@ export default function Home() {
 
   useEffect(() => { load(); }, []);
 
+  // Live refresh — any tx logged through UGFContext.logTx fires a window
+  // event. We reset holder counts so every visible card re-fetches against
+  // the new chain state, then re-pull the catalog.
+  useEffect(() => {
+    function handler() {
+      setHolderCounts({});
+      load();
+    }
+    window.addEventListener("realchain:tx", handler);
+    return () => window.removeEventListener("realchain:tx", handler);
+    // load() is stable enough — it captures setProps via closure; no deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Periodic refresh — keeps the catalog fresh even when the current user
+  // didn't make the transaction. 30s matches the indexer's refresh budget
+  // without hammering the backend.
+  useEffect(() => {
+    const interval = setInterval(() => load(), 30_000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Lazy holder-count fetch — fired by IntersectionObserver on each card.
   // The backend now responds with { count, holders }; we still tolerate the
   // legacy bare-array shape so an older indexer build keeps working.

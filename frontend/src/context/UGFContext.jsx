@@ -172,19 +172,29 @@ export function UGFContextProvider({ children }) {
 
   const logTx = useCallback(async (payload) => {
     try {
-      if (!BACKEND_URL) return;
-      await fetch(`${BACKEND_URL}/api/transactions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chainId: NETWORK_CHAIN_ID,
-          from: account || null,
-          ...payload,
-        }),
-      });
+      if (BACKEND_URL) {
+        await fetch(`${BACKEND_URL}/api/transactions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chainId: NETWORK_CHAIN_ID,
+            from: account || null,
+            ...payload,
+          }),
+        });
+      }
     } catch (_) {
       // Backend is optional during local demos.
     }
+    // Broadcast a `realchain:tx` event regardless of backend status so any
+    // mounted page (Marketplace catalog, Portfolio holdings, Activity rail)
+    // can refresh its own data without prop-drilling. Listeners read the
+    // original payload via `event.detail`.
+    try {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("realchain:tx", { detail: payload }));
+      }
+    } catch (_) { /* CustomEvent unsupported — should not happen in browsers */ }
   }, [account]);
 
   const value = useMemo(() => ({
