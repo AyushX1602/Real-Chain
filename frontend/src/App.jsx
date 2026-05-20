@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Routes, Route, NavLink, Navigate } from "react-router-dom";
+import { Routes, Route, NavLink, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { useWeb3 } from "./context/Web3Context";
 import { useUGF } from "./context/UGFContext";
@@ -23,6 +23,7 @@ import TenantDashboard from "./pages/TenantDashboard";
 import Watchlist from "./pages/Watchlist";
 import Analytics from "./pages/Analytics";
 import Activity from "./pages/Activity";
+import DemoWalkthrough from "./pages/DemoWalkthrough";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Navbar — Positivus-style: white bar, black text, lime accent, rounded buttons.
@@ -36,6 +37,7 @@ function Navbar() {
     account, usdcBalance, connecting, connect, error, fmtAddr,
     isCorrectNetwork, roleHint, switchToExpectedNetwork, switchAccount, disconnect,
   } = useWeb3();
+  const navigate = useNavigate();
   const [walletOpen, setWalletOpen] = useState(false);
   const walletWrapRef = useRef(null);
 
@@ -114,7 +116,7 @@ function Navbar() {
                 Dashboard
               </NavLink>
             )}
-            {!isOwnerNav && (
+            {!isOwnerNav && (account || isAuthenticated) && (
               <>
                 <NavLink to="/portfolio" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
                   Portfolio
@@ -122,8 +124,14 @@ function Navbar() {
                 <NavLink to="/dividends" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
                   Claim rent
                 </NavLink>
+                <NavLink to="/analytics" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                  Analytics
+                </NavLink>
               </>
             )}
+            <NavLink to="/demo" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+              Demo
+            </NavLink>
           </div>
 
           <div className="navbar-actions">
@@ -138,7 +146,7 @@ function Navbar() {
                 <span className={`role-badge ${authUser?.role === "owner" ? "is-owner" : "is-investor"}`} title={authUser?.email}>
                   <Icon name={authUser?.role === "owner" ? "building" : "receipt"} size={11} /> {authRoleLabel}
                 </span>
-                <button className="icon-btn" onClick={logout} aria-label="Log out">
+                <button className="icon-btn" onClick={() => { logout(); disconnect(); navigate("/"); }} aria-label="Log out">
                   <Icon name="logout" size={16} />
                 </button>
               </>
@@ -340,6 +348,22 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function OwnerRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  const { account, roleHint } = useWeb3();
+  if (!isAuthenticated && !account) return <Navigate to="/login" replace />;
+  if (isAuthenticated && user?.role === "tenant") return <Navigate to="/tenant" replace />;
+  return children;
+}
+
+function TenantRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  const { account } = useWeb3();
+  if (!isAuthenticated && !account) return <Navigate to="/login" replace />;
+  if (isAuthenticated && user?.role === "owner") return <Navigate to="/owner" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <div className="app-shell">
@@ -349,12 +373,13 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
-          <Route path="/marketplace"   element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path="/admin"         element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
-          <Route path="/owner"         element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
+          <Route path="/demo" element={<DemoWalkthrough />} />
+          <Route path="/marketplace"   element={<Home />} />
+          <Route path="/admin"         element={<OwnerRoute><OwnerDashboard /></OwnerRoute>} />
+          <Route path="/owner"         element={<OwnerRoute><OwnerDashboard /></OwnerRoute>} />
           <Route path="/investor"      element={<ProtectedRoute><InvestorDashboard /></ProtectedRoute>} />
-          <Route path="/tenant"        element={<ProtectedRoute><TenantDashboard /></ProtectedRoute>} />
-          <Route path="/property/:id"  element={<ProtectedRoute><Property /></ProtectedRoute>} />
+          <Route path="/tenant"        element={<TenantRoute><TenantDashboard /></TenantRoute>} />
+          <Route path="/property/:id"  element={<Property />} />
           <Route path="/portfolio"     element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
           <Route path="/dividends"     element={<ProtectedRoute><Dividends /></ProtectedRoute>} />
           <Route path="/watchlist"     element={<ProtectedRoute><Watchlist /></ProtectedRoute>} />

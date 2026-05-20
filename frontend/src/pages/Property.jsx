@@ -11,7 +11,7 @@ import YieldCalculator from "../components/YieldCalculator";
 import RentChart from "../components/RentChart";
 import HolderList from "../components/HolderList";
 import useWatchlist from "../hooks/useWatchlist";
-import { CONTRACT_ADDRESSES, MARKETPLACE_ABI } from "../config/contracts";
+import { CONTRACT_ADDRESSES, MARKETPLACE_ABI, PROPERTY_TOKEN_ABI } from "../config/contracts";
 import { propertyImage } from "../utils/propertyImage";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -188,7 +188,65 @@ export default function Property() {
     } finally {
       setBusy(null);
     }
+  }  async function handleCancelListing(listing) {
+    if (!account) { connect(); return; }
+    setBusy(`listing-${listing.id}`);
+    try {
+      const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "cancelListing", [listing.id]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+      logTx({
+        txHash, type: "cancel",
+        propertyId: Number(id),
+        amount: 0,
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+      });
+      toast.success("Listing cancelled");
+      await loadReadOnly();
+    } catch (e) {
+      const msg = e?.reason || e?.message || "Transaction failed";
+      toast.error("Cancel failed", { msg: msg.slice(0, 180) });
+    } finally {
+      setBusy(null);
+    }
   }
+
+  // Create listing state
+  const [showListForm, setShowListForm] = useState(false);
+  const [listAmount, setListAmount] = useState("");
+  const [listPrice, setListPrice] = useState("");
+
+  async function handleCreateListing() {
+    if (!account) { connect(); return; }
+    if (!listAmount || !listPrice) return;
+    const amount = BigInt(Math.floor(Number(listAmount)));
+    const priceVal = BigInt(Math.floor(parseFloat(listPrice) * 1e6));
+    setBusy("create-listing");
+    try {
+      toast.info("Approving PROP tokens", { msg: "UGF will settle approval gas in Mock USD." });
+      await ugfApprove(prop.propertyToken, prop.marketplace, amount * BigInt(1e18));
+
+      const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "createListing", [amount, priceVal]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+      logTx({
+        txHash, type: "listing",
+        propertyId: Number(id),
+        amount: parseFloat(listAmount) * parseFloat(listPrice),
+        tokenAmount: Number(amount),
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+      });
+
+      toast.success("Listing live", { msg: `${listAmount} PROP @ $${listPrice} each.` });
+      setListAmount(""); setListPrice(""); setShowListForm(false);
+      await loadReadOnly();
+      await loadMyBalance();
+    } catch (e) {
+      const msg = e?.reason || e?.message || "Transaction failed";
+      toast.error("Listing failed", { msg: msg.slice(0, 180) });
+    } finally {
+      setBusy(null);
+    }
+  }
+
 
   if (loading) {
     return (
@@ -391,13 +449,74 @@ export default function Property() {
 
           {/* Secondary market */}
           <div className="section">
-            <h2 className="section-title"><Icon name="users" size={14} /> Secondary market — peer listings</h2>
+            <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+              <h2 className="section-title" style={{ margin: 0 }}><Icon name="users" size={14} /> Secondary market</h2>
+              {account && myBalance > 0n && (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setShowListForm((v) => !v)}
+                >
+                  <Icon name={showListForm ? "close" : "send"} size={12} />
+                  {showListForm ? "Cancel" : "List my tokens for sale"}
+                </button>
+              )}
+            </div>
+
+            {/* Create listing form */}
+            {showListForm && (
+              <div className="card" style={{ marginBottom: 16 }}>
+                <div className="card-body">
+                  <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                    <Icon name="send" size={14} className="text-accent" />
+                    Create sell listing
+                  </h3>
+                  <p className="text-xs text-muted" style={{ marginBottom: 14, lineHeight: 1.5 }}>
+                    List your PROP tokens for other investors to buy. You set the price per token. When someone fills the listing, USDC goes directly to your wallet.
+                  </p>
+                  <div className="flex gap-3 items-end flex-wrap">
+                    <div className="form-group" style={{ flex: 1, minWidth: 140 }}>
+                      <label className="form-label">Tokens to sell</label>
+                      <input className="form-input" type="number" min="1" max={Math.floor(Number(myBalance) / 1e18)} placeholder="5"
+                        value={listAmount} onChange={(e) => setListAmount(e.target.value)} />
+                      <div className="text-xs text-muted" style={{ marginTop: 4 }}>You hold {fmtProp(myBalance)} PROP</div>
+                    </div>
+                    <div className="form-group" style={{ flex: 1, minWidth: 160 }}>
+                      <label className="form-label">Price / token (USDC)</label>
+                      <div className="form-input-prefix">
+                        <span className="prefix">$</span>
+                        <input className="form-input" type="number" min="0.01" step="0.01" placeholder="12.00"
+                          value={listPrice} onChange={(e) => setListPrice(e.target.value)} />
+                      </div>
+                    </div>
+                    <div style={{ minWidth: 120 }}>
+                      <div className="form-label" style={{ marginBottom: 4 }}>Total ask</div>
+                      <div style={{ fontWeight: 700, fontSize: 18, color: "var(--positivus-black)" }}>
+                        ${listAmount && listPrice ? (Number(listAmount) * Number(listPrice)).toFixed(2) : "0.00"}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-primary btn-full"
+                    style={{ marginTop: 14 }}
+                    onClick={handleCreateListing}
+                    disabled={!listAmount || !listPrice || busy === "create-listing"}
+                  >
+                    {busy === "create-listing"
+                      ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Creating listing…</>
+                      : <><Icon name="bolt" size={13} /> List {listAmount || "0"} PROP for sale</>}
+                  </button>
+                  <div style={{ marginTop: 10 }}><UGFBadge /></div>
+                </div>
+              </div>
+            )}
+
+            {/* Existing listings table */}
             {listings.length === 0 ? (
               <div className="card">
                 <div className="empty-state" style={{ padding: 40 }}>
                   <span className="emoji" style={{ width: 56, height: 56 }}><Icon name="list" size={20} /></span>
                   <h3>No active listings</h3>
-                  <p>Visit the <Link to="/portfolio" style={{ color: "var(--positivus-black)", textDecoration: "underline" }}>Portfolio</Link> page to list your tokens.</p>
+                  <p>{account && myBalance > 0n ? "Be the first to list! Click the button above." : "No investors have listed tokens for resale yet."}</p>
                 </div>
               </div>
             ) : (
@@ -416,21 +535,35 @@ export default function Property() {
                     <tbody>
                       {listings.map((l) => {
                         const total = (l.amount * l.price) / BigInt(1e18);
-                        const id = `listing-${l.id}`;
+                        const isMine = account && l.seller.toLowerCase() === account.toLowerCase();
+                        const lid = `listing-${l.id}`;
                         return (
                           <tr key={l.id}>
-                            <td className="font-mono text-sm">{fmtAddr(l.seller)}</td>
+                            <td className="font-mono text-sm">
+                              {fmtAddr(l.seller)}
+                              {isMine && <span className="badge badge-accent" style={{ marginLeft: 6 }}>You</span>}
+                            </td>
                             <td><span className="badge badge-accent">{fmtProp(l.amount)} PROP</span></td>
                             <td>{fmtUsdc(l.price)}</td>
                             <td className="font-bold">{fmtUsdc(total)}</td>
                             <td>
-                              <button
-                                className="btn btn-success btn-sm"
-                                onClick={() => handleBuyFromListing(l)}
-                                disabled={busy === id}
-                              >
-                                {busy === id ? <span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> : <><Icon name="bolt" size={11} /> Buy</>}
-                              </button>
+                              {isMine ? (
+                                <button
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => handleCancelListing(l)}
+                                  disabled={busy === lid}
+                                >
+                                  {busy === lid ? <span className="spinner" style={{ width: 11, height: 11, borderWidth: 1.5 }} /> : <><Icon name="close" size={11} /> Cancel</>}
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-success btn-sm"
+                                  onClick={() => handleBuyFromListing(l)}
+                                  disabled={busy === lid}
+                                >
+                                  {busy === lid ? <span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> : <><Icon name="bolt" size={11} /> Buy</>}
+                                </button>
+                              )}
                             </td>
                           </tr>
                         );
@@ -470,7 +603,7 @@ export default function Property() {
           <h2 className="section-title"><Icon name="trending" size={14} /> Yield calculator</h2>
           <div className="card card-elevated">
             <div className="card-body">
-              <YieldCalculator pricePerToken={pricePerToken} totalSupply={totalSupply} />
+              <YieldCalculator pricePerToken={pricePerToken} totalSupply={totalSupply} epochs={epochs} />
             </div>
           </div>
         </div>

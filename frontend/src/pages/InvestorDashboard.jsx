@@ -10,6 +10,7 @@ import CostBanner from "../components/CostBanner";
 import ConnectGate from "../components/ConnectGate";
 import AgentSuggestions from "../components/AgentSuggestions";
 import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import PortfolioChart from "../components/PortfolioChart";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // InvestorDashboard — the demo centerpiece.
@@ -27,6 +28,7 @@ export default function InvestorDashboard() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState(null);
+  const [portfolioEpochs, setPortfolioEpochs] = useState([]);
 
   useEffect(() => { if (account) load(); else { setItems([]); setLoading(false); } }, [account]);
 
@@ -44,6 +46,7 @@ export default function InvestorDashboard() {
       const factory = getReadFactory();
       const count = Number(await factory.getPropertiesCount());
       const list = [];
+      const allEpochs = [];
       for (let i = 0; i < count; i++) {
         const p = await factory.properties(i);
         const { token, rental } = getReadPropertyContracts({
@@ -51,15 +54,35 @@ export default function InvestorDashboard() {
           rentalDistribution: p.rentalDistribution,
           marketplace: p.marketplace,
         });
-        const [bal, pending] = await Promise.all([
+        const [bal, pending, totalSupply, epochCount] = await Promise.all([
           token.balanceOf(account),
           rental.pendingDividends(account),
+          token.totalSupply(),
+          rental.epochCount(),
         ]);
         if (bal > 0n) {
+          const ownershipPct = totalSupply > 0n
+            ? (Number(ethers.formatEther(bal)) / Number(ethers.formatEther(totalSupply))) * 100
+            : 0;
           list.push({ id: i, property: p, balance: bal, pending });
+
+          // Fetch epoch history for the portfolio chart.
+          for (let j = 0; j < Math.min(Number(epochCount), 50); j++) {
+            try {
+              const [total, , ts] = await rental.getEpoch(j);
+              allEpochs.push({
+                propertyName: p.name,
+                id: j,
+                total,
+                ts: Number(ts),
+                ownershipPct,
+              });
+            } catch { /* skip bad epochs */ }
+          }
         }
       }
       setItems(list);
+      setPortfolioEpochs(allEpochs);
     } catch (e) {
       console.error(e);
       toast.error("Could not load holdings", { msg: "Check the network and try again." });
@@ -181,6 +204,18 @@ export default function InvestorDashboard() {
             )}
           </div>
 
+          {/* Portfolio earnings chart */}
+          {portfolioEpochs.length > 0 && (
+            <div className="section">
+              <h2 className="section-title"><Icon name="trending" size={14} /> Earnings over time</h2>
+              <div className="card card-elevated">
+                <div className="card-body">
+                  <PortfolioChart epochs={portfolioEpochs} />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Cost banner */}
           {claimable.length > 0 && (
             <div className="section">
@@ -287,6 +322,9 @@ function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim }) {
                 ? <><Icon name="bolt" size={12} /> Claim {fmtUsdc(pending)}</>
                 : <>Nothing to claim</>}
           </button>
+          <Link to="/portfolio" className="btn btn-secondary btn-sm" aria-label="Sell tokens">
+            <Icon name="send" size={12} /> Sell
+          </Link>
           <Link to={`/property/${item.id}`} className="btn btn-secondary btn-sm" aria-label="View property">
             <Icon name="external" size={12} />
           </Link>

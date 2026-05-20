@@ -51,7 +51,7 @@ export default function OwnerDashboard() {
   const [props, setProps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creatingNew, setCreatingNew] = useState(false);
-  const [newProp, setNewProp] = useState({ name: "", location: "", valueInr: "", price: "" });
+  const [newProp, setNewProp] = useState({ name: "", location: "", valueInr: "", price: "", imageUrl: "" });
   const [walletDraft, setWalletDraft] = useState(authUser?.assetWallet || "");
   const [savingWallet, setSavingWallet] = useState(false);
   const [walletError, setWalletError] = useState("");
@@ -372,8 +372,25 @@ export default function OwnerDashboard() {
       }
 
       toast.success("Property created", { msg: `${name} is now live on-chain.` });
+
+      // Save optional image URL to the backend so the marketplace card shows it.
+      const imgUrl = (newProp.imageUrl || "").trim();
+      if (imgUrl) {
+        try {
+          const newestCount = Number(await getReadFactory().getPropertiesCount());
+          const newId = newestCount - 1;
+          await fetch(`${BACKEND_URL}/api/properties/${newId}/image`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageUrl: imgUrl }),
+          });
+        } catch (imgErr) {
+          console.warn("Image URL save failed (non-fatal):", imgErr);
+        }
+      }
+
       setCreatingNew(false);
-      setNewProp({ name: "", location: "", valueInr: "", price: "" });
+      setNewProp({ name: "", location: "", valueInr: "", price: "", imageUrl: "" });
       await load(effectiveOwnerWallet);
     } catch (e) {
       toast.error("Create failed", { msg: friendlyTxError(e) });
@@ -399,6 +416,7 @@ export default function OwnerDashboard() {
           </div>
           <div className="flex gap-3 items-center">
             <span className="role-badge is-owner"><Icon name="star" size={12} /> Admin</span>
+            <SyncButton toast={toast} />
             <button
               className="btn btn-gold"
               onClick={() => setCreatingNew(true)}
@@ -512,58 +530,39 @@ function AdminWalletPanel({
   onSave,
 }) {
   return (
-    <div className="card card-elevated reveal" style={{ marginBottom: 24 }}>
-      <div className="card-body">
-        <div className="page-header-row" style={{ marginBottom: 14 }}>
-          <div>
-            <h2 style={{ fontSize: 18, fontWeight: 800 }}>Admin receiving wallet</h2>
-            <p className="text-sm text-muted" style={{ marginTop: 4 }}>
-              Properties, sale proceeds, and owner actions are tied to this wallet. Connect the same wallet before deploying or depositing rent.
-            </p>
-          </div>
-          <span className={`badge ${canWriteAsOwner ? "badge-success" : "badge-muted"}`}>
-            {canWriteAsOwner ? "Wallet matched" : "Read-only"}
+    <div style={{ marginBottom: 12, padding: "14px 20px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <Icon name="wallet" size={14} />
+          <span style={{ fontSize: 13, fontWeight: 700 }}>Admin wallet</span>
+          <span className={`badge ${canWriteAsOwner ? "badge-success" : hasWalletMismatch ? "badge-gold" : "badge-muted"}`} style={{ fontSize: 10 }}>
+            {canWriteAsOwner ? "Matched" : hasWalletMismatch ? "Mismatch" : "Not set"}
           </span>
         </div>
-
-        <div className="flex gap-3 items-end flex-wrap">
-          <div className="form-group" style={{ flex: 1, minWidth: 260 }}>
-            <label className="form-label">Wallet address for receiving assets</label>
-            <div className="form-input-prefix">
-              <span className="prefix"><Icon name="wallet" size={13} /></span>
-              <input
-                className="form-input font-mono"
-                value={walletDraft}
-                onChange={(e) => setWalletDraft(e.target.value)}
-                placeholder="0x0000000000000000000000000000000000000000"
-                spellCheck={false}
-              />
-            </div>
-            {walletError && <div className="text-xs" style={{ color: "var(--red-500)", marginTop: 4 }}>{walletError}</div>}
-          </div>
-          <button className="btn btn-primary" onClick={() => onSave()} disabled={savingWallet}>
-            {savingWallet
-              ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Saving</>
-              : <><Icon name="check" size={13} /> Save wallet</>}
+        <div style={{ flex: 1, minWidth: 240, display: "flex", gap: 8, alignItems: "center" }}>
+          <input
+            className="form-input font-mono"
+            value={walletDraft}
+            onChange={(e) => setWalletDraft(e.target.value)}
+            placeholder="0x0000…0000"
+            spellCheck={false}
+            style={{ fontSize: 12, padding: "6px 10px", flex: 1 }}
+          />
+          <button className="btn btn-primary btn-sm" onClick={() => onSave()} disabled={savingWallet} style={{ flexShrink: 0 }}>
+            {savingWallet ? "Saving" : "Save"}
           </button>
           {account && (
-            <button className="btn btn-ghost" onClick={() => onSave(account)} disabled={savingWallet}>
+            <button className="btn btn-ghost btn-sm" onClick={() => onSave(account)} disabled={savingWallet} style={{ flexShrink: 0, fontSize: 11 }}>
               Use connected
             </button>
           )}
         </div>
-
-        <div className="flex gap-2 flex-wrap" style={{ marginTop: 12 }}>
-          {effectiveOwnerWallet && <span className="badge badge-muted font-mono">Admin: {fmtAddr(effectiveOwnerWallet)}</span>}
-          {account && <span className="badge badge-muted font-mono">Connected: {fmtAddr(account)}</span>}
-          {hasWalletMismatch && (
-            <span className="badge badge-gold">Connect the admin wallet for write actions</span>
-          )}
-        </div>
       </div>
+      {walletError && <div className="text-xs" style={{ color: "var(--red-500)", marginTop: 6, paddingLeft: 30 }}>{walletError}</div>}
     </div>
   );
 }
+
 
 function AdminWorkflowPanel({
   chainId,
@@ -630,59 +629,43 @@ function AdminWorkflowPanel({
   ];
 
   return (
-    <div className="card card-elevated reveal" style={{ marginBottom: 24 }}>
-      <div className="card-body">
-        <div className="page-header-row" style={{ marginBottom: 12 }}>
-          <div>
-            <h2 style={{ fontSize: 18, fontWeight: 800 }}>Admin workflow</h2>
-            <p className="text-sm text-muted" style={{ marginTop: 4 }}>
-              Create properties, approve marketplace sales, then deposit collected rent as USDC epochs.
-            </p>
-          </div>
-          <div className="flex gap-2 items-center flex-wrap">
-            {NETWORK_MODE === "local" && (
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={fundWalletLocally}
-                disabled={funding || !account}
-                title="Top up the connected wallet to 100 ETH on the local Hardhat chain"
-              >
-                {funding
-                  ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Funding</>
-                  : <><Icon name="bolt" size={12} /> Fund 100 ETH (local)</>}
-              </button>
-            )}
-            {!isCorrectNetwork && (
-              <button className="btn btn-secondary btn-sm" onClick={onSwitchNetwork}>
-                <Icon name="alert" size={12} /> Repair network
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
+    <div className="card" style={{ marginBottom: 24, padding: "14px 20px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
           {steps.map((step) => (
-            <div key={step.label} className="stat-card">
-              <div className="stat-label">
-                <Icon name={step.done ? "check" : "info"} size={12} /> {step.label}
-              </div>
-              <div className={`stat-value ${step.done ? "success" : "muted"}`} style={{ fontSize: 18 }}>
-                {step.done ? "Ready" : "Needs setup"}
-              </div>
+            <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: step.done ? "#22c55e" : "#d1d5db",
+                flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: step.done ? "var(--positivus-black)" : "var(--fg-muted)" }}>
+                {step.label}
+              </span>
             </div>
           ))}
         </div>
-
-        <div className="flex gap-2 flex-wrap" style={{ marginTop: 12 }}>
-          <span className={`badge ${isCorrectNetwork ? "badge-success" : "badge-gold"}`}>
-            Chain: {chainId || "not connected"} / expected {NETWORK_CHAIN_ID}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span className={`badge ${isCorrectNetwork ? "badge-success" : "badge-gold"}`} style={{ fontSize: 11 }}>
+            Chain {chainId || "—"}
           </span>
-          <span className={`badge ${canWriteAsOwner ? "badge-success" : "badge-muted"}`}>
-            Writes: {canWriteAsOwner ? "enabled" : "locked"}
+          <span className={`badge ${canWriteAsOwner ? "badge-success" : "badge-muted"}`} style={{ fontSize: 11 }}>
+            {canWriteAsOwner ? "Writes on" : "Read-only"}
           </span>
-          <span className="badge badge-muted">Rent deposited: {fmtUsdc(totalRent)}</span>
           {NETWORK_MODE === "local" && (
-            <span className="badge badge-muted">Local mode: gas paid in test ETH (UGF disabled)</span>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={fundWalletLocally}
+              disabled={funding || !account}
+              style={{ fontSize: 11, padding: "4px 10px" }}
+            >
+              {funding ? <>Funding…</> : <><Icon name="bolt" size={11} /> Fund ETH</>}
+            </button>
+          )}
+          {!isCorrectNetwork && (
+            <button className="btn btn-secondary btn-sm" onClick={onSwitchNetwork} style={{ fontSize: 11 }}>
+              <Icon name="alert" size={11} /> Fix network
+            </button>
           )}
         </div>
       </div>
@@ -706,10 +689,15 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
     <div className="card card-elevated reveal" style={{ marginBottom: 24 }}>
       <div className="card-body">
         <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700 }}>
-            <Icon name="plus" size={16} style={{ verticalAlign: -2, marginRight: 8 }} />
-            Tokenize a new property
-          </h2>
+          <div>
+            <h2 style={{ fontSize: 18, fontWeight: 700 }}>
+              <Icon name="plus" size={16} style={{ verticalAlign: -2, marginRight: 8 }} />
+              Tokenize a new property
+            </h2>
+            <p className="text-sm text-muted" style={{ marginTop: 4 }}>
+              This deploys 3 smart contracts: <strong>PropertyToken</strong> (100 PROP = 100% ownership), <strong>RentalDistribution</strong> (monthly rent pool), and <strong>Marketplace</strong> (buy/sell tokens).
+            </p>
+          </div>
           <button className="icon-btn" onClick={onCancel} aria-label="Cancel">
             <Icon name="close" size={14} />
           </button>
@@ -717,7 +705,7 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
           <div className="form-group">
-            <label className="form-label">Name</label>
+            <label className="form-label">Property name</label>
             <input className="form-input" placeholder="Skyline Heights"
               value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })} />
           </div>
@@ -742,6 +730,29 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
                 value={value.price} onChange={(e) => onChange({ ...value, price: e.target.value })} />
             </div>
           </div>
+        </div>
+
+        {/* Image URL — optional, full-width */}
+        <div className="form-group" style={{ marginTop: 16 }}>
+          <label className="form-label">Property photo URL <span style={{ fontWeight: 400, color: "var(--fg-muted)" }}>(optional)</span></label>
+          <input
+            className="form-input"
+            type="url"
+            placeholder="https://images.unsplash.com/photo-... or any image URL"
+            value={value.imageUrl}
+            onChange={(e) => onChange({ ...value, imageUrl: e.target.value })}
+          />
+          <div className="form-helper">Paste any public image URL. If left blank, a matching photo is auto-selected.</div>
+          {value.imageUrl && value.imageUrl.startsWith("http") && (
+            <div style={{ marginTop: 10, borderRadius: "var(--radius-md)", overflow: "hidden", border: "1px solid var(--border)", height: 120 }}>
+              <img
+                src={value.imageUrl}
+                alt="Preview"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3" style={{ marginTop: 20 }}>
@@ -876,9 +887,10 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
           border: "1px solid var(--border)",
           marginBottom: 16,
         }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
             <Icon name="send" size={14} className="text-accent" />
-            Deposit rental income
+            Deposit rent
+            <span className="text-xs text-muted" style={{ fontWeight: 400, marginLeft: 4 }}>→ creates a new epoch for all token holders</span>
           </h3>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="form-group" style={{ flex: 1, minWidth: 180 }}>
@@ -943,5 +955,41 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
         )}
       </div>
     </div>
+  );
+}
+
+// ── Sync contracts → MongoDB button ─────────────────────────────────────────
+function SyncButton({ toast }) {
+  const [syncing, setSyncing] = useState(false);
+
+  async function handleSync() {
+    setSyncing(true);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/properties/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      const count = data?.synced ?? data?.count ?? 0;
+      toast.success("Sync complete", { msg: `${count} properties resynced from chain → database.` });
+    } catch (e) {
+      toast.error("Sync failed", { msg: (e.message || "").slice(0, 160) });
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  return (
+    <button
+      className="btn btn-secondary btn-sm"
+      onClick={handleSync}
+      disabled={syncing}
+      title="Re-read all on-chain properties into MongoDB (useful after Hardhat restart)"
+    >
+      {syncing
+        ? <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> Syncing…</>
+        : <><Icon name="history" size={12} /> Sync DB</>}
+    </button>
   );
 }

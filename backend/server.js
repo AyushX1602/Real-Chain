@@ -87,6 +87,10 @@ app.use("/api/faucet", writeLimiter, require("./routes/faucet"));
 // No DB dependency, so it lives outside the requireDb wrapper.
 app.use("/api/market", require("./routes/market"));
 
+// Platform-wide aggregated stats for the Live Stats Banner.
+app.use("/api/stats", requireDb, require("./routes/stats"));
+
+
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({

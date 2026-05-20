@@ -13,6 +13,7 @@ import {
 } from "../components/ScreenPrimitives";
 import { BACKEND_URL } from "../config/contracts";
 import { propertyImage } from "../utils/propertyImage";
+import LiveStatsBanner from "../components/LiveStatsBanner";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Home — RealChain marketplace.
@@ -101,10 +102,18 @@ export default function Home() {
         const data = await r.json();
         const list = Array.isArray(data) ? data : (data?.properties || []);
         if (list.length > 0) {
-          // Indexer rows can legitimately omit `valueInr` (older docs predate
-          // the totalValue column, or the indexer crashed before populating
-          // it). Coerce to a finite number here so neither sort comparators
-          // nor `fmtInr` downstream ever see NaN/undefined.
+          // ── Chain-count guard: if the factory has more properties than the
+          // indexer knows about (e.g. admin just minted), skip the stale
+          // indexer response and read directly from chain instead.
+          try {
+            const factory = getReadFactory();
+            const chainCount = Number(await factory.getPropertiesCount());
+            if (chainCount > list.length) throw new Error("indexer_behind");
+          } catch (chainErr) {
+            if (chainErr?.message === "indexer_behind") throw chainErr;
+            // chain unreachable — use indexer as-is
+          }
+          // Indexer is in sync with chain — shape and return.
           const num = (v) => {
             const n = typeof v === "bigint" ? Number(v) : Number(v);
             return Number.isFinite(n) ? n : 0;
@@ -121,6 +130,7 @@ export default function Home() {
             totalSupply: p.totalSupply,
             tokensRemaining: p.tokensRemaining,
             pricePerToken: p.pricePerToken,
+            imageUrl: p.imageUrl ?? null,
           })));
           setIndexerOffline(false);
           setLastUpdatedMs(Date.now());
@@ -232,6 +242,9 @@ export default function Home() {
         </div>
       )}
 
+      {/* Live platform stats — full-width above the two-column layout */}
+      <LiveStatsBanner />
+
       <div className="layout-two-col">
         <div>
           {!showFaucet && account && Number(usdcBalance) === 0 && (
@@ -253,6 +266,7 @@ export default function Home() {
               <Icon name="alert" size={16} /> {err}
             </div>
           )}
+
 
           {/* Filter bar */}
           <div className="filter-bar" role="search">
@@ -396,9 +410,12 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
   const supplyLabel = property.totalSupply != null
     ? `${typeof property.totalSupply === "number" ? property.totalSupply.toLocaleString() : fmtProp(property.totalSupply)} PROP`
     : "—";
-  const priceLabel = property.pricePerToken != null
-    ? `$${(typeof property.pricePerToken === "number" ? property.pricePerToken : Number(property.pricePerToken) / 1e6).toFixed(2)} / token`
-    : "Price loading…";
+  const rawPrice = property.pricePerToken != null
+    ? (typeof property.pricePerToken === "number" ? property.pricePerToken : Number(property.pricePerToken) / 1e6)
+    : null;
+  const priceLabel = rawPrice == null ? "Price loading…"
+    : rawPrice === 0 ? "Free (owner transfer)"
+    : `$${rawPrice.toFixed(2)} / token`;
 
   return (
     <article ref={ref} className="card property-card" onClick={onView} role="button" tabIndex={0}

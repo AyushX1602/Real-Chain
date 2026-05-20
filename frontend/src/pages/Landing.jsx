@@ -563,6 +563,9 @@ function HeroSection({ account, authUser, connect, connecting, dashboardForRole,
               How it works
               <span className="lp-cta-shimmer" aria-hidden="true" />
             </a>
+            <Link to="/demo" className="btn btn-gold btn-xl">
+              Try demo
+            </Link>
           </motion.div>
           <LiveRentCounter className="lp-hero-counter" />
         </div>

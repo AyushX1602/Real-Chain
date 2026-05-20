@@ -30,6 +30,7 @@ const PropertySchema = new mongoose.Schema({
   cadenceDays:        { type: Number, default: null },
   useV2:              { type: Boolean, default: false },
   chainId:            { type: Number, default: 84532 },
+  imageUrl:           { type: String, default: null },   // optional photo uploaded by owner at mint time
 }, {
   timestamps: true,
 });

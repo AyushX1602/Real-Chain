@@ -47,6 +47,7 @@ function shape(p, extras = {}) {
     lastDepositAt:       doc.lastDepositAt ?? null,
     cadenceDays:         doc.cadenceDays ?? null,
     chainId:             doc.chainId,
+    imageUrl:            doc.imageUrl ?? null,
     createdAt:           doc.createdAt,
     updatedAt:           doc.updatedAt,
     ...extras,
@@ -197,6 +198,91 @@ router.get("/:id/holders", async (req, res) => {
     });
 
     res.json({ count, holders });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PATCH /api/properties/:id/image — Store owner-uploaded image URL ─────────
+// Called right after createProperty() succeeds on-chain.
+// No auth guard — property ownership is established on-chain; the frontend
+// only calls this after a successful tx from the owner wallet.
+router.patch("/:id/image", async (req, res) => {
+  try {
+    const { imageUrl } = req.body;
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return res.status(400).json({ error: "imageUrl (string) is required" });
+    }
+    // Basic URL validation — reject obviously non-URL strings
+    try { new URL(imageUrl); } catch {
+      return res.status(400).json({ error: "imageUrl must be a valid URL" });
+    }
+    const doc = await Property.findOneAndUpdate(
+      { propertyId: Number(req.params.id) },
+      { imageUrl: imageUrl.trim().slice(0, 2000) },
+      { new: true }
+    );
+    if (!doc) return res.status(404).json({ error: "Property not found" });
+    res.json({ ok: true, imageUrl: doc.imageUrl });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/properties/sync — Resync chain → MongoDB ──────────────────────
+// One-click re-read all on-chain properties from the Factory contract into
+// MongoDB. Useful after a Hardhat node restart (which wipes in-memory state).
+// Falls back to a direct RPC call even when the indexer is disabled.
+router.post("/sync", async (req, res) => {
+  try {
+    const { ethers } = require("ethers");
+    const path = require("path");
+    const fs = require("fs");
+
+    // Read deployed addresses
+    const addrPath = path.resolve(__dirname, "../../deployed-addresses.json");
+    if (!fs.existsSync(addrPath)) {
+      return res.status(400).json({ error: "deployed-addresses.json not found. Run deploy first." });
+    }
+    const addrs = JSON.parse(fs.readFileSync(addrPath, "utf8"));
+    if (!addrs.factory) {
+      return res.status(400).json({ error: "No factory address in deployed-addresses.json" });
+    }
+
+    const rpcUrl = process.env.BASE_SEPOLIA_RPC_URL || "http://127.0.0.1:8545";
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const network = await provider.getNetwork();
+    const chainId = Number(network.chainId);
+
+    const ABI = [
+      "function getPropertiesCount() view returns (uint256)",
+      "function properties(uint256) view returns (string name,string location,uint256 valueInr,address propertyToken,address rentalDistribution,address marketplace,address owner)",
+    ];
+    const factory = new ethers.Contract(addrs.factory, ABI, provider);
+    const count = Number(await factory.getPropertiesCount());
+
+    let synced = 0;
+    for (let i = 0; i < count; i++) {
+      const p = await factory.properties(i);
+      await Property.findOneAndUpdate(
+        { propertyId: i },
+        {
+          propertyId: i,
+          name: p.name,
+          location: p.location,
+          totalValue: Number(p.valueInr),
+          tokenAddress: p.propertyToken,
+          rentalAddress: p.rentalDistribution,
+          marketAddress: p.marketplace,
+          owner: p.owner.toLowerCase(),
+          chainId,
+        },
+        { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
+      );
+      synced++;
+    }
+
+    res.json({ ok: true, synced, chainId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

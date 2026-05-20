@@ -69,6 +69,12 @@ function classify(location = "", name = "") {
  */
 export function propertyImage(prop, opts = {}) {
   const { w = 1200, h = 600 } = opts;
+
+  // If admin uploaded a custom photo URL at mint time, use it directly.
+  if (prop?.imageUrl && typeof prop.imageUrl === "string" && prop.imageUrl.startsWith("http")) {
+    return prop.imageUrl;
+  }
+
   const key = prop?.id ?? prop?.propertyToken ?? prop?.name ?? "property";
   const tag = classify(prop?.location, prop?.name);
 

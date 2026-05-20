@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-import { useAgent, useAgentState, AGENT_IDS } from "../agents";
+import React, { useEffect, useState, useCallback } from "react";
 import Icon from "../components/Icon";
 import {
   GasMethodBadge,
@@ -7,111 +6,176 @@ import {
   IndexerStatus,
   WalletShort,
 } from "../components/ScreenPrimitives";
+import { BACKEND_URL } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Activity — full-screen variant, owned by ActivityAgent.
-// Renders the agent's state. NEVER fetches directly. NEVER mutates other agents.
+// Activity — full tx log pulled from /api/transactions with filters.
+// Replaced the old agent-bus approach with direct fetch for reliability.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ACTIONS = ["all", "claim", "buy", "deposit"];
+const ACTIONS = ["all", "claim", "buy", "deposit", "listing", "cancel"];
 const GAS = ["all", "ugf", "eth"];
 
 export default function Activity() {
-  const agent = useAgent(AGENT_IDS.ACTIVITY);
-  const state = useAgentState(AGENT_IDS.ACTIVITY);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [filters, setFilters] = useState({ action: "all", gasMethod: "all", wallet: "" });
+  const [lastUpdatedMs, setLastUpdatedMs] = useState(null);
 
-  // Live refresh — when any tx fires through UGFContext.logTx, force the
-  // agent to re-fetch from page 0 instead of waiting for the next 8s poll.
-  React.useEffect(() => {
-    function onTx() { agent?.refresh?.(); }
+  const fetchRows = useCallback(async (cursor = null, append = false) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ limit: "50" });
+      if (filters.action !== "all") params.set("action", filters.action);
+      if (filters.gasMethod !== "all") params.set("gasMethod", filters.gasMethod);
+      if (filters.wallet) params.set("wallet", filters.wallet);
+      if (cursor) params.set("cursor", cursor);
+
+      const r = await fetch(`${BACKEND_URL}/api/transactions?${params}`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      const txs = data.transactions || [];
+
+      setRows((prev) => append ? [...prev, ...txs] : txs);
+      setNextCursor(data.nextCursor || null);
+      setLastUpdatedMs(Date.now());
+      setError(null);
+    } catch (e) {
+      setError(e?.message || "Backend unreachable");
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
+  // Fetch on mount and when filters change
+  useEffect(() => { fetchRows(); }, [fetchRows]);
+
+  // Live refresh on any tx event
+  useEffect(() => {
+    function onTx() { fetchRows(); }
     window.addEventListener("realchain:tx", onTx);
     return () => window.removeEventListener("realchain:tx", onTx);
-  }, [agent]);
+  }, [fetchRows]);
 
-  const rows = state?.rows ?? [];
-  const filters = state?.filters ?? { action: "all", gasMethod: "all", wallet: "" };
+  function setFilter(patch) {
+    setFilters((prev) => ({ ...prev, ...patch }));
+    setNextCursor(null);
+  }
 
-  const onScroll = useMemo(() => (e) => {
+  function clearFilters() {
+    setFilters({ action: "all", gasMethod: "all", wallet: "" });
+    setNextCursor(null);
+  }
+
+  function loadMore() {
+    if (nextCursor && !loading) fetchRows(nextCursor, true);
+  }
+
+  function handleScroll(e) {
     const el = e.currentTarget;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
-      agent?.loadMore?.();
+      loadMore();
     }
-  }, [agent]);
-
-  if (!state) return <main className="container py-8"><div className="muted">Booting agent…</div></main>;
+  }
 
   return (
-    <main className="container py-8">
-      <header className="surface-glass" style={{ padding: 24, marginBottom: 16 }}>
-        <h1 style={{ margin: 0 }}>Activity</h1>
-        <p className="muted" style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          Live on-chain transactions.
-          <IndexerStatus offline={state.offline} />
-        </p>
-        <div className="row" style={{ gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-          {ACTIONS.map((a) => (
-            <button
-              key={a}
-              className={`chip ${filters.action === a ? "chip-active" : ""}`}
-              onClick={() => agent.setFilter({ action: a })}
-            >{a}</button>
-          ))}
-          <span className="divider" />
-          {GAS.map((g) => (
-            <button
-              key={g}
-              className={`chip ${filters.gasMethod === g ? "chip-active" : ""}`}
-              onClick={() => agent.setFilter({ gasMethod: g })}
-            >gas: {g}</button>
-          ))}
-          <input
-            type="text"
-            className="form-input"
-            placeholder="0x… wallet filter"
-            value={filters.wallet}
-            onChange={(e) => agent.setFilter({ wallet: e.target.value })}
-            style={{ width: 320 }}
-          />
+    <div className="container reveal">
+      <div className="page-header">
+        <div className="page-header-row">
+          <div>
+            <h1>Activity <span className="accent">log</span></h1>
+            <p>Live on-chain transactions from the indexer.</p>
+          </div>
+          <IndexerStatus offline={Boolean(error)} lastUpdatedMs={lastUpdatedMs} />
         </div>
-        {state.filterError && <div className="text-danger" style={{ marginTop: 6, fontSize: 12 }}>{state.filterError}</div>}
-      </header>
+      </div>
 
-      {state.error && (
-        <div className="alert alert-warn" role="alert">
-          <Icon name="alert" size={14} /> {state.error}
+      {error && (
+        <div className="banner banner-warn" style={{ marginBottom: 24 }}>
+          <Icon name="alert" size={14} /> {error} — start the backend at {BACKEND_URL} to see data.
         </div>
       )}
 
-      <section className="card" style={{ padding: 0 }}>
-        <div onScroll={onScroll} style={{ maxHeight: "70vh", overflowY: "auto" }}>
-          {rows.length === 0 && !state.loading && (
-            <div className="empty" style={{ padding: 36 }}>
+      {/* Filters */}
+      <div className="card" style={{ padding: "14px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        {ACTIONS.map((a) => (
+          <button
+            key={a}
+            className={`btn btn-sm ${filters.action === a ? "btn-primary" : "btn-ghost"}`}
+            onClick={() => setFilter({ action: a })}
+            style={{ textTransform: "capitalize" }}
+          >{a}</button>
+        ))}
+        <span style={{ width: 1, height: 20, background: "var(--border)", margin: "0 4px" }} />
+        {GAS.map((g) => (
+          <button
+            key={g}
+            className={`btn btn-sm ${filters.gasMethod === g ? "btn-primary" : "btn-ghost"}`}
+            onClick={() => setFilter({ gasMethod: g })}
+          >gas: {g}</button>
+        ))}
+        <input
+          type="text"
+          className="form-input"
+          placeholder="0x… wallet filter"
+          value={filters.wallet}
+          onChange={(e) => setFilter({ wallet: e.target.value })}
+          style={{ width: 260, fontSize: 12, padding: "6px 10px" }}
+        />
+      </div>
+
+      {/* Transaction list */}
+      <div className="card card-elevated" style={{ padding: 0 }}>
+        <div onScroll={handleScroll} style={{ maxHeight: "65vh", overflowY: "auto" }}>
+          {rows.length === 0 && !loading && (
+            <div className="empty-state" style={{ padding: 36 }}>
               <Icon name="info" size={20} />
-              <p>No matching activity</p>
-              <button className="btn btn-secondary btn-sm" onClick={() => agent.clearFilters()}>Clear filters</button>
+              <h3>No matching activity</h3>
+              <button className="btn btn-secondary btn-sm" onClick={clearFilters}>Clear filters</button>
             </div>
           )}
-          {rows.map((r) => (
-            <div key={r._id || r.txHash} className="activity-row">
-              <GasMethodBadge method={r.gasMethod === "ugf" ? "ugf" : "eth"} compact />
-              <WalletShort address={r.from} />
-              <span>{verb(r.action)}</span>
-              <span style={{ fontFeatureSettings: "'tnum' on", fontWeight: 700 }}>
-                {Number(r.amount || 0).toFixed(6)} USDC
-              </span>
-              <OnChainBadge txHash={r.txHash} label="Tx" />
+          {rows.length > 0 && (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Gas</th>
+                    <th>Wallet</th>
+                    <th>Action</th>
+                    <th>Amount</th>
+                    <th>Time</th>
+                    <th>Tx</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => (
+                    <tr key={r._id || r.txHash}>
+                      <td><GasMethodBadge method={r.gasMethod === "ugf" ? "ugf" : "eth"} compact /></td>
+                      <td><WalletShort address={r.from} /></td>
+                      <td style={{ textTransform: "capitalize", fontWeight: 600 }}>{r.action || r.type}</td>
+                      <td style={{ fontFeatureSettings: "'tnum' on", fontWeight: 700 }}>
+                        ${Number(r.amount || 0).toFixed(2)}
+                      </td>
+                      <td className="text-muted text-sm">
+                        {r.createdAt ? new Date(r.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}
+                      </td>
+                      <td><OnChainBadge txHash={r.txHash} label="Tx" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-          {state.loading && <div className="muted" style={{ padding: 16 }}>Loading…</div>}
+          )}
+          {loading && <div className="text-muted" style={{ padding: 16, textAlign: "center" }}>Loading…</div>}
+          {nextCursor && !loading && (
+            <div style={{ textAlign: "center", padding: 12 }}>
+              <button className="btn btn-ghost btn-sm" onClick={loadMore}>Load more</button>
+            </div>
+          )}
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
-}
-
-function verb(a) {
-  if (a === "claim") return "claimed";
-  if (a === "buy") return "bought";
-  if (a === "deposit") return "deposited";
-  return a || "";
 }
