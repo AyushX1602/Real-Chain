@@ -417,6 +417,11 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
     : rawPrice === 0 ? "Free (owner transfer)"
     : `$${rawPrice.toFixed(2)} / token`;
 
+  // Performance score: A=3, B=2, C=1, D=0
+  const perfScore = (property.epochCount > 0 ? 1 : 0) + (holderCount > 0 ? 1 : 0) + (rawPrice > 0 ? 1 : 0);
+  const perfGrade = ["D", "C", "B", "A"][perfScore];
+  const perfColor = { A: "#22c55e", B: "#B9FF66", C: "#f59e0b", D: "#ef4444" }[perfGrade];
+
   return (
     <article ref={ref} className="card property-card" onClick={onView} role="button" tabIndex={0}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onView()}>
@@ -428,6 +433,7 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
           <div className="property-cover-scrim" aria-hidden="true" />
           <div className="property-tag-row">
             <span className="badge badge-success"><span className="status-dot" /> Live</span>
+            <span className="badge" style={{ background: perfColor, color: "#191A23", fontWeight: 800, fontSize: 11 }}>{perfGrade}</span>
             <HolderCountChip count={holderCount} loading={holderCount === undefined} />
             <button
               type="button"

@@ -7,7 +7,7 @@ import { useToast } from "../components/Toast";
 import Icon from "../components/Icon";
 import UGFBadge from "../components/UGFBadge";
 import CostBanner from "../components/CostBanner";
-import YieldCalculator from "../components/YieldCalculator";
+import ROICalculator from "../components/ROICalculator";
 import RentChart from "../components/RentChart";
 import HolderList from "../components/HolderList";
 import useWatchlist from "../hooks/useWatchlist";
@@ -600,12 +600,13 @@ export default function Property() {
 
       {tab === "calculator" && (
         <div className="section">
-          <h2 className="section-title"><Icon name="trending" size={14} /> Yield calculator</h2>
-          <div className="card card-elevated">
-            <div className="card-body">
-              <YieldCalculator pricePerToken={pricePerToken} totalSupply={totalSupply} epochs={epochs} />
-            </div>
-          </div>
+          <h2 className="section-title"><Icon name="trending" size={14} /> ROI Calculator</h2>
+          <ROICalculator
+            pricePerToken={Number(pricePerToken) / 1e6}
+            totalSupply={Number(ethers.formatEther(totalSupply))}
+            avgRentPerEpoch={epochs.length > 0 ? epochs.reduce((s, e) => s + Number(e.total || 0) / 1e6, 0) / epochs.length : 0}
+            epochsPerYear={12}
+          />
         </div>
       )}
     </div>

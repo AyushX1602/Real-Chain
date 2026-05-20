@@ -9,6 +9,7 @@ import Icon from "./components/Icon";
 import Logo from "./components/Logo";
 import Switch from "./components/Switch";
 import GasIndicator from "./components/GasIndicator";
+import NotificationBell from "./components/NotificationBell";
 import { BACKEND_URL } from "./config/contracts";
 
 import Landing from "./pages/Landing";
@@ -135,12 +136,7 @@ function Navbar() {
           </div>
 
           <div className="navbar-actions">
-            <GasIndicator />
-            {account && roleHint && roleHint !== "Unknown" && (
-              <span className={`role-badge ${roleHint === "Owner" ? "is-owner" : "is-investor"}`}>
-                <Icon name={roleHint === "Owner" ? "star" : "users"} size={11} /> {roleHint}
-              </span>
-            )}
+            <NotificationBell />
             {isAuthenticated ? (
               <>
                 <span className={`role-badge ${authUser?.role === "owner" ? "is-owner" : "is-investor"}`} title={authUser?.email}>
@@ -150,12 +146,16 @@ function Navbar() {
                   <Icon name="logout" size={16} />
                 </button>
               </>
-            ) : (
+            ) : account && roleHint && roleHint !== "Unknown" ? (
+              <span className={`role-badge ${roleHint === "Owner" ? "is-owner" : "is-investor"}`}>
+                <Icon name={roleHint === "Owner" ? "star" : "users"} size={11} /> {roleHint}
+              </span>
+            ) : !account && !isAuthenticated ? (
               <div className="auth-nav-actions">
                 <NavLink to="/login" className="btn btn-ghost btn-sm">Log in</NavLink>
                 <NavLink to="/signup" className="btn btn-secondary btn-sm">Sign up</NavLink>
               </div>
-            )}
+            ) : null}
             {!isCorrectNetwork && account && (
               <button className="btn btn-secondary btn-sm" onClick={handleSwitch} disabled={switching}>
                 <Icon name="alert" size={12} /> {switching ? "Switching…" : "Wrong network"}

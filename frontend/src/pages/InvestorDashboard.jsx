@@ -9,8 +9,10 @@ import UGFBadge from "../components/UGFBadge";
 import CostBanner from "../components/CostBanner";
 import ConnectGate from "../components/ConnectGate";
 import AgentSuggestions from "../components/AgentSuggestions";
-import { RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import { RENTAL_DISTRIBUTION_ABI, BACKEND_URL } from "../config/contracts";
 import PortfolioChart from "../components/PortfolioChart";
+import EpochCountdown from "../components/EpochCountdown";
+import OnboardingChecklist from "../components/OnboardingChecklist";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // InvestorDashboard — the demo centerpiece.
@@ -29,8 +31,18 @@ export default function InvestorDashboard() {
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState(null);
   const [portfolioEpochs, setPortfolioEpochs] = useState([]);
+  const [walletStats, setWalletStats] = useState(null);
 
-  useEffect(() => { if (account) load(); else { setItems([]); setLoading(false); } }, [account]);
+  useEffect(() => {
+    if (account) {
+      load();
+      // Fetch P&L stats from backend
+      fetch(`${BACKEND_URL}/api/transactions/stats/${account}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) setWalletStats(d); })
+        .catch(() => {});
+    } else { setItems([]); setLoading(false); }
+  }, [account]);
 
   // Live refresh — re-pull holdings + pending rent + USDC after any logTx.
   useEffect(() => {
@@ -179,6 +191,12 @@ export default function InvestorDashboard() {
       <div className="layout-two-col">
         {/* MAIN COLUMN */}
         <div>
+          {/* Onboarding checklist for new investors */}
+          <OnboardingChecklist
+            hasHoldings={items.length > 0}
+            hasClaimed={walletStats?.claimCount > 0}
+          />
+
           {/* Hero KPI */}
           <div className="hero-kpi reveal" style={{ marginBottom: 24 }}>
             <div className="hero-kpi-label">Total Pending Rent</div>
@@ -203,6 +221,35 @@ export default function InvestorDashboard() {
               </div>
             )}
           </div>
+
+          {/* P&L Summary */}
+          {walletStats && (walletStats.totalInvested > 0 || walletStats.totalClaimed > 0) && (
+            <div className="section">
+              <h2 className="section-title"><Icon name="trending" size={14} /> Profit & Loss</h2>
+              <div className="stats-row" style={{ marginBottom: 0 }}>
+                <div className="stat-card">
+                  <div className="stat-label"><Icon name="dollar" size={12} /> Total invested</div>
+                  <div className="stat-value">${Number(walletStats.totalInvested || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-label"><Icon name="coins" size={12} /> Total claimed</div>
+                  <div className="stat-value">${Number(walletStats.totalClaimed || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-label"><Icon name="bolt" size={12} /> Net P&L</div>
+                  {(() => {
+                    const net = (walletStats.totalClaimed || 0) - (walletStats.totalInvested || 0) + Number(totalPending) / 1e6;
+                    const isPos = net >= 0;
+                    return <div className="stat-value" style={{ color: isPos ? "#22c55e" : "#ef4444" }}>{isPos ? "+" : ""}${Math.abs(net).toLocaleString("en-US", { maximumFractionDigits: 2 })}</div>;
+                  })()}
+                </div>
+                <div className="stat-card">
+                  <div className="stat-label"><Icon name="history" size={12} /> Transactions</div>
+                  <div className="stat-value">{walletStats.totalTransactions || 0}</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Portfolio earnings chart */}
           {portfolioEpochs.length > 0 && (
@@ -258,6 +305,7 @@ export default function InvestorDashboard() {
                     fmtProp={fmtProp}
                     isClaiming={claimingId === it.id}
                     onClaim={() => handleClaimOne(it)}
+                    epochs={portfolioEpochs.filter(e => e.propertyName === it.property.name)}
                   />
                 ))}
               </div>
@@ -274,7 +322,7 @@ export default function InvestorDashboard() {
   );
 }
 
-function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim }) {
+function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim, epochs = [] }) {
   const { property: p, balance, pending } = item;
   const pct = (Number(ethers.formatEther(balance)) / 100) * 100;
   const hasPending = pending > 0n;
@@ -308,6 +356,11 @@ function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim }) {
           <div className="text-xs text-muted" style={{ marginTop: 4 }}>
             From your {fmtProp(balance)} PROP · {pct.toFixed(1)}% ownership
           </div>
+        </div>
+
+        {/* Epoch countdown */}
+        <div style={{ marginTop: 12 }}>
+          <EpochCountdown epochs={epochs} />
         </div>
 
         <div className="flex gap-2" style={{ marginTop: 14 }}>

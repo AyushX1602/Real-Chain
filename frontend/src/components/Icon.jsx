@@ -76,6 +76,10 @@ const PATHS = {
   link: <><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></>,
   power: <><path d="M12 2v10"/><path d="M5.6 7.6a9 9 0 1 0 12.8 0"/></>,
   faucet: <><path d="M14 6v4M10 6v4"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M5 14a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v0"/><path d="M3 14h18"/><path d="M12 14v4"/><path d="M9 22h6l-1-4h-4l-1 4Z"/></>,
+  bell: <><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></>,
+  clock: <><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></>,
+  download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></>,
+  trophy: <><path d="M6 9H4V5h2M18 9h2V5h-2"/><path d="M4 5h16"/><path d="M12 22v-4"/><path d="M8 22h8"/><path d="M6 5a6 6 0 0 0 12 0"/><path d="M6 13a6 6 0 0 0 6 5 6 6 0 0 0 6-5"/></>,
 };
 
 export default function Icon({ name, size = 18, strokeWidth = 2, className = "", style, "aria-hidden": ariaHidden = true, ...rest }) {

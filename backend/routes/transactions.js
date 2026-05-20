@@ -133,6 +133,26 @@ router.post("/", async (req, res) => {
   }
 });
 
+// ── GET /api/transactions/stats/:wallet — Per-wallet P&L stats ───────────────
+router.get("/stats/:wallet", async (req, res) => {
+  try {
+    const wallet = req.params.wallet.toLowerCase();
+    const txs = await Transaction.find({
+      from: { $regex: new RegExp(`^${wallet}$`, "i") },
+    });
+    let totalInvested = 0, totalClaimed = 0, claimCount = 0;
+    txs.forEach((tx) => {
+      const amt = Number(tx.amount || 0);
+      const action = tx.type || "";
+      if (action === "buy") totalInvested += amt;
+      if (action === "claim") { totalClaimed += amt; claimCount++; }
+    });
+    res.json({ totalInvested, totalClaimed, totalTransactions: txs.length, claimCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/transactions/stats — Global platform stats ──────────────────────
 router.get("/stats", async (req, res) => {
   try {

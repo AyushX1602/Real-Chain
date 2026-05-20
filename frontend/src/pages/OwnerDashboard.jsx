@@ -993,3 +993,152 @@ function SyncButton({ toast }) {
     </button>
   );
 }
+
+// ── Bulk Deposit — deposit the same rent to multiple properties ──────────────
+function BulkDepositSection({ items, canWriteAsOwner, fmtUsdc, onRefresh }) {
+  const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
+  const { toast } = useToast();
+  const [selected, setSelected] = useState(new Set());
+  const [amount, setAmount] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
+
+  if (!items || items.length === 0) return null;
+
+  function toggleProperty(id) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function selectAll() {
+    if (selected.size === items.length) setSelected(new Set());
+    else setSelected(new Set(items.map((it) => it.id)));
+  }
+
+  async function handleBulkDeposit() {
+    const n = parseFloat(amount);
+    if (!Number.isFinite(n) || n < 0.01) {
+      toast.error("Invalid amount", { msg: "Enter at least 0.01 USDC." });
+      return;
+    }
+    if (selected.size === 0) {
+      toast.error("No properties selected", { msg: "Check at least one property." });
+      return;
+    }
+    if (!canWriteAsOwner) {
+      toast.error("Admin write locked", { msg: "Connect the admin wallet first." });
+      return;
+    }
+    setBusy(true);
+    const targets = items.filter((it) => selected.has(it.id));
+    setProgress({ done: 0, total: targets.length });
+    let success = 0;
+    for (const it of targets) {
+      try {
+        const usdcRaw = BigInt(Math.floor(n * 1e6));
+        await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, it.property.rentalDistribution, usdcRaw);
+        const receipt = await ugfExecute(it.property.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [usdcRaw]);
+        const txHash = receipt?.hash || receipt?.transactionHash || null;
+        logTx({
+          txHash,
+          type: "deposit",
+          propertyId: it.id,
+          amount: n,
+          gasMethod: isUGFEnabled ? "ugf" : "eth",
+        });
+        success++;
+      } catch (e) {
+        toast.error(`Deposit failed for ${it.property.name}`, { msg: (e.reason || e.message || "").slice(0, 120) });
+      }
+      setProgress((prev) => ({ ...prev, done: prev.done + 1 }));
+    }
+    toast.success("Bulk deposit complete", { msg: `${success}/${targets.length} properties received $${n.toFixed(2)} each.` });
+    setBusy(false);
+    setAmount("");
+    setSelected(new Set());
+    onRefresh();
+  }
+
+  return (
+    <div className="card card-elevated" style={{ marginTop: 24 }}>
+      <div className="card-body" style={{ padding: "20px 24px" }}>
+        <div className="flex items-center gap-2" style={{ marginBottom: 16 }}>
+          <span style={{
+            width: 28, height: 28, display: "inline-flex", alignItems: "center",
+            justifyContent: "center", borderRadius: 8,
+            background: "var(--gold-soft)", color: "var(--amber-400)",
+          }}>
+            <Icon name="coins" size={14} />
+          </span>
+          <h3 style={{ fontSize: 15, fontWeight: 700 }}>Bulk rent deposit</h3>
+          <span className="badge badge-muted" style={{ fontSize: 11 }}>{selected.size} selected</span>
+        </div>
+
+        {/* Property checkboxes */}
+        <div style={{ display: "grid", gap: 8, marginBottom: 16 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}>
+            <input type="checkbox" checked={selected.size === items.length && items.length > 0} onChange={selectAll} />
+            <span style={{ fontWeight: 600 }}>Select all ({items.length})</span>
+          </label>
+          {items.map((it) => (
+            <label key={it.id} style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "6px 10px", borderRadius: 8, fontSize: 13,
+              background: selected.has(it.id) ? "rgba(185,255,102,0.08)" : "var(--bg-elevated)",
+              border: `1px solid ${selected.has(it.id) ? "rgba(185,255,102,0.3)" : "var(--border)"}`,
+              cursor: "pointer",
+            }}>
+              <input type="checkbox" checked={selected.has(it.id)} onChange={() => toggleProperty(it.id)} />
+              <span style={{ flex: 1, fontWeight: 600 }}>{it.property.name}</span>
+              <span className="text-xs text-muted">{fmtUsdc(it.totalDeposited || 0n)} deposited</span>
+            </label>
+          ))}
+        </div>
+
+        {/* Amount + button */}
+        <div className="flex gap-2 items-end">
+          <div style={{ flex: 1 }}>
+            <label className="text-xs text-muted" style={{ display: "block", marginBottom: 4 }}>Amount per property (USDC)</label>
+            <input
+              type="number"
+              className="input"
+              placeholder="100.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              min="0.01"
+              step="0.01"
+              disabled={busy}
+            />
+          </div>
+          <button
+            className="btn btn-gold"
+            onClick={handleBulkDeposit}
+            disabled={busy || !amount || selected.size === 0}
+            style={{ minWidth: 160 }}
+          >
+            {busy ? (
+              <><span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} /> {progress.done}/{progress.total}</>
+            ) : (
+              <><Icon name="coins" size={13} /> Deposit to {selected.size}</>
+            )}
+          </button>
+        </div>
+
+        {busy && (
+          <div style={{ marginTop: 10, height: 4, borderRadius: 2, background: "var(--bg-elevated)" }}>
+            <div style={{
+              height: "100%", borderRadius: 2,
+              background: "linear-gradient(90deg, #B9FF66, #8BC34A)",
+              width: `${progress.total > 0 ? (progress.done / progress.total) * 100 : 0}%`,
+              transition: "width 0.3s ease",
+            }} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

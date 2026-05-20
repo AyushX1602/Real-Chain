@@ -7,6 +7,7 @@ import {
   WalletShort,
 } from "../components/ScreenPrimitives";
 import { BACKEND_URL } from "../config/contracts";
+import TransactionReceipt from "../components/TransactionReceipt";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Activity — full tx log pulled from /api/transactions with filters.
@@ -16,6 +17,26 @@ import { BACKEND_URL } from "../config/contracts";
 const ACTIONS = ["all", "claim", "buy", "deposit", "listing", "cancel"];
 const GAS = ["all", "ugf", "eth"];
 
+function downloadCsv(rows) {
+  const header = "Date,Action,Wallet,Amount (USDC),Gas Method,Tx Hash\n";
+  const body = rows.map((r) => {
+    const date = r.createdAt ? new Date(r.createdAt).toISOString() : "";
+    const action = r.action || r.type || "";
+    const wallet = r.from || "";
+    const amount = Number(r.amount || 0).toFixed(6);
+    const gas = r.gasMethod || "eth";
+    const tx = r.txHash || "";
+    return `${date},${action},${wallet},${amount},${gas},${tx}`;
+  }).join("\n");
+  const blob = new Blob([header + body], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `realchain-activity-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function Activity() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +44,7 @@ export default function Activity() {
   const [nextCursor, setNextCursor] = useState(null);
   const [filters, setFilters] = useState({ action: "all", gasMethod: "all", wallet: "" });
   const [lastUpdatedMs, setLastUpdatedMs] = useState(null);
+  const [receiptTx, setReceiptTx] = useState(null);
 
   const fetchRows = useCallback(async (cursor = null, append = false) => {
     setLoading(true);
@@ -88,7 +110,14 @@ export default function Activity() {
             <h1>Activity <span className="accent">log</span></h1>
             <p>Live on-chain transactions from the indexer.</p>
           </div>
-          <IndexerStatus offline={Boolean(error)} lastUpdatedMs={lastUpdatedMs} />
+          <div className="flex gap-2 items-center">
+            <IndexerStatus offline={Boolean(error)} lastUpdatedMs={lastUpdatedMs} />
+            {rows.length > 0 && (
+              <button className="btn btn-secondary btn-sm" onClick={() => downloadCsv(rows)}>
+                <Icon name="download" size={12} /> Export CSV
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -147,11 +176,12 @@ export default function Activity() {
                     <th>Amount</th>
                     <th>Time</th>
                     <th>Tx</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={r._id || r.txHash}>
+                    <tr key={r._id || r.txHash} onClick={() => setReceiptTx(r)} style={{ cursor: "pointer" }}>
                       <td><GasMethodBadge method={r.gasMethod === "ugf" ? "ugf" : "eth"} compact /></td>
                       <td><WalletShort address={r.from} /></td>
                       <td style={{ textTransform: "capitalize", fontWeight: 600 }}>{r.action || r.type}</td>
@@ -162,6 +192,11 @@ export default function Activity() {
                         {r.createdAt ? new Date(r.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}
                       </td>
                       <td><OnChainBadge txHash={r.txHash} label="Tx" /></td>
+                      <td>
+                        <button className="icon-btn" title="Download receipt" onClick={(e) => { e.stopPropagation(); setReceiptTx(r); }}>
+                          <Icon name="receipt" size={13} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -176,6 +211,18 @@ export default function Activity() {
           )}
         </div>
       </div>
+      {/* Receipt overlay */}
+      {receiptTx && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 300,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)",
+        }} onClick={() => setReceiptTx(null)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <TransactionReceipt tx={receiptTx} onClose={() => setReceiptTx(null)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

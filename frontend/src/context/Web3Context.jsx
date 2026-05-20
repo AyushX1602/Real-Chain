@@ -137,6 +137,7 @@ export function Web3Provider({ children }) {
     try {
       setConnecting(true);
       await window.ethereum.request({ method: "eth_requestAccounts" });
+      localStorage.removeItem("realchain-disconnected");
       await hydrateWallet(window.ethereum);
       // First-time connect from a public surface (Landing / Login / Signup)
       // → take the user to the marketplace. If they were already inside the
@@ -153,8 +154,11 @@ export function Web3Provider({ children }) {
     }
   }, [hydrateWallet, navigate, location.pathname]);
 
+  // ── Auto-restore from MetaMask on mount (unless user explicitly disconnected)
   useEffect(() => {
     if (!window.ethereum) return undefined;
+    // Skip auto-reconnect if user explicitly disconnected
+    if (localStorage.getItem("realchain-disconnected") === "1") return undefined;
     let alive = true;
     (async () => {
       try {
@@ -248,6 +252,7 @@ export function Web3Provider({ children }) {
     setUsdcBalance("0");
     setRoleHint(null);
     setError(null);
+    localStorage.setItem("realchain-disconnected", "1");
   }, []);
 
   // ── Fetch USDC balance ───────────────────────────────────────────────────────

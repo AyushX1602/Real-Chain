@@ -10,5 +10,5 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react()],
   envDir: path.resolve(__dirname, ".."),
-  server: { port: 3000 },
+  server: { port: 5173 },
 });
