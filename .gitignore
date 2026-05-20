@@ -13,6 +13,8 @@ coverage.json
 # Environment Variables
 .env
 .env.local
+.env.hardhat
+.env.*.local
 
 # OS Files
 .DS_Store
