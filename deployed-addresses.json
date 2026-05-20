@@ -3,8 +3,8 @@
   "distributionMode": "v1",
   "mockUsdc": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
   "factory": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  "deployedAt": "2026-05-20T04:52:40.652Z",
-  "demoInvestor": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "deployedAt": "2026-05-20T07:53:12.071Z",
+  "demoInvestor": "0x25e6f47Fbf5a4Fc83dE6C5D6a5dF3247Ee71c08F",
   "demoOwner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "seededAt": "2026-05-20T05:17:30.993Z"
+  "seededAt": "2026-05-20T08:27:06.576Z"
 }
