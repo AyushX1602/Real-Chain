@@ -233,7 +233,11 @@ export default function Landing() {
               <button className="btn btn-primary btn-lg" onClick={connect} disabled={connecting || !!account}>
                 {account ? "Wallet connected" : connecting ? "Connecting…" : "Connect wallet"}
               </button>
-              <Link to="/marketplace" className="btn btn-secondary btn-lg">Browse properties</Link>
+              {authUser || account ? (
+                <Link to="/marketplace" className="btn btn-secondary btn-lg">Browse properties</Link>
+              ) : (
+                <Link to="/login" className="btn btn-secondary btn-lg">Log in</Link>
+              )}
             </div>
           </div>
           <div className="lp-cta-illu" aria-hidden="true">

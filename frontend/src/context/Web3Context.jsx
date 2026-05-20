@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ethers } from "ethers";
 import {
   CONTRACT_ADDRESSES, NETWORK_CHAIN_ID, LOCAL_RPC_URL, SEPOLIA_RPC_URL,
@@ -33,6 +34,12 @@ export function Web3Provider({ children }) {
   const [nodeOnline, setNodeOnline]   = useState(null); // null = checking, true/false
 
   const isCorrectNetwork = chainId === NETWORK_CHAIN_ID;
+
+  // Router hooks — used to redirect to the marketplace after a fresh wallet
+  // connect. Restore-from-eth_accounts on mount intentionally does NOT
+  // redirect (the user might be deep-linked into a specific page already).
+  const navigate = useNavigate();
+  const location = useLocation();
 
   function getExpectedNetworkConfig() {
     if (NETWORK_CHAIN_ID === 31337) {
@@ -131,13 +138,20 @@ export function Web3Provider({ children }) {
       setConnecting(true);
       await window.ethereum.request({ method: "eth_requestAccounts" });
       await hydrateWallet(window.ethereum);
+      // First-time connect from a public surface (Landing / Login / Signup)
+      // → take the user to the marketplace. If they were already inside the
+      // app, leave them where they were.
+      const path = location.pathname || "/";
+      if (path === "/" || path === "/login" || path === "/signup") {
+        navigate("/marketplace", { replace: true });
+      }
     } catch (e) {
       if (e?.code === 4001) return; // User rejected — not an error
       setError(e.message || "Connection failed");
     } finally {
       setConnecting(false);
     }
-  }, [hydrateWallet]);
+  }, [hydrateWallet, navigate, location.pathname]);
 
   useEffect(() => {
     if (!window.ethereum) return undefined;

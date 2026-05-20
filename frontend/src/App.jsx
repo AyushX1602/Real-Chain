@@ -327,6 +327,19 @@ function ErrorBanner({ error }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Auth guard. Anything wrapped here demands either an authenticated session
+// (email/password) OR a connected wallet. Unauthenticated visitors are
+// bounced to /login and the original location is preserved on `location.state`
+// so the AuthPage can return them after success.
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const { account } = useWeb3();
+  if (!isAuthenticated && !account) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
 export default function App() {
   return (
     <div className="app-shell">
@@ -336,17 +349,17 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
-          <Route path="/marketplace" element={<Home />} />
-          <Route path="/admin" element={<OwnerDashboard />} />
-          <Route path="/owner" element={<OwnerDashboard />} />
-          <Route path="/investor" element={<InvestorDashboard />} />
-          <Route path="/tenant" element={<TenantDashboard />} />
-          <Route path="/property/:id" element={<Property />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/dividends" element={<Dividends />} />
-          <Route path="/watchlist" element={<Watchlist />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/activity" element={<Activity />} />
+          <Route path="/marketplace"   element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/admin"         element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
+          <Route path="/owner"         element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
+          <Route path="/investor"      element={<ProtectedRoute><InvestorDashboard /></ProtectedRoute>} />
+          <Route path="/tenant"        element={<ProtectedRoute><TenantDashboard /></ProtectedRoute>} />
+          <Route path="/property/:id"  element={<ProtectedRoute><Property /></ProtectedRoute>} />
+          <Route path="/portfolio"     element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
+          <Route path="/dividends"     element={<ProtectedRoute><Dividends /></ProtectedRoute>} />
+          <Route path="/watchlist"     element={<ProtectedRoute><Watchlist /></ProtectedRoute>} />
+          <Route path="/analytics"     element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+          <Route path="/activity"      element={<ProtectedRoute><Activity /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
