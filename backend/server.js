@@ -22,7 +22,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const pinoHttp = require("pino-http");
 const rateLimit = require("express-rate-limit");
-require("dotenv").config({ path: "../.env" });
+const path = require("path");
+const envPath = path.resolve(__dirname, "../.env");
+require("dotenv").config({ path: envPath });
 
 const logger = require("./logger");
 const indexer = require("./jobs/indexer");
@@ -121,9 +123,9 @@ mongoose
   });
 
 // ── Start Server ─────────────────────────────────────────────────────────────
-const PORT = process.env.BACKEND_PORT || 5000;
-app.listen(PORT, () => {
-  logger.info(`RealChain backend running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || process.env.BACKEND_PORT || 5000;
+app.listen(PORT, "0.0.0.0", () => {
+  logger.info(`RealChain backend running on port ${PORT}`);
   logger.info(`Health: http://localhost:${PORT}/api/health`);
 });
 
