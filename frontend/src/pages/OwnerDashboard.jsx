@@ -264,15 +264,32 @@ export default function OwnerDashboard() {
 
   async function ensureAdminWriteReady() {
     if (!account) {
-      toast.error("Connect wallet", { msg: "Connect the admin wallet before making on-chain changes." });
+      toast.error("Connect wallet", { msg: "Connect your wallet before making on-chain changes." });
       return false;
     }
     if (!effectiveOwnerWallet) {
-      toast.error("Save admin wallet", { msg: "Set the wallet that owns and receives assets first." });
+      toast.error("Save owner wallet", { msg: "Set the wallet that owns and receives assets first." });
       return false;
     }
     if (!canSignForOwnerWallet) {
-      toast.error("Wrong wallet", { msg: "Connect the saved admin wallet before making owner changes." });
+      toast.error("Wrong wallet", { msg: "Connect the saved owner wallet before making owner changes." });
+      return false;
+    }
+    if (!isCorrectNetwork) {
+      toast.info("Switching network", { msg: `Opening MetaMask for ${NETWORK_MODE === "local" ? "Hardhat Local" : "Base Sepolia"}.` });
+      const switched = await switchToExpectedNetwork();
+      if (!switched) {
+        toast.error("Wrong network", { msg: `Switch MetaMask to ${NETWORK_MODE === "local" ? "Hardhat Local" : "Base Sepolia"} and retry.` });
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /* Lighter check for property creation — any connected wallet can create */
+  async function ensureCreateReady() {
+    if (!account) {
+      toast.error("Connect wallet", { msg: "Connect your wallet to create a property." });
       return false;
     }
     if (!isCorrectNetwork) {
@@ -326,7 +343,7 @@ export default function OwnerDashboard() {
   }
 
   async function handleCreate() {
-    if (!(await ensureAdminWriteReady())) return;
+    if (!(await ensureCreateReady())) return;
     const { name, location, valueInr, price } = newProp;
     if (!name || !location || !valueInr || !price) {
       toast.error("Missing fields", { msg: "Name, location, valuation, and token price are required." });
