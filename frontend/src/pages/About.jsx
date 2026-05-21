@@ -189,8 +189,8 @@ export default function About() {
         <Link to="/marketplace" className="btn btn-primary btn-lg" style={{ marginRight: 12 }}>
           <Icon name="building" size={14} /> Browse marketplace
         </Link>
-        <Link to="/signup" className="btn btn-secondary btn-lg">
-          Create account <Icon name="arrowRight" size={14} />
+        <Link to="/demo" className="btn btn-secondary btn-lg">
+          Try the demo <Icon name="arrowRight" size={14} />
         </Link>
       </div>
 

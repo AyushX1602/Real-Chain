@@ -20,7 +20,7 @@ import Portfolio from "./pages/Portfolio";
 import Dividends from "./pages/Dividends";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
-import TenantDashboard from "./pages/TenantDashboard";
+// TenantDashboard removed — /tenant redirects to /investor
 import Watchlist from "./pages/Watchlist";
 import Analytics from "./pages/Analytics";
 import Activity from "./pages/Activity";
@@ -140,7 +140,7 @@ function Navbar() {
             {isAuthenticated ? (
               <>
                 <span className={`role-badge ${authUser?.role === "owner" ? "is-owner" : "is-investor"}`} title={authUser?.email}>
-                  <Icon name={authUser?.role === "owner" ? "building" : "receipt"} size={11} /> {authRoleLabel}
+                  <Icon name={authUser?.role === "owner" ? "building" : "coins"} size={11} /> {authRoleLabel}
                 </span>
                 <button className="icon-btn" onClick={() => { logout(); disconnect(); navigate("/"); }} aria-label="Log out">
                   <Icon name="logout" size={16} />
@@ -344,13 +344,7 @@ function OwnerRoute({ children }) {
   return children;
 }
 
-function TenantRoute({ children }) {
-  const { isAuthenticated, user } = useAuth();
-  const { account } = useWeb3();
-  if (!isAuthenticated && !account) return <Navigate to="/login" replace />;
-  if (isAuthenticated && user?.role === "owner") return <Navigate to="/owner" replace />;
-  return children;
-}
+// TenantRoute removed — /tenant now redirects to /investor via Navigate
 
 export default function App() {
   return (

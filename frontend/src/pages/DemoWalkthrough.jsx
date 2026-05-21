@@ -221,6 +221,38 @@ export default function DemoWalkthrough() {
         ))}
       </div>
 
+      {/* Completion card */}
+      {currentStep === STEPS.length - 1 && (
+        <div className="card card-elevated" style={{
+          marginTop: 32, padding: "28px 32px", textAlign: "center",
+          background: "linear-gradient(135deg, var(--accent-lime, #B9FF66) 0%, #D4FF9E 100%)",
+          border: "2px solid #191A23", borderRadius: "var(--radius-lg, 16px)",
+        }}>
+          <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
+          <h3 style={{ fontSize: 22, fontWeight: 800, color: "#191A23", marginBottom: 8 }}>
+            Demo complete!
+          </h3>
+          <p style={{ fontSize: 14, color: "#191A23", opacity: 0.75, lineHeight: 1.6, maxWidth: 440, margin: "0 auto" }}>
+            You just experienced the full RealChain lifecycle — fractional ownership,
+            USDC rent distribution, and gasless claims — all without a single wei of ETH.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 20 }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#191A23" }}>0</div>
+              <div style={{ fontSize: 11, color: "#191A23", opacity: 0.6 }}>ETH spent</div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#191A23" }}>7</div>
+              <div style={{ fontSize: 11, color: "#191A23", opacity: 0.6 }}>Steps covered</div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#191A23" }}>100%</div>
+              <div style={{ fontSize: 11, color: "#191A23", opacity: 0.6 }}>Gasless</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <div className="flex gap-3 justify-center" style={{ marginTop: 32, marginBottom: 48 }}>
         <button
