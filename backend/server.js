@@ -32,7 +32,22 @@ const indexer = require("./jobs/indexer");
 const app = express();
 
 // ── Middleware ───────────────────────────────────────────────────────────────
-app.use(cors());
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://real-chain-git-main-ayushs-projects-f90c82c1.vercel.app",
+];
+// Also allow any *.vercel.app subdomain for preview deploys
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      cb(null, true);
+    } else {
+      cb(null, true); // allow all for hackathon demo
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(pinoHttp({
   logger,
