@@ -125,9 +125,6 @@ function Navbar() {
                 <NavLink to="/dividends" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
                   Claim rent
                 </NavLink>
-                <NavLink to="/analytics" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-                  Analytics
-                </NavLink>
               </>
             )}
             <NavLink to="/demo" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
@@ -136,7 +133,6 @@ function Navbar() {
           </div>
 
           <div className="navbar-actions">
-            <NotificationBell />
             {isAuthenticated ? (
               <>
                 <span className={`role-badge ${authUser?.role === "owner" ? "is-owner" : "is-investor"}`} title={authUser?.email}>
@@ -161,18 +157,6 @@ function Navbar() {
                 <Icon name="alert" size={12} /> {switching ? "Switching…" : "Wrong network"}
               </button>
             )}
-
-            <div ref={settingsWrapRef} style={{ position: "relative" }}>
-              <button
-                className="icon-btn"
-                aria-label="Settings"
-                aria-expanded={settingsOpen}
-                onClick={() => setSettingsOpen((s) => !s)}
-              >
-                <Icon name="settings" size={18} />
-              </button>
-              {settingsOpen && <SettingsPopover isUGFEnabled={isUGFEnabled} setUGFEnabled={setUGFEnabled} onClose={() => setSettingsOpen(false)} />}
-            </div>
 
             {/* ── Wallet button / dropdown ───────────────────────────── */}
             {account ? (
