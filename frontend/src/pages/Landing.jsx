@@ -1871,19 +1871,14 @@ const AGENT_FEATURES = {
     { icon: "info",     title: "Status pill in navbar",  body: "Lime/grey/red gas pill mirrors the agent's classification — visible on every page." },
   ],
   assistant: [
-    { icon: "spark",    title: "Bring your own key",     body: "OpenAI, Anthropic Claude, Google Gemini, OpenRouter — pick any one, paste the key, model is auto-defaulted." },
-    { icon: "lock",     title: "Direct browser → LLM",   body: "Keys live in localStorage and travel only to the chosen provider. RealChain's backend never sees them." },
+    { icon: "spark",    title: "Local LLM support",      body: "Download a local model (e.g. Ollama + Llama 3, Mistral) and point the assistant at it — no API key or cloud service required." },
+    { icon: "lock",     title: "Direct browser → LLM",   body: "Responses are generated locally on your machine. RealChain's backend never sees your queries or your data." },
     { icon: "globe",    title: "Context aware",          body: "Each prompt includes wallet, gas state, computed heuristics and per-property pending — answers stay grounded." },
-    { icon: "alert",    title: "Risk made visible",      body: "Settings popover surfaces an explicit warning that browser-side keys are not safe on shared machines." },
+    { icon: "alert",    title: "Cloud providers optional", body: "If you prefer a hosted model, OpenAI, Anthropic, Gemini, and OpenRouter are still supported via Settings." },
   ],
 };
 
-const AGENT_PROVIDER_CHIPS = [
-  { label: "OpenAI",     icon: <ProvOpenAI /> },
-  { label: "Anthropic",  icon: <ProvAnthropic /> },
-  { label: "Gemini",     icon: <ProvGemini /> },
-  { label: "OpenRouter", icon: <ProvOpenRouter /> },
-];
+const AGENT_PROVIDER_CHIPS = [];
 
 function SmartAgentSection() {
   return (
@@ -1942,14 +1937,15 @@ function SmartAgentSection() {
               <FloatIcon duration={3.8} amplitude={5} rotate={3}>
                 <Icon name="spark" size={14} />
               </FloatIcon>
-              Optional · BYO key
+              Optional · local or cloud LLM
             </span>
             <h3 className="lp-agent-card-title">AI assistant</h3>
           </div>
           <p className="lp-agent-card-lead">
-            Free-text Q&amp;A on your dashboard, routed through whichever LLM
-            provider you supply. The prompt is built from your real holdings
-            and the live gas state so the answer is never generic.
+            Free-text Q&amp;A on your dashboard. Run a local model with Ollama
+            (no API key needed) or connect any cloud provider. The prompt is
+            built from your real holdings and live gas state so answers are
+            never generic.
           </p>
           <ul className="lp-agent-list is-on-dark">
             {AGENT_FEATURES.assistant.map((f, i) => (
@@ -1970,22 +1966,6 @@ function SmartAgentSection() {
               </li>
             ))}
           </ul>
-
-          <div className="lp-agent-providers" aria-label="Supported providers">
-            {AGENT_PROVIDER_CHIPS.map((p, i) => (
-              <FloatIcon
-                key={p.label}
-                duration={3.2 + (i % 4) * 0.4}
-                delay={(i * 0.25) % 1.6}
-                amplitude={6 + (i % 3)}
-                rotate={2 + (i % 2)}
-                className="lp-agent-provider"
-              >
-                {p.icon}
-                <span>{p.label}</span>
-              </FloatIcon>
-            ))}
-          </div>
         </motion.div>
       </Stagger>
     </section>
