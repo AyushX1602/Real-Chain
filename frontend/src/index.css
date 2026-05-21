@@ -3876,16 +3876,21 @@ tr:hover td { background: var(--positivus-grey-warm); }
   -webkit-backdrop-filter: none;
 }
 
-/* Force text to white so it reads over the dark video */
+/* Force text to white so it reads over the dark video — no shadow */
 .lp-hero-text--living .lp-hero-title,
 .lp-hero-text--living .lp-hero-title--staggered .lp-hero-word,
 .lp-hero-text--living .lp-hero-sub {
   color: #FFFFFF;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.55);
+  text-shadow: none;
 }
 .lp-hero-text--living .lp-hero-sub {
   opacity: 1;
   color: rgba(255,255,255,0.88);
+  margin-bottom: 2rem;
+}
+.lp-hero-text--living .lp-hero-cta-row {
+  margin-top: 0.5rem;
+  gap: 14px;
 }
 .lp-hero-text--living .lp-hero-eyebrow {
   background: rgba(0,0,0,0.35);
@@ -3893,6 +3898,23 @@ tr:hover td { background: var(--positivus-grey-warm); }
   color: #FFFFFF;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+/* "Create account" primary CTA — white fill, dark text, lime hover */
+.lp-hero-text--living .lp-cta-connect,
+.lp-hero-text--living .btn-primary.btn-xl.lp-cta-connect {
+  background: #FFFFFF;
+  color: #191A23;
+  border: 2px solid #FFFFFF;
+  box-shadow: none;
+}
+.lp-hero-text--living .lp-cta-connect:hover,
+.lp-hero-text--living .btn-primary.btn-xl.lp-cta-connect:hover {
+  background: #B9FF66;
+  color: #191A23;
+  border-color: #B9FF66;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(185, 255, 102, 0.45);
 }
 
 /* Pulsing zero-ETH eyebrow */
