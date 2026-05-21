@@ -23,7 +23,16 @@ coverage.json
 .DS_Store
 Thumbs.db
 
-# Local AI tooling
-# Machine-specific Graphify/Codex hook paths are generated per developer.
-.codex/hooks.json
+# Local AI / IDE tooling
+.codex/
+.kiro/
+.claude/
+memory/
+graphify-out/
+.graphifyignore
+ui-ux-pro-max-skill/
+*.err.log
+hardhat-node.log
+hardhat-node.err.log
+.tmp-status.ps1
 .env.baseSepolia

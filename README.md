@@ -1,200 +1,295 @@
-# RealChain v2 — Tokenized Real Estate Investment Platform
+<![CDATA[<div align="center">
 
-> Blockchain-based prototype for fractional real estate ownership, USDC-based rental distribution, and secondary market trading. Built for academic research on smart contract security and gas scalability.
+# 🏢 RealChain
 
-## Architecture
+### Tokenized Real Estate · Zero-ETH Claims · Gasless on Base Sepolia
 
-```
-real-estate-platform/
-├── contracts/
-│   ├── MockUSDC.sol                  # Simulated stablecoin (6 decimals)
-│   ├── PropertyToken.sol             # ERC-20Votes — 100 tokens = 100% ownership
-│   ├── PropertyFactory.sol           # Registry: optional V1/V2 distribution mode per property
-│   ├── RentalDistribution.sol        # USDC epoch-based pull dividends (snapshot-safe)
-│   ├── RentalDistributionV2.sol      # USDC cumulative-index model (O(1) claims)
-│   ├── RentalDistributionV2Deployer.sol # Helper to keep factory below EVM code-size limit
-│   ├── Marketplace.sol               # USDC fixed-price primary + secondary market
-│   └── BrokenRentalDistribution.sol  # [RESEARCH] Vulnerable baseline for comparison
-├── scripts/
-│   ├── deploy.js                     # Deploy MockUSDC + Factory + 2 sample properties
-│   └── simulate.js                   # Full end-to-end demo (buy → rent → claim → trade)
-├── test/
-│   ├── RealEstatePlatform.test.js    # 17 core tests (USDC + snapshot correctness)
-│   ├── SnapshotAttack.test.js        # 5 security tests (attack demo + defence proof)
-│   └── GasBenchmark.test.js          # 3 benchmark tests (gas tables for research paper)
-│   ├── DistributionV2.test.js        # 3 property proofs (security, fairness, accounting)
-│   ├── FactoryDistributionMode.test.js # 2 tests (V1 default + optional V2 mode)
-│   └── V1VsV2Benchmark.test.js       # Side-by-side V1 vs V2 gas/scalability tables
-└── frontend/                         # React + Vite + ethers.js v6
-    └── src/
-        ├── config/contracts.js       # ← Paste deployed addresses here
-        ├── context/Web3Context.jsx   # Read-only + MetaMask provider
-        └── pages/                    # Home, Property, Portfolio, Dividends
-```
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://real-chain-git-main-ayushs-projects-f90c82c1.vercel.app)
+[![Network](https://img.shields.io/badge/Network-Base_Sepolia-0052FF?style=for-the-badge&logo=ethereum)](https://sepolia.basescan.org)
+[![License](https://img.shields.io/badge/License-Apache_2.0-green?style=for-the-badge)](LICENSE)
 
-## Smart Contracts
+**Buy fractional property tokens · Earn USDC rent every epoch · Claim with zero ETH**
 
-| Contract | Purpose |
-|---|---|
-| `MockUSDC` | Mintable 6-decimal stablecoin for local/testnet use |
-| `PropertyToken` | ERC-20Votes token. 100 PROP = 100% property. Auto-delegates for checkpointing. |
-| `PropertyFactory` | Deploys Token + Distribution(V1/V2) + Marketplace per property. On-chain registry. |
-| `RentalDistribution` | Owner deposits USDC as rent. Holders claim proportional share using **historical balance at deposit time** (snapshot-safe). |
-| `RentalDistributionV2` | Owner deposits USDC into cumulative index. Holders claim in **O(1)** regardless of epoch count. |
-| `Marketplace` | Buy from owner (primary) or list/buy from holders (secondary). All prices in USDC. |
-| `BrokenRentalDistribution` | **Research baseline only.** Uses live balance — vulnerable to snapshot timing attack. |
+Gas is paid in Mock USD via the **Universal Gas Framework (UGF)** — no native ETH required.
+
+</div>
 
 ---
 
-## Local Setup (Recommended)
+## 🎯 The Problem
+
+Traditional real estate requires **full property purchase**, is **illiquid** (can't sell a fraction), and rent collection is **manual and opaque**. Blockchain tokenization solves these — but introduces a **new barrier**: every transaction requires ETH for gas, shutting out users who only hold stablecoins.
+
+**RealChain eliminates both barriers** — fractional ownership AND gasless transactions.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TB
+    subgraph Frontend["Frontend · React + Vite"]
+        LP[Landing Page]
+        MKT[Marketplace]
+        OD[Owner Dashboard]
+        ID[Investor Dashboard]
+        PORT[Portfolio / Trade]
+        DIV[Claim Rent]
+        DEMO[Demo Walkthrough]
+    end
+
+    subgraph Blockchain["Base Sepolia · Chain ID 84532"]
+        FACTORY[PropertyFactory]
+        TOKEN[PropertyToken · ERC-20Votes]
+        RENTAL[RentalDistribution · Epochs]
+        MARKET[Marketplace · USDC]
+        USDC[MockUSDC · 6 decimals]
+    end
+
+    subgraph UGF["Universal Gas Framework"]
+        RELAY[UGF Relay / Sponsor]
+        MOCK[TYI_MOCK_USD · Gas Token]
+    end
+
+    subgraph Backend["Express + MongoDB"]
+        API[REST API]
+        IDX[On-chain Indexer]
+        DB[(MongoDB)]
+    end
+
+    Frontend -->|"ethers.js v6"| Blockchain
+    Frontend -->|"Gasless tx"| UGF
+    UGF -->|"Sponsored tx"| Blockchain
+    Frontend -->|"REST"| Backend
+    IDX -->|"Event polling"| Blockchain
+    IDX --> DB
+    API --> DB
+```
+
+---
+
+## 🔄 How It Works
+
+### The Complete Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant O as 👤 Owner
+    participant SC as 📜 Smart Contracts
+    participant I as 👤 Investor
+    participant UGF as ⚡ UGF Relay
+
+    Note over O,I: Phase 1 — Property Creation
+    O->>SC: createProperty("Skyline Tower", 100 PROP)
+    SC-->>SC: Deploy Token + Distribution + Marketplace
+
+    Note over O,I: Phase 2 — Token Purchase
+    I->>SC: approve(USDC) + buyFromOwner(30 PROP)
+    SC-->>I: Transfer 30 PROP tokens
+    SC-->>O: Transfer USDC payment
+
+    Note over O,I: Phase 3 — Rent Deposit
+    O->>SC: depositRent(500 USDC)
+    SC-->>SC: Snapshot all holder balances at this block
+
+    Note over O,I: Phase 4 — Gasless Rent Claim
+    I->>UGF: Sign claim tx + pay gas fee in Mock USD
+    UGF->>SC: Execute claimAll() on investor's behalf
+    SC-->>I: Transfer 150 USDC (30% of 500)
+    Note over I: ✅ 0 ETH used. Gas settled in Mock USD.
+
+    Note over O,I: Phase 5 — Secondary Market
+    I->>SC: createListing(10 PROP, price)
+    Note over I: Other investors can buy listed tokens
+```
+
+### Role-Based Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         RealChain Platform                         │
+├──────────────────────────────┬──────────────────────────────────────┤
+│        🏠 OWNER              │           💰 INVESTOR               │
+├──────────────────────────────┼──────────────────────────────────────┤
+│  • Create properties         │  • Browse marketplace               │
+│  • Mint test USDC            │  • Buy fractional tokens            │
+│  • Deposit rent (USDC)       │  • View pending rent                │
+│  • Manage token supply       │  • Claim rent (gasless via UGF) ⚡  │
+│  • Approve marketplace       │  • List tokens for resale           │
+│                              │  • View P&L analytics               │
+└──────────────────────────────┴──────────────────────────────────────┘
+```
+
+---
+
+## ⚡ Universal Gas Framework (UGF)
+
+The **key innovation** — every on-chain transaction can be executed without holding ETH.
+
+```mermaid
+flowchart LR
+    A[User signs tx] --> B{UGF Enabled?}
+    B -->|Yes| C[Quote gas fee in Mock USD]
+    C --> D[User approves Mock USD payment]
+    D --> E[UGF Relay sponsors ETH gas]
+    E --> F[Transaction executes on-chain]
+    B -->|No| G[User pays gas in ETH]
+    G --> F
+
+    style C fill:#B9FF66,stroke:#191A23,color:#191A23
+    style D fill:#B9FF66,stroke:#191A23,color:#191A23
+    style E fill:#B9FF66,stroke:#191A23,color:#191A23
+```
+
+| Without UGF | With UGF |
+|---|---|
+| ❌ User needs ETH for every tx | ✅ User pays in Mock USD |
+| ❌ New users stuck at "buy ETH" step | ✅ Onboard with stablecoins only |
+| ❌ Gas price volatility | ✅ Predictable fee in USD terms |
+
+---
+
+## 📦 Smart Contracts
+
+| Contract | Purpose | Key Feature |
+|---|---|---|
+| `MockUSDC` | Mintable 6-decimal stablecoin | Testnet faucet-friendly |
+| `PropertyToken` | ERC-20Votes — 100 PROP = 100% ownership | Auto-delegates for balance snapshots |
+| `PropertyFactory` | Deploys Token + Distribution + Marketplace per property | On-chain registry with V1/V2 mode |
+| `RentalDistribution` | Epoch-based pull dividends | **Snapshot-safe** — uses historical balance |
+| `RentalDistributionV2` | Cumulative-index model | **O(1) claims** regardless of epoch count |
+| `Marketplace` | USDC fixed-price primary + secondary market | Peer-to-peer token trading |
+| `BrokenRentalDistribution` | Research baseline | Demonstrates snapshot timing vulnerability |
+
+### Deployed Addresses (Base Sepolia)
+
+| Contract | Address |
+|---|---|
+| MockUSDC | `0xc90610277191F7Dbe7Ddf18319Bd28D3aAAe9a38` |
+| PropertyFactory | `0xa8bb0D4923C1aBB9294cBc115c6FF81B2DaC0168` |
+
+---
+
+## 🖥️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18, Vite, ethers.js v6 |
+| **Smart Contracts** | Solidity 0.8, OpenZeppelin, Hardhat |
+| **Backend** | Express.js, MongoDB, Pino logging |
+| **Network** | Base Sepolia (L2, Chain ID: 84532) |
+| **Gasless** | Universal Gas Framework (UGF) |
+| **Deployment** | Vercel (frontend), MongoDB Atlas (database) |
+| **Design** | Space Grotesk + JetBrains Mono, CSS design system |
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js ≥ 18
 - MetaMask browser extension
+- MongoDB (for backend features)
 
-### 1. Install dependencies
+### 1. Install
+
 ```bash
+git clone https://github.com/AyushX1602/Real-Chain.git
+cd Real-Chain
 npm install
+cd frontend && npm install && cd ..
+cd backend && npm install && cd ..
 ```
 
-### 2. Start the local Hardhat node (Terminal 1)
-```bash
-.\node_modules\.bin\hardhat node
-```
-This gives you 20 funded test accounts and prints their private keys.
+### 2. Configure
 
-### 3. Deploy contracts (Terminal 2)
-```bash
-.\node_modules\.bin\hardhat run scripts/deploy.js --network localhost
-```
-Optional mode switch:
-```bash
-$env:DISTRIBUTION_MODE="v2"; .\node_modules\.bin\hardhat run scripts/deploy.js --network localhost
-```
-Use `v1` (default) or `v2`.
-
-Copy the printed `MockUSDC` and `Factory` addresses.
-
-### 4. Update frontend config
-Edit `frontend/src/config/contracts.js`:
-```js
-export const NETWORK_CHAIN_ID = 31337; // Hardhat local
-
-export const CONTRACT_ADDRESSES = {
-  mockUsdc:        "0x...",  // paste MockUSDC address
-  propertyFactory: "0x...",  // paste Factory address
-};
-```
-
-### 5. Configure MetaMask
-- Add network manually:
-  - Network Name: `Hardhat Local`
-  - RPC URL: `http://127.0.0.1:8545`
-  - Chain ID: `31337`
-  - Currency: `ETH`
-- Import a test account using one of the private keys printed by `hardhat node`
-
-### 6. Start the frontend (Terminal 3)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000)
-
-> **Properties appear without MetaMask.** Connect MetaMask only when you want to buy/claim/list.
-
----
-
-## Sepolia Testnet Deployment
-
-### 1. Configure environment
 ```bash
 cp .env.example .env
+# Edit .env with your keys:
+#   PRIVATE_KEY=<deployer wallet>
+#   MONGODB_URI=<your connection string>
 ```
-Edit `.env` with your Alchemy key and wallet private key.
 
-### 2. Get Sepolia ETH
-- Faucet: [sepoliafaucet.com](https://sepoliafaucet.com)
-- You also need Sepolia ETH for gas fees.
+### 3. Run Locally
 
-### 3. Deploy
 ```bash
-.\node_modules\.bin\hardhat run scripts/deploy.js --network sepolia
+# Terminal 1 — Hardhat node
+npx hardhat node
+
+# Terminal 2 — Deploy contracts
+npx hardhat run scripts/deploy.js --network localhost
+
+# Terminal 3 — Backend
+cd backend && npm run dev
+
+# Terminal 4 — Frontend
+cd frontend && npm run dev
 ```
 
-### 4. Verify on Etherscan (optional)
+Open [http://localhost:5173](http://localhost:5173)
+
+### 4. Deploy to Base Sepolia
+
 ```bash
-.\node_modules\.bin\hardhat verify --network sepolia <CONTRACT_ADDRESS> <CONSTRUCTOR_ARGS>
-```
-
-### 5. Update frontend
-```js
-// frontend/src/config/contracts.js
-export const NETWORK_CHAIN_ID = 11155111; // Sepolia
-export const LOCAL_RPC_URL = "https://rpc.sepolia.org"; // or Alchemy URL
-export const CONTRACT_ADDRESSES = {
-  mockUsdc:        "0x...",
-  propertyFactory: "0x...",
-};
+npx hardhat run scripts/deploy.js --network baseSepolia
 ```
 
 ---
 
-## Running Tests
+## 🧪 Testing
 
 ```bash
-# All tests
-.\node_modules\.bin\hardhat test
-
-# Core functionality (17 tests)
-.\node_modules\.bin\hardhat test test/RealEstatePlatform.test.js
-
-# Security: Snapshot timing attack demo (5 tests)
-.\node_modules\.bin\hardhat test test/SnapshotAttack.test.js
-
-# Gas benchmark — produces research paper tables (3 tests)
-.\node_modules\.bin\hardhat test test/GasBenchmark.test.js
-
-# V2 security/fairness/accounting proofs
-.\node_modules\.bin\hardhat test test/DistributionV2.test.js
-
-# Factory mode switch (default V1 + optional V2)
-.\node_modules\.bin\hardhat test test/FactoryDistributionMode.test.js
-
-# V1 vs V2 benchmark tables
-.\node_modules\.bin\hardhat test test/V1VsV2Benchmark.test.js
+# Run all 31 tests
+npx hardhat test
 ```
 
-Expected output: **31 passing**
-
----
-
-## Research Findings
-
-### Security: Snapshot Timing Attack
-
-The `BrokenRentalDistribution` contract calculates dividends using the **live** token balance at claim time. This allows:
-
-1. **Attacker buys tokens AFTER rent deposit** → claims dividends they never earned
-2. **Legitimate holder sells BEFORE claiming** → loses earned dividends
-
-`RentalDistribution` fixes this using `ERC20Votes.getPastVotes(user, depositTimestamp - 1)`.
-
-| Actor | BrokenRD (vulnerable) | FixedRD (patched) |
+| Test Suite | Tests | What It Covers |
 |---|---|---|
-| Alice (held 30 tokens at deposit, sold after) | **0 USDC ← robbed** | 300 USDC ✓ |
-| Carol (held 0 tokens at deposit, bought after) | **300 USDC ← stolen** | 0 USDC ✓ |
+| `RealEstatePlatform.test.js` | 17 | Core USDC flow + snapshot correctness |
+| `SnapshotAttack.test.js` | 5 | Security: attack demo + defence proof |
+| `GasBenchmark.test.js` | 3 | Gas cost tables for research |
+| `DistributionV2.test.js` | 3 | V2 security, fairness, accounting |
+| `FactoryDistributionMode.test.js` | 2 | V1 default + V2 mode switch |
+| `V1VsV2Benchmark.test.js` | 1 | Side-by-side gas comparison |
 
-### Scalability: Gas Cost Analysis
+---
 
-`claimAll()` gas formula (1 investor):
+## 🔐 Security: Snapshot Timing Attack
+
+The `BrokenRentalDistribution` contract uses **live** token balance — vulnerable to:
+
+```mermaid
+sequenceDiagram
+    participant Alice as Alice (Legit Holder)
+    participant Contract as BrokenRentalDistribution
+    participant Carol as Carol (Attacker)
+
+    Note over Alice: Holds 30 PROP at deposit time
+    Contract->>Contract: Owner deposits 1000 USDC rent
+
+    Note over Carol: Buys 30 PROP AFTER deposit
+    Carol->>Contract: claimAll()
+    Contract-->>Carol: ❌ 300 USDC (stolen!)
+
+    Alice->>Contract: Sells 30 PROP, then claims
+    Contract-->>Alice: ❌ 0 USDC (robbed!)
 ```
-Gas = 85,503 + (epochs − 1) × 42,858
-USD ≈ $3.42 + (epochs − 1) × $1.71   [at 20 gwei, ETH=$2000]
-```
 
-| Epochs | Gas Used | Est. Cost |
+**RealChain fixes this** with `ERC20Votes.getPastVotes(user, snapshotBlock)` — dividends are calculated from the **historical balance at deposit time**, not the current balance.
+
+| Actor | Broken (Vulnerable) | Fixed (RealChain) |
+|---|---|---|
+| Alice (held 30 PROP at deposit) | **0 USDC** ← robbed | 300 USDC ✅ |
+| Carol (bought AFTER deposit) | **300 USDC** ← stolen | 0 USDC ✅ |
+
+---
+
+## 📊 Gas Benchmarks
+
+### V1 — Epoch-based `claimAll()`
+
+| Epochs | Gas Used | Est. Cost (20 gwei, ETH=$2000) |
 |---|---|---|
 | 1 | 85,503 | $3.42 |
 | 6 | 243,483 | $9.74 |
@@ -202,41 +297,82 @@ USD ≈ $3.42 + (epochs − 1) × $1.71   [at 20 gwei, ETH=$2000]
 | 24 | 812,216 | $32.49 |
 | 48 | 1,570,535 | $62.82 |
 
-**Creating a property** costs ~$156 (deploys 3 contracts). This is a known bottleneck — ERC-1155 is the proposed mitigation at scale.
+### V2 — Cumulative-index `claim()`
 
-### V1 vs V2 Selection Guide (Research-Ready)
+| Operation | Gas | Note |
+|---|---|---|
+| Claim (any epoch count) | ~137,616 | **O(1)** — constant cost |
+| Extra deposit overhead | +30,546 | vs V1 per deposit |
+| Extra transfer overhead | +47,607 | Hook cost per transfer |
 
-Use this decision rule from benchmarked gas constants:
+### When to Use V2
 
 ```
-Choose V2 if:
-N_claims * (V1_claim_gas(E) - V2_claim_gas)
-  > N_deposits * 30,546 + N_transfers * 47,607
+Choose V2 if accumulated epochs between claims ≥ 3
 ```
 
-Where:
-- `E` = expected epochs accumulated between claims
-- `V1_claim_gas(E) ~= 102,625 + (E - 1) * 42,880`
-- `V2_claim_gas ~= 137,616`
-- `30,546` = V2 extra gas per deposit vs V1
-- `47,607` = V2 extra gas per transfer (hook overhead)
-
-Practical interpretation:
-- Pick **V1** for low-epoch, transfer-heavy properties (frequent trading, frequent claims).
-- Pick **V2** when claims usually span multiple epochs (roughly `E >= 2-3`) or when supporting smaller investors over long horizons.
+V1 is better for frequent traders + frequent claimers. V2 is better for long-term holders.
 
 ---
 
-## Contract Design Notes
+## 📁 Project Structure
 
-- **Pull-based distribution**: No push loops → O(1) per deposit, O(n_epochs) per claim
-- **ERC20Votes checkpointing**: `getPastVotes(user, snapshotTime)` for historical balances
-- **USDC settlement**: Stable-value rent deposits allow epoch-to-epoch yield comparison
-- **ReentrancyGuard**: All state-changing marketplace and distribution functions
-- **CEI pattern enforced**: State updated before all external calls
+```
+RealChain/
+├── contracts/                    # Solidity smart contracts
+│   ├── MockUSDC.sol              # Test stablecoin (6 decimals)
+│   ├── PropertyToken.sol         # ERC-20Votes — fractional ownership
+│   ├── PropertyFactory.sol       # Registry + deployer
+│   ├── RentalDistribution.sol    # Snapshot-safe epoch dividends
+│   ├── RentalDistributionV2.sol  # O(1) cumulative-index claims
+│   ├── Marketplace.sol           # Primary + secondary USDC market
+│   └── BrokenRentalDistribution.sol  # [Research] Vulnerable baseline
+├── scripts/
+│   ├── deploy.js                 # Contract deployment
+│   ├── seedDemo.js               # Seed demo data for testing
+│   └── simulate.js               # Full lifecycle simulation
+├── test/                         # 31 tests: security, gas, correctness
+├── frontend/                     # React + Vite SPA
+│   └── src/
+│       ├── config/contracts.js   # Network config + ABIs
+│       ├── context/              # Web3, UGF, Auth, Theme providers
+│       ├── pages/                # All route pages
+│       └── components/           # Reusable UI components
+├── backend/                      # Express + MongoDB
+│   ├── routes/                   # Auth, properties, transactions, faucet
+│   ├── jobs/indexer.js           # On-chain event indexer
+│   └── server.js                 # Entry point
+├── hardhat.config.js             # Network + compiler config
+├── DOCUMENTATION.md              # Detailed technical docs
+└── PROJECT_EXPLAINED.txt         # Narrative guide for evaluators
+```
 
-## Constraints (Prototype)
-- No KYC / AML
-- MockUSDC is not real USDC — for testnet use only
-- Fixed 100-token supply (ERC-1155 proposed for production scale)
-- No production security audit
+---
+
+## 🎓 Research Context
+
+This platform was built as a prototype for academic research on:
+
+1. **Smart contract security** — demonstrating and fixing the snapshot timing attack
+2. **Gas scalability** — benchmarking epoch-based vs cumulative-index dividend models
+3. **Gasless UX** — proving that DeFi can work without requiring native tokens
+
+### Key Contribution
+
+> A working implementation showing that tokenized real estate with gasless claim mechanics
+> is viable on EVM L2 chains, with formal gas benchmarks comparing two distribution architectures.
+
+---
+
+## 👥 Built By
+
+**Team Spirit** — Builders passionate about making real estate investment accessible through blockchain technology.
+
+---
+
+## 📜 License
+
+Apache 2.0 — see [LICENSE](LICENSE) for details.
+
+Design attribution: portions adapted from [Positivus Landing Page](https://www.figma.com/community/file/1230604708032389430) by Olga (CC BY 4.0) — see [NOTICE](NOTICE).
+]]>
