@@ -5002,3 +5002,19 @@ html[data-theme="dark"] .epoch-countdown-bar { background: var(--bg-card); borde
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(180, 79, 255, 0.5), 0 4px 0 0 #8B2FD4;
 }
+
+
+/* "Connect wallet" ghost button in the hero — white box with dark text */
+.lp-hero-text--living .btn-ghost.btn-xl {
+  background: #FFFFFF;
+  color: #191A23;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 4px 0 0 rgba(0,0,0,0.18);
+}
+.lp-hero-text--living .btn-ghost.btn-xl:hover {
+  background: rgba(255,255,255,0.88);
+  color: #191A23;
+  border-color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255,255,255,0.35), 0 4px 0 0 rgba(0,0,0,0.18);
+}
