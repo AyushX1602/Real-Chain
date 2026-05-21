@@ -3900,21 +3900,21 @@ tr:hover td { background: var(--positivus-grey-warm); }
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* "Create account" primary CTA — white fill, dark text, lime hover */
+/* "Create account" primary CTA — neon purple fill, white text, purple hover */
 .lp-hero-text--living .lp-cta-connect,
 .lp-hero-text--living .btn-primary.btn-xl.lp-cta-connect {
-  background: #FFFFFF;
-  color: #191A23;
-  border: 2px solid #FFFFFF;
-  box-shadow: none;
+  background: #B44FFF;
+  color: #FFFFFF;
+  border: 2px solid #8B2FD4;
+  box-shadow: 0 4px 0 0 #8B2FD4;
 }
 .lp-hero-text--living .lp-cta-connect:hover,
 .lp-hero-text--living .btn-primary.btn-xl.lp-cta-connect:hover {
-  background: #B9FF66;
-  color: #191A23;
-  border-color: #B9FF66;
+  background: #C97FFF;
+  color: #FFFFFF;
+  border-color: #B44FFF;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(185, 255, 102, 0.45);
+  box-shadow: 0 8px 24px rgba(180, 79, 255, 0.5), 0 4px 0 0 #8B2FD4;
 }
 
 /* Pulsing zero-ETH eyebrow */
@@ -4963,3 +4963,42 @@ html[data-theme="dark"] .cost-meta   { color: var(--text-tertiary); }
 html[data-theme="dark"] .notif-dropdown { background: var(--bg-card); border-color: var(--border); }
 html[data-theme="dark"] .notif-item.is-unread { background: rgba(185,255,102,0.04); }
 html[data-theme="dark"] .epoch-countdown-bar { background: var(--bg-card); border-color: var(--border); }
+
+
+/* ── Hero section — neon purple accent overrides ─────────────────────────── */
+/* Replaces the lime green on the zero-ETH chip, eyebrow dot, and Try demo
+   button with a neon purple (#B44FFF / #C97FFF). */
+
+/* zero-ETH highlight chip */
+.lp-hero-text--living .lp-hero-title .hl,
+.lp-hero-text--living .lp-hero-title--staggered .hl {
+  background: #B44FFF;
+  color: #FFFFFF;
+  border-color: #8B2FD4;
+  box-shadow: 0 0 24px rgba(180, 79, 255, 0.55), 0 3px 0 0 #8B2FD4;
+}
+
+/* Eyebrow pill pulsing dot */
+.lp-hero-text--living .lp-hero-eyebrow-dot {
+  background: #B44FFF;
+  border-color: #8B2FD4;
+  box-shadow: 0 0 0 4px rgba(180, 79, 255, 0.3);
+}
+
+/* "Try demo" gold button → neon purple */
+.lp-hero-text--living .btn-gold,
+.lp-hero-text--living a.btn-gold,
+.lp-hero-text--living button.btn-gold {
+  background: #B44FFF;
+  color: #FFFFFF;
+  border: 2px solid #8B2FD4;
+  box-shadow: 0 4px 0 0 #8B2FD4;
+}
+.lp-hero-text--living .btn-gold:hover,
+.lp-hero-text--living a.btn-gold:hover,
+.lp-hero-text--living button.btn-gold:hover {
+  background: #C97FFF;
+  border-color: #B44FFF;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(180, 79, 255, 0.5), 0 4px 0 0 #8B2FD4;
+}
