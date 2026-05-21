@@ -426,6 +426,16 @@ const HERO_TITLE_PARTS = [
 function HeroSection({ account, authUser, connect, connecting, dashboardForRole, networkName, privy }) {
   const reduce = useReducedMotion();
   const stageRef = useRef(null);
+  const videoRef = useRef(null);
+
+  // iOS Safari autoplay fallback — call play() imperatively after mount in
+  // case the browser deferred autoplay. Both `muted` and `playsInline` are
+  // set on the element; this is just a belt-and-suspenders nudge.
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+    vid.play().catch(() => { /* autoplay blocked — video stays hidden, gradient fallback shows */ });
+  }, []);
   // Parallax offsets are kept in CSS variables on the stage element so the
   // floating coins can opt in via var(--hero-px-*). Avoids re-rendering React
   // on every mousemove — everything stays GPU-only.
@@ -468,22 +478,39 @@ function HeroSection({ account, authUser, connect, connecting, dashboardForRole,
 
   return (
     <section ref={stageRef} className="lp-hero-stage lp-hero-stage--living" aria-label="Hero">
-      {/* Ambient orbs — atmospheric depth, soft drift */}
-      <span className="lp-hero-orb lp-hero-orb--xl is-lime" aria-hidden="true" />
-      <span className="lp-hero-orb lp-hero-orb--xl is-mint" aria-hidden="true" />
-      <span className="lp-hero-orb lp-hero-orb--xl is-cool" aria-hidden="true" />
-      <span className="lp-hero-orb lp-hero-orb--xl is-warm" aria-hidden="true" />
-      <span className="lp-hero-grid" aria-hidden="true" />
+      {/* ── Video background ─────────────────────────────────────────────
+          Sits at z-index 0, below orbs (z-index 0 too but rendered after),
+          below the overlay (z-index 1), and below all content (z-index 2+).
+          The gradient fallback on the stage itself shows if the video fails
+          to load — no broken-looking section. */}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          zIndex: 0,
+          pointerEvents: "none",
+          // Force the video onto its own GPU compositor layer so the browser
+          // doesn't repaint it alongside the rest of the page on every frame.
+          willChange: "transform",
+          transform: "translateZ(0)",
+          // Disable any CSS filter inheritance that could trigger a repaint.
+          filter: "none",
+        }}
+      >
+        <source src="/herosection.mp4" type="video/mp4" />
+      </video>
 
-      {/* Floating coins — distributed across the canvas. ETH coins have
-          been removed by request: their Ξ glyph rendered as a 3-line shape
-          that read like a hamburger menu icon. USDC coins remain to give
-          the canvas the same depth without that ambiguity. */}
-      <CoinUsdc size={64} pos="top-right"     duration={4}   delay={0}     />
-      <CoinUsdc size={56} pos="mid-right"     duration={4}   delay={1.2}   />
-      <CoinUsdc size={42} pos="bottom-mid"    duration={4}   delay={2.5}   background />
-      <CoinUsdc size={38} pos="top-left"      duration={4}   delay={0.7}   background />
-      <CoinUsdc size={44} pos="bottom-left"   duration={4}   delay={1.9}   background />
+      {/* Overlay removed — video is fully visible */}
 
       <section className="lp-hero lp-hero--living">
         <div className="lp-hero-text lp-hero-text--living">
@@ -569,32 +596,6 @@ function HeroSection({ account, authUser, connect, connecting, dashboardForRole,
           </motion.div>
           <LiveRentCounter className="lp-hero-counter" />
         </div>
-
-        <motion.div
-          className="lp-hero-illu lp-hero-illu--living"
-          aria-hidden="true"
-          initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4, duration: 0.65, ease: [0.2, 0.8, 0.2, 1] }}
-        >
-          <span className="lp-hero-illu-glow" />
-          <div className="lp-hero-illu-float">
-            <HeroIllustration />
-            {/* Micro-animated accent: lightning bolt rotation */}
-            <span className="lp-hero-bolt" aria-hidden="true">
-              <Icon name="bolt" size={26} />
-            </span>
-            {/* Primary dollar coin with scale pulse */}
-            <span className="lp-hero-dollar lp-hero-dollar--primary" aria-hidden="true">$</span>
-            {/* Orbiting USDC settle coin around the primary */}
-            <span className="lp-hero-orbit" aria-hidden="true">
-              <span className="lp-hero-orbit-coin">$</span>
-            </span>
-          </div>
-          <span className="lp-hero-illu-pill is-top">
-            <Icon name="bolt" size={11} /> ERC-20Votes
-          </span>
-        </motion.div>
       </section>
     </section>
   );

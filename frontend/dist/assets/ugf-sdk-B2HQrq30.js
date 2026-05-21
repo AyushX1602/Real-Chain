@@ -1,1 +1,0 @@
-var e={};throw Error(`Could not resolve "@solana/web3.js" imported by "@tychilabs/ugf-sdk". Is it installed?`);export{e as default};
