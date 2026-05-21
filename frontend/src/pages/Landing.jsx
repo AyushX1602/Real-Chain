@@ -389,9 +389,7 @@ export default function Landing() {
             {/* Native mailto handoff — no fake submit handler. */}
             <form
               className="lp-footer-form"
-              action="mailto:hello@realchain.local"
-              method="post"
-              encType="text/plain"
+              onSubmit={(e) => { e.preventDefault(); window.location.href = "mailto:hello@realchain.io"; }}
             >
               <input type="email" name="email" placeholder="your@email.com" aria-label="Your email" required />
               <button type="submit" className="btn btn-gold">Email us</button>

@@ -85,13 +85,15 @@ export default function AuthPage({ mode = "login" }) {
             </p>
           </div>
 
-          <div className="auth-role-preview">
-            <span className="auth-role-icon"><Icon name={selectedRole.icon} size={18} /></span>
-            <div>
-              <strong>{selectedRole.title}</strong>
-              <p>{selectedRole.body}</p>
+          {isSignup && (
+            <div className="auth-role-preview">
+              <span className="auth-role-icon"><Icon name={selectedRole.icon} size={18} /></span>
+              <div>
+                <strong>{selectedRole.title}</strong>
+                <p>{selectedRole.body}</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <form className="auth-card" onSubmit={handleSubmit}>
