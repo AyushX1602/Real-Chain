@@ -25,6 +25,7 @@ import Watchlist from "./pages/Watchlist";
 import Analytics from "./pages/Analytics";
 import Activity from "./pages/Activity";
 import DemoWalkthrough from "./pages/DemoWalkthrough";
+import About from "./pages/About";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Navbar — Positivus-style: white bar, black text, lime accent, rounded buttons.
@@ -129,6 +130,9 @@ function Navbar() {
             )}
             <NavLink to="/demo" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
               Demo
+            </NavLink>
+            <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+              About
             </NavLink>
           </div>
 
@@ -357,7 +361,8 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<AuthPage mode="login" />} />
           <Route path="/signup" element={<AuthPage mode="signup" />} />
-          <Route path="/demo" element={<DemoWalkthrough />} />
+          <Route path="/demo"  element={<DemoWalkthrough />} />
+          <Route path="/about" element={<About />} />
           <Route path="/marketplace"   element={<Home />} />
           <Route path="/admin"         element={<OwnerRoute><OwnerDashboard /></OwnerRoute>} />
           <Route path="/owner"         element={<OwnerRoute><OwnerDashboard /></OwnerRoute>} />
