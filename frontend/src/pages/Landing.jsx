@@ -378,6 +378,9 @@ export default function Landing() {
             <div className="lp-footer-contact">
               <p><strong>Network:</strong> {networkName} (chain id {NETWORK_CHAIN_ID})</p>
               <p><strong>API:</strong> {BACKEND_URL} · {backendOnline === null ? "checking…" : backendOnline ? "online" : "offline"}</p>
+              <p style={{ marginTop: 8, opacity: 0.7, fontSize: "0.85em", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Built by <strong>TEAM SPIRIT</strong>
+              </p>
             </div>
           </div>
 
