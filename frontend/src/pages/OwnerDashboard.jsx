@@ -317,7 +317,7 @@ export default function OwnerDashboard() {
       const normalized = ethers.getAddress(next);
       await updateProfile({ assetWallet: normalized });
       setWalletDraft(normalized);
-      toast.success("Admin wallet saved", { msg: `${fmtAddr(normalized)} will be used for owned properties.` });
+      toast.success("Owner wallet saved", { msg: `${fmtAddr(normalized)} will be used for owned properties.` });
     } catch (e) {
       setWalletError((e.message || "Could not save wallet").slice(0, 180));
     } finally {
@@ -411,11 +411,11 @@ export default function OwnerDashboard() {
       <div className="page-header">
         <div className="page-header-row">
           <div>
-            <h1>Admin <span className="accent">control room</span></h1>
+            <h1>Owner <span className="accent">control room</span></h1>
             <p>Deposit USDC rent, launch new properties, and keep owner assets tied to the right wallet.</p>
           </div>
           <div className="flex gap-3 items-center">
-            <span className="role-badge is-owner"><Icon name="star" size={12} /> Admin</span>
+            <span className="role-badge is-owner"><Icon name="star" size={12} /> Owner</span>
             <SyncButton toast={toast} />
             <button
               className="btn btn-gold"
@@ -463,7 +463,7 @@ export default function OwnerDashboard() {
         <KpiCard icon="building" label="Properties owned" value={String(props.length)} tone="accent" />
         <KpiCard icon="coins" label="Total rent deposited" value={fmtUsdc(totalRent)} tone="gold" />
         <KpiCard icon="history" label="Total epochs" value={String(totalEpochs)} tone="success" />
-        <KpiCard icon="user" label="Admin wallet" value={effectiveOwnerWallet ? fmtAddr(effectiveOwnerWallet) : "Not set"} mono tone="muted" />
+        <KpiCard icon="user" label="Owner wallet" value={effectiveOwnerWallet ? fmtAddr(effectiveOwnerWallet) : "Not set"} mono tone="muted" />
       </div>
 
       {creatingNew && (
@@ -534,7 +534,7 @@ function AdminWalletPanel({
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <Icon name="wallet" size={14} />
-          <span style={{ fontSize: 13, fontWeight: 700 }}>Admin wallet</span>
+          <span style={{ fontSize: 13, fontWeight: 700 }}>Owner wallet</span>
           <span className={`badge ${canWriteAsOwner ? "badge-success" : hasWalletMismatch ? "badge-gold" : "badge-muted"}`} style={{ fontSize: 10 }}>
             {canWriteAsOwner ? "Matched" : hasWalletMismatch ? "Mismatch" : "Not set"}
           </span>
@@ -622,7 +622,7 @@ function AdminWorkflowPanel({
   }
 
   const steps = [
-    { label: "Admin wallet", done: canSignForOwnerWallet },
+    { label: "Owner wallet", done: canSignForOwnerWallet },
     { label: NETWORK_MODE === "local" ? "Hardhat network" : "Base Sepolia", done: isCorrectNetwork },
     { label: "Owned properties", done: propertyCount > 0 },
     { label: "Rent deposits", done: totalRent > 0n },
@@ -790,7 +790,7 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
 
   async function handleDeposit() {
     if (!canWriteAsOwner) {
-      toast.error("Admin write locked", { msg: "Connect the saved admin wallet and switch to the expected network first." });
+      toast.error("Owner write locked", { msg: "Connect the saved owner wallet and switch to the expected network first." });
       return;
     }
     const err = validate(amount);
@@ -1030,7 +1030,7 @@ function BulkDepositSection({ items, canWriteAsOwner, fmtUsdc, onRefresh }) {
       return;
     }
     if (!canWriteAsOwner) {
-      toast.error("Admin write locked", { msg: "Connect the admin wallet first." });
+      toast.error("Owner write locked", { msg: "Connect the owner wallet first." });
       return;
     }
     setBusy(true);

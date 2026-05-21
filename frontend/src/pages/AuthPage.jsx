@@ -7,9 +7,9 @@ import Logo from "../components/Logo";
 const ROLE_OPTIONS = [
   {
     id: "owner",
-    label: "Admin",
+    label: "Owner",
     icon: "building",
-    title: "Property admin",
+    title: "Property owner",
     body: "Set a receiving wallet, launch properties, deposit rent, and manage tokenized supply.",
   },
   {

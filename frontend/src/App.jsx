@@ -98,7 +98,7 @@ function Navbar() {
     : roleHint === "Owner" ? "/owner" : "/investor";
   const isOwnerSession = isAuthenticated && authUser?.role === "owner";
   const isOwnerNav = isOwnerSession || (!isAuthenticated && roleHint === "Owner");
-  const authRoleLabel = authUser?.role === "tenant" ? "Rent payer" : "Admin";
+  const authRoleLabel = authUser?.role === "tenant" ? "Rent payer" : "Owner";
 
   return (
     <>
