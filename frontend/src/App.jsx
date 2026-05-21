@@ -99,7 +99,7 @@ function Navbar() {
     : roleHint === "Owner" ? "/owner" : "/investor";
   const isOwnerSession = isAuthenticated && authUser?.role === "owner";
   const isOwnerNav = isOwnerSession || (!isAuthenticated && roleHint === "Owner");
-  const authRoleLabel = authUser?.role === "tenant" ? "Rent payer" : "Owner";
+  const authRoleLabel = authUser?.role === "tenant" ? "Investor" : "Owner";
 
   return (
     <>
@@ -340,7 +340,7 @@ function OwnerRoute({ children }) {
   const { isAuthenticated, user } = useAuth();
   const { account, roleHint } = useWeb3();
   if (!isAuthenticated && !account) return <Navigate to="/login" replace />;
-  if (isAuthenticated && user?.role === "tenant") return <Navigate to="/tenant" replace />;
+  if (isAuthenticated && user?.role === "tenant") return <Navigate to="/investor" replace />;
   return children;
 }
 
@@ -367,7 +367,7 @@ export default function App() {
           <Route path="/admin"         element={<OwnerRoute><OwnerDashboard /></OwnerRoute>} />
           <Route path="/owner"         element={<OwnerRoute><OwnerDashboard /></OwnerRoute>} />
           <Route path="/investor"      element={<ProtectedRoute><InvestorDashboard /></ProtectedRoute>} />
-          <Route path="/tenant"        element={<TenantRoute><TenantDashboard /></TenantRoute>} />
+          <Route path="/tenant"        element={<Navigate to="/investor" replace />} />
           <Route path="/property/:id"  element={<Property />} />
           <Route path="/portfolio"     element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
           <Route path="/dividends"     element={<ProtectedRoute><Dividends /></ProtectedRoute>} />

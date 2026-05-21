@@ -14,10 +14,10 @@ const ROLE_OPTIONS = [
   },
   {
     id: "tenant",
-    label: "Rent payer",
-    icon: "receipt",
-    title: "Rent payer",
-    body: "Pay USDC rent, track receipts, and keep wallet gas simple.",
+    label: "Investor",
+    icon: "coins",
+    title: "Investor",
+    body: "Buy property tokens, earn passive rental income, and claim rent gaslessly via UGF.",
   },
 ];
 

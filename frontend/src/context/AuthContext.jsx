@@ -6,7 +6,7 @@ const TOKEN_KEY = "realchain-auth-token";
 
 function dashboardForRole(role) {
   if (role === "owner") return "/admin";
-  if (role === "tenant") return "/tenant";
+  if (role === "tenant") return "/investor";
   return "/marketplace";
 }
 
