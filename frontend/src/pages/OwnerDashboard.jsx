@@ -116,7 +116,8 @@ export default function OwnerDashboard() {
       setLoading(false);
       return;
     }
-    setLoading(true);
+    // Only show skeleton on initial load — not on soft refresh after deposit
+    if (props.length === 0) setLoading(true);
     try {
       const normalizedOwner = ownerWallet.toLowerCase();
       const factory = getReadFactory();
@@ -838,7 +839,9 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
       });
       toast.success("Rent deposited", { msg: `${fmtUsdc(usdcRaw)} added to a new epoch.` });
       setAmount("");
-      onRefresh();
+      // Wait briefly for the new block to propagate, then refresh epoch data
+      await new Promise((r) => setTimeout(r, 2000));
+      await onRefresh();
     } catch (e) {
       toast.error("Deposit failed", { msg: (e.reason || e.message || "").slice(0, 160) });
     } finally {
@@ -1081,10 +1084,11 @@ function BulkDepositSection({ items, canWriteAsOwner, fmtUsdc, onRefresh }) {
       setProgress((prev) => ({ ...prev, done: prev.done + 1 }));
     }
     toast.success("Bulk deposit complete", { msg: `${success}/${targets.length} properties received $${n.toFixed(2)} each.` });
-    setBusy(false);
     setAmount("");
     setSelected(new Set());
-    onRefresh();
+    await new Promise((r) => setTimeout(r, 2000));
+    await onRefresh();
+    setBusy(false);
   }
 
   return (
