@@ -20,6 +20,7 @@ import {
 import {
   BACKEND_URL,
   CONTRACT_ADDRESSES,
+  MOCK_USDC_ABI,
   NETWORK_CHAIN_ID,
   NETWORK_MODE,
   PROPERTY_FACTORY_ABI,
@@ -847,16 +848,19 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
     const usdcRaw = BigInt(Math.floor(parseFloat(amount) * 1e6));
     setBusy(true);
     try {
-      // Approve USDC via UGF (no onlyOwner on ERC20.approve)
-      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
-      await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, p.rentalDistribution, usdcRaw);
+      // Both approve + deposit go directly via MetaMask so msg.sender = owner.
+      // The contract has `onlyOwner` on depositRental, and we need the approval
+      // to be mined before the deposit (UGF async timing caused race conditions).
+      toast.info("Step 1/2 — Approving USDC", { msg: "Confirm in MetaMask to allow USDC spending." });
+      const approveIface = new ethers.Interface(MOCK_USDC_ABI);
+      const approveData = approveIface.encodeFunctionData("approve", [p.rentalDistribution, usdcRaw]);
+      const approveTx = await signer.sendTransaction({ to: CONTRACT_ADDRESSES.mockUsdc, data: approveData });
+      await approveTx.wait();
 
-      // depositRental must go directly via MetaMask — the contract has `onlyOwner`
-      // which checks msg.sender == owner. UGF relayer would be a different msg.sender.
-      toast.info("Depositing rent", { msg: "Sending directly from your wallet (owner signature required)." });
-      const iface = new ethers.Interface(RENTAL_DISTRIBUTION_ABI);
-      const data = iface.encodeFunctionData("depositRental", [usdcRaw]);
-      const tx = await signer.sendTransaction({ to: p.rentalDistribution, data });
+      toast.info("Step 2/2 — Depositing rent", { msg: "Confirm in MetaMask to create a new epoch." });
+      const depositIface = new ethers.Interface(RENTAL_DISTRIBUTION_ABI);
+      const depositData = depositIface.encodeFunctionData("depositRental", [usdcRaw]);
+      const tx = await signer.sendTransaction({ to: p.rentalDistribution, data: depositData });
       const receipt = await tx.wait();
       const txHash = receipt?.hash || tx.hash || null;
       setLastTxHash(txHash);
