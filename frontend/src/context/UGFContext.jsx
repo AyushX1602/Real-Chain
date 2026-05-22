@@ -82,25 +82,35 @@ export function UGFContextProvider({ children }) {
     pendingUgfRef.current = null;
   }, []);
 
-  // Catch UGFError thrown by the SDK's internal sponsorAndExecute/poll chain.
+  // Catch errors thrown by the SDK's internal sponsorAndExecute/poll chain.
   // These fire as unhandled rejections because the SDK runs them on a separate
-  // promise chain from our openUGF() call.
+  // promise chain from our openUGF() call. In production builds, class names
+  // are minified, so we match broadly on message content whenever a UGF
+  // transaction is pending.
   useEffect(() => {
     function onUnhandledRejection(event) {
-      const err = event?.reason;
-      const isUGFError =
-        err?.name === "UGFError" ||
-        (err?.constructor?.name === "UGFError") ||
-        (typeof err?.message === "string" && err.message.includes("UGFError"));
-      if (!isUGFError) return;
-
       const pending = pendingUgfRef.current;
-      if (pending) {
-        event.preventDefault(); // suppress console noise
-        window.clearTimeout(pending.timeoutId);
-        pendingUgfRef.current = null;
-        pending.reject(new Error(err.message || "UGF transaction failed on-chain"));
-      }
+      if (!pending) return; // No UGF tx in flight — ignore
+
+      const err = event?.reason;
+      if (!err) return;
+
+      const msg = String(err?.message || err || "").toLowerCase();
+      const isUGFRelated =
+        err?.name === "UGFError" ||
+        err?.constructor?.name === "UGFError" ||
+        msg.includes("ugferror") ||
+        msg.includes("transaction failed") ||
+        msg.includes("execution reverted") ||
+        msg.includes("sponsor") ||
+        msg.includes("poll");
+
+      if (!isUGFRelated) return;
+
+      event.preventDefault(); // suppress console noise
+      window.clearTimeout(pending.timeoutId);
+      pendingUgfRef.current = null;
+      pending.reject(new Error(err.message || "UGF transaction failed on-chain. The contract may have reverted — check your token balances."));
     }
     window.addEventListener("unhandledrejection", onUnhandledRejection);
     return () => window.removeEventListener("unhandledrejection", onUnhandledRejection);
