@@ -16,7 +16,7 @@ import Landing from "./pages/Landing";
 import AuthPage from "./pages/AuthPage";
 import Home from "./pages/Home";
 import Property from "./pages/Property";
-import Portfolio from "./pages/Portfolio";
+// Portfolio merged into InvestorDashboard — /portfolio now redirects
 import Dividends from "./pages/Dividends";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import InvestorDashboard from "./pages/InvestorDashboard";
@@ -119,14 +119,9 @@ function Navbar() {
               </NavLink>
             )}
             {!isOwnerNav && (account || isAuthenticated) && (
-              <>
-                <NavLink to="/portfolio" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-                  Portfolio
-                </NavLink>
-                <NavLink to="/dividends" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-                  Claim rent
-                </NavLink>
-              </>
+              <NavLink to="/dividends" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                Rent history
+              </NavLink>
             )}
             <NavLink to="/demo" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
               Demo
@@ -363,7 +358,7 @@ export default function App() {
           <Route path="/investor"      element={<ProtectedRoute><InvestorDashboard /></ProtectedRoute>} />
           <Route path="/tenant"        element={<Navigate to="/investor" replace />} />
           <Route path="/property/:id"  element={<Property />} />
-          <Route path="/portfolio"     element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
+          <Route path="/portfolio"     element={<Navigate to="/investor" replace />} />
           <Route path="/dividends"     element={<ProtectedRoute><Dividends /></ProtectedRoute>} />
           <Route path="/watchlist"     element={<ProtectedRoute><Watchlist /></ProtectedRoute>} />
           <Route path="/analytics"     element={<ProtectedRoute><Analytics /></ProtectedRoute>} />

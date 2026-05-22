@@ -9,7 +9,8 @@ import UGFBadge from "../components/UGFBadge";
 import CostBanner from "../components/CostBanner";
 import ConnectGate from "../components/ConnectGate";
 import AgentSuggestions from "../components/AgentSuggestions";
-import { RENTAL_DISTRIBUTION_ABI, BACKEND_URL } from "../config/contracts";
+import { FractionalOwnershipBar } from "../components/ScreenPrimitives";
+import { RENTAL_DISTRIBUTION_ABI, MARKETPLACE_ABI, BACKEND_URL } from "../config/contracts";
 import PortfolioChart from "../components/PortfolioChart";
 import EpochCountdown from "../components/EpochCountdown";
 import OnboardingChecklist from "../components/OnboardingChecklist";
@@ -23,7 +24,7 @@ import OnboardingChecklist from "../components/OnboardingChecklist";
 
 export default function InvestorDashboard() {
   const { account, connect, getReadFactory, getReadPropertyContracts, getPropertyContracts, fmtUsdc, fmtProp, fmtAddr, refreshUsdcBalance } = useWeb3();
-  const { ugfExecute, isUGFEnabled, logTx } = useUGF();
+  const { ugfExecute, ugfApprove, isUGFEnabled, logTx } = useUGF();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -74,10 +75,29 @@ export default function InvestorDashboard() {
           rental.epochCount(),
         ]);
         if (bal > 0n) {
+          // Also fetch marketplace data for sell UI
+          const { market: marketRo } = getReadPropertyContracts({
+            propertyToken: p.propertyToken,
+            rentalDistribution: p.rentalDistribution,
+            marketplace: p.marketplace,
+          });
+          const [pricePerToken, listCount] = await Promise.all([
+            marketRo.pricePerToken(),
+            marketRo.getListingCount(),
+          ]);
+          const myListings = [];
+          for (let j = 0; j < Number(listCount); j++) {
+            try {
+              const [seller, amount, price, active] = await marketRo.getListing(j);
+              if (active && seller.toLowerCase() === account.toLowerCase()) {
+                myListings.push({ listingId: j, amount, price });
+              }
+            } catch { /* skip */ }
+          }
           const ownershipPct = totalSupply > 0n
             ? (Number(ethers.formatEther(bal)) / Number(ethers.formatEther(totalSupply))) * 100
             : 0;
-          list.push({ id: i, property: p, balance: bal, pending });
+          list.push({ id: i, property: p, balance: bal, pending, totalSupply, pricePerToken, myListings });
 
           // Fetch epoch history for the portfolio chart — try API first
           let propertyEpochs = [];
@@ -338,6 +358,12 @@ export default function InvestorDashboard() {
                     fmtProp={fmtProp}
                     isClaiming={claimingId === it.id}
                     onClaim={() => handleClaimOne(it)}
+                    onRefresh={load}
+                    ugfExecute={ugfExecute}
+                    ugfApprove={ugfApprove}
+                    isUGFEnabled={isUGFEnabled}
+                    logTx={logTx}
+                    toast={toast}
                     epochs={portfolioEpochs.filter(e => e.propertyName === it.property.name)}
                   />
                 ))}
@@ -392,10 +418,49 @@ export default function InvestorDashboard() {
   );
 }
 
-function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim, epochs = [] }) {
-  const { property: p, balance, pending } = item;
+function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim, onRefresh, ugfExecute, ugfApprove, isUGFEnabled, logTx, toast, epochs = [] }) {
+  const { property: p, balance, pending, totalSupply, pricePerToken, myListings = [] } = item;
   const pct = (Number(ethers.formatEther(balance)) / 100) * 100;
+  const balanceNum = Number(ethers.formatEther(balance));
+  const supplyNum = totalSupply ? Number(ethers.formatEther(totalSupply)) : 0;
   const hasPending = pending > 0n;
+  const [showSellForm, setShowSellForm] = useState(false);
+  const [listAmount, setListAmount] = useState("");
+  const [listPrice, setListPrice] = useState("");
+  const [busy, setBusy] = useState(null);
+
+  async function handleCreateListing() {
+    if (!listAmount || !listPrice) return;
+    const amount = BigInt(Math.floor(Number(listAmount)));
+    const priceVal = BigInt(Math.floor(parseFloat(listPrice) * 1e6));
+    setBusy("create");
+    try {
+      toast.info("Step 1/2 — Approving PROP", { msg: "Confirm in MetaMask to allow token transfer." });
+      await ugfApprove(p.propertyToken, p.marketplace, amount * BigInt(1e18));
+      toast.info("Step 2/2 — Creating listing", { msg: "Confirm in MetaMask to list tokens." });
+      const receipt = await ugfExecute(p.marketplace, MARKETPLACE_ABI, "createListing", [amount, priceVal]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+      logTx({ txHash, type: "listing", propertyId: item.id, amount: parseFloat(listAmount) * parseFloat(listPrice), tokenAmount: Number(amount), gasMethod: isUGFEnabled ? "ugf" : "eth" });
+      toast.success("Listing live", { msg: `${listAmount} PROP @ $${listPrice} each.` });
+      setListAmount(""); setListPrice(""); setShowSellForm(false);
+      onRefresh();
+    } catch (e) {
+      toast.error("Listing failed", { msg: (e.reason || e.message || "").slice(0, 160) });
+    } finally { setBusy(null); }
+  }
+
+  async function handleCancelListing(listingId) {
+    setBusy(`cancel-${listingId}`);
+    try {
+      const receipt = await ugfExecute(p.marketplace, MARKETPLACE_ABI, "cancelListing", [listingId]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
+      logTx({ txHash, type: "cancel", propertyId: item.id, amount: 0, gasMethod: isUGFEnabled ? "ugf" : "eth" });
+      toast.success("Listing cancelled");
+      onRefresh();
+    } catch (e) {
+      toast.error("Cancel failed", { msg: (e.reason || e.message || "").slice(0, 160) });
+    } finally { setBusy(null); }
+  }
 
   return (
     <div className="card card-elevated reveal">
@@ -410,6 +475,14 @@ function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim, epochs = [] 
           <Icon name="pin" size={12} /> {p.location}
         </div>
 
+        {/* Ownership bar */}
+        {supplyNum > 0 && (
+          <div style={{ marginTop: 14 }}>
+            <FractionalOwnershipBar holding={balanceNum} totalSupply={supplyNum} label="Your ownership" />
+          </div>
+        )}
+
+        {/* Pending rent */}
         <div style={{
           marginTop: 16, padding: 16,
           background: "var(--bg-elevated)",
@@ -433,6 +506,7 @@ function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim, epochs = [] 
           <EpochCountdown epochs={epochs} />
         </div>
 
+        {/* Action buttons */}
         <div className="flex gap-2" style={{ marginTop: 14 }}>
           <button
             className="btn btn-primary btn-sm flex-1"
@@ -445,13 +519,76 @@ function HoldingCard({ item, fmtUsdc, fmtProp, isClaiming, onClaim, epochs = [] 
                 ? <><Icon name="bolt" size={12} /> Claim {fmtUsdc(pending)}</>
                 : <>Nothing to claim</>}
           </button>
-          <Link to="/portfolio" className="btn btn-secondary btn-sm" aria-label="Sell tokens">
-            <Icon name="send" size={12} /> Sell
-          </Link>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => setShowSellForm(!showSellForm)}
+            aria-label="Sell tokens"
+          >
+            <Icon name="send" size={12} /> {showSellForm ? "Close" : "Sell"}
+          </button>
           <Link to={`/property/${item.id}`} className="btn btn-secondary btn-sm" aria-label="View property">
             <Icon name="external" size={12} />
           </Link>
         </div>
+
+        {/* Inline sell form — toggles on click */}
+        {showSellForm && (
+          <div style={{
+            marginTop: 14, padding: 16,
+            background: "var(--bg-elevated)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border)",
+          }}>
+            <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon name="send" size={13} className="text-accent" /> Create sell listing
+            </h4>
+            <div className="flex gap-3 items-end flex-wrap">
+              <div className="form-group" style={{ flex: 1, minWidth: 120 }}>
+                <label className="form-label">Tokens</label>
+                <input className="form-input" type="number" min="1" placeholder="5"
+                  value={listAmount} onChange={(e) => setListAmount(e.target.value)} />
+              </div>
+              <div className="form-group" style={{ flex: 1, minWidth: 140 }}>
+                <label className="form-label">Price/token (USDC)</label>
+                <div className="form-input-prefix">
+                  <span className="prefix">$</span>
+                  <input className="form-input" type="number" min="0.01" step="0.01" placeholder="12.00"
+                    value={listPrice} onChange={(e) => setListPrice(e.target.value)} />
+                </div>
+              </div>
+              <button className="btn btn-primary btn-sm" onClick={handleCreateListing}
+                disabled={!listAmount || !listPrice || busy === "create"}
+              >
+                {busy === "create" ? <><span className="spinner" style={{ width: 11, height: 11, borderWidth: 1.5 }} /> Listing…</> : <><Icon name="bolt" size={12} /> List</>}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Active listings */}
+        {myListings.length > 0 && (
+          <div style={{ marginTop: 14 }}>
+            <h4 style={{ fontSize: 12, fontWeight: 600, color: "var(--fg-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+              <Icon name="list" size={11} style={{ verticalAlign: -1, marginRight: 4 }} /> My listings
+            </h4>
+            {myListings.map((l) => {
+              const total = (l.amount * l.price) / BigInt(1e18);
+              return (
+                <div key={l.listingId} className="flex items-center justify-between" style={{
+                  padding: "8px 12px", background: "var(--bg-elevated)", borderRadius: 8,
+                  border: "1px solid var(--border)", marginBottom: 6, fontSize: 13,
+                }}>
+                  <span><span className="badge badge-accent">{fmtProp(l.amount)}</span> @ {fmtUsdc(l.price)} = <strong style={{ color: "var(--amber-400)" }}>{fmtUsdc(total)}</strong></span>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleCancelListing(l.listingId)}
+                    disabled={busy === `cancel-${l.listingId}`}
+                  >
+                    {busy === `cancel-${l.listingId}` ? <span className="spinner" style={{ width: 10, height: 10, borderWidth: 1.5 }} /> : <><Icon name="close" size={10} /> Cancel</>}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
