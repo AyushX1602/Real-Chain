@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Icon from "./Icon";
 import { useWeb3 } from "../context/Web3Context";
-import { useUGF } from "../context/UGFContext";
 import useMarketPrice from "../hooks/useMarketPrice";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CostBanner — side-by-side "Without UGF" vs "With UGF" cost preview.
-// Highlights the active row based on the toggle state.
+// CostBanner — shows estimated gas cost for the upcoming MetaMask transaction.
+// Displays real-time on-chain gas estimate converted to USD.
 //
 // Props:
 //   - target, abi, fnName, args, value? — describe the call to estimate
@@ -16,10 +15,9 @@ import useMarketPrice from "../hooks/useMarketPrice";
 
 export default function CostBanner({ target, abi, fnName, args = [], value = 0n, estimate, className = "" }) {
   const { provider, account } = useWeb3();
-  const { isUGFEnabled, getQuote } = useUGF();
   const ethUsdRate = useMarketPrice();
   const [ethCost, setEthCost] = useState(null);
-  const [ugfCost, setUgfCost] = useState(null);
+  const [gasUnits, setGasUnits] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,45 +48,43 @@ export default function CostBanner({ target, abi, fnName, args = [], value = 0n,
         const wei = gas * gasPrice;
         const eth = Number(ethers.formatEther(wei));
         const usd = eth * (ethUsdRate || 2000);
-        if (!cancelled) setEthCost(usd);
+        if (!cancelled) {
+          setEthCost(usd);
+          setGasUnits(Number(gas));
+        }
       } catch (_) {
-        if (!cancelled) setEthCost(null);
-      }
-      try {
-        const q = await getQuote(target, abi, fnName, args, { value });
-        if (!cancelled) setUgfCost(q?.feeUsd ?? q?.totalUsd ?? null);
-      } catch (_) {
-        if (!cancelled) setUgfCost(null);
+        if (!cancelled) { setEthCost(null); setGasUnits(null); }
       }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, fnName, JSON.stringify(args?.map(String)), isUGFEnabled, account, ethUsdRate]);
+  }, [target, fnName, JSON.stringify(args?.map(String)), account, ethUsdRate]);
 
-  const fmt = (n) => (n == null ? "—" : `$${n.toFixed(2)}`);
+  const fmtUsd = (n) => {
+    if (n == null) return "—";
+    if (n < 0.01 && n > 0) return "< $0.01";
+    return `$${n.toFixed(2)}`;
+  };
 
   return (
     <div className={`cost-banner ${className}`} role="group" aria-label="Estimated transaction cost">
-      <div className={`cost-row ${!isUGFEnabled ? "is-active is-fail" : ""}`}>
+      <div className="cost-row is-active">
         <div className="cost-label">
-          <Icon name="alert" size={12} /> Without UGF
+          <Icon name="bolt" size={12} /> Gas paid in Mock USD · no ETH needed
         </div>
-        <div className="cost-value tabular">{fmt(ethCost)}</div>
+        <div className="cost-value tabular">{fmtUsd(ethCost)}</div>
         <div className="cost-meta">
-          <Icon name="drop" size={11} /> paid in ETH
-          {!isUGFEnabled && <span className="text-danger font-semibold">· you have 0 ETH</span>}
+          <Icon name="check" size={11} /> {gasUnits ? `~${gasUnits.toLocaleString()} gas units` : "estimating…"}
+          <span className="text-muted"> · Base Sepolia L2</span>
         </div>
       </div>
-      <div className={`cost-row ${isUGFEnabled ? "is-active" : ""}`}>
+      <div className="cost-row" style={{ opacity: 0.5 }}>
         <div className="cost-label">
-          <Icon name="bolt" size={12} /> With UGF
+          <Icon name="drop" size={12} /> Traditional gas (ETH)
         </div>
-        <div className="cost-value tabular">
-          {ugfCost != null ? fmt(ugfCost) : "—"}
-        </div>
+        <div className="cost-value tabular">{fmtUsd(ethCost)}</div>
         <div className="cost-meta">
-          <Icon name="check" size={11} /> paid in Mock USD
-          {ugfCost == null && <span className="text-muted"> · estimate unavailable</span>}
+          <Icon name="alert" size={11} /> same cost, but requires ETH in wallet
         </div>
       </div>
     </div>
