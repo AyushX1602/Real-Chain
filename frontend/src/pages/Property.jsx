@@ -42,6 +42,7 @@ export default function Property() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [busy, setBusy] = useState(null); // null | "primary" | "listing-N"
+  const [lastReceipt, setLastReceipt] = useState(null); // { txHash, tokens, cost, gasMethod, time }
   const [tab, setTab] = useState("overview"); // overview | rent | holders | calculator
   const watch = useWatchlist();
 
@@ -137,14 +138,27 @@ export default function Property() {
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromOwner", [amount]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
+      const gasMethod = isUGFEnabled ? "ugf" : "eth";
 
       logTx({
         txHash, type: "buy",
         propertyId: Number(id),
         amount: Number(cost) / 1e6,
         tokenAmount: Number(amount),
-        gasMethod: isUGFEnabled ? "ugf" : "eth",
+        gasMethod,
       });
+
+      // Show inline receipt
+      setLastReceipt({
+        txHash,
+        tokens: Number(amount),
+        cost: Number(cost) / 1e6,
+        gasMethod,
+        propertyName: prop?.name || "Property",
+        time: new Date().toLocaleTimeString(),
+      });
+      // Auto-dismiss after 15s
+      setTimeout(() => setLastReceipt(null), 15000);
 
       toast.success("Tokens purchased", { msg: `+${buyAmount} PROP at ${fmtUsdc(pricePerToken)} each.` });
       setBuyAmount("");
@@ -431,7 +445,47 @@ export default function Property() {
                       : <><Icon name="bolt" size={14} /> Buy {buyAmount || "1"} PROP</>}
                 </button>
 
-                {account && buyAmount && (
+                {/* Success receipt */}
+                {lastReceipt && (
+                  <div style={{
+                    marginTop: 16, padding: "18px 20px", borderRadius: "var(--radius-md, 12px)",
+                    background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
+                    border: "2px solid #10b981",
+                    animation: "fadeIn 0.3s ease-out",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                      <span style={{
+                        width: 32, height: 32, borderRadius: "50%", background: "#10b981",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "#fff", fontSize: 18, fontWeight: 800,
+                      }}>✓</span>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: 16, color: "#065f46" }}>Purchase successful!</div>
+                        <div style={{ fontSize: 12, color: "#047857" }}>{lastReceipt.time}</div>
+                      </div>
+                      <button onClick={() => setLastReceipt(null)} style={{
+                        marginLeft: "auto", background: "none", border: "none", cursor: "pointer",
+                        color: "#065f46", fontSize: 18, padding: 4,
+                      }}>×</button>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13, color: "#065f46" }}>
+                      <div><span style={{ opacity: 0.7 }}>Tokens:</span> <strong>{lastReceipt.tokens} PROP</strong></div>
+                      <div><span style={{ opacity: 0.7 }}>Cost:</span> <strong>${lastReceipt.cost.toFixed(2)} USDC</strong></div>
+                      <div><span style={{ opacity: 0.7 }}>Gas:</span> <strong>{lastReceipt.gasMethod === "ugf" ? "Mock USD (UGF)" : "ETH"}</strong></div>
+                      <div><span style={{ opacity: 0.7 }}>Property:</span> <strong>{lastReceipt.propertyName}</strong></div>
+                    </div>
+                    {lastReceipt.txHash && (
+                      <div style={{ marginTop: 10, fontSize: 11, color: "#047857", wordBreak: "break-all" }}>
+                        Tx: {lastReceipt.txHash.slice(0, 10)}...{lastReceipt.txHash.slice(-8)}
+                      </div>
+                    )}
+                    <Link to="/investor" className="btn btn-primary btn-sm" style={{ marginTop: 12, display: "inline-flex" }}>
+                      <Icon name="users" size={12} /> Go to Investor Dashboard →
+                    </Link>
+                  </div>
+                )}
+
+                {account && buyAmount && !lastReceipt && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
                     <UGFBadge />
                     <CostBanner

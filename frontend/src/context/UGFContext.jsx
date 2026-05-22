@@ -50,12 +50,25 @@ export function UGFContextProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    const pending = pendingUgfRef.current;
+    if (!pending) return;
+
+    // Check for error state first — UGF SDK may return an error without a hash
+    const errMsg = ugfResult?.error || ugfResult?.message || ugfResult?.reason || null;
     const hash = resultHash(ugfResult);
+
+    // If ugfResult changed but has no hash AND has an error, reject immediately
+    if (errMsg && !hash) {
+      window.clearTimeout(pending.timeoutId);
+      pendingUgfRef.current = null;
+      pending.reject(new Error(errMsg));
+      return;
+    }
+
     if (!hash || lastResultHashRef.current === hash) return;
 
     lastResultHashRef.current = hash;
-    const pending = pendingUgfRef.current;
-    if (!pending || pending.startHash === hash) return;
+    if (pending.startHash === hash) return;
 
     window.clearTimeout(pending.timeoutId);
     pendingUgfRef.current = null;
