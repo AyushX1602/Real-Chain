@@ -51,6 +51,7 @@ export default function OwnerDashboard() {
   const [props, setProps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creatingNew, setCreatingNew] = useState(false);
+  const [creatingBusy, setCreatingBusy] = useState(false);
   const [newProp, setNewProp] = useState({ name: "", location: "", valueInr: "", price: "", imageUrl: "" });
   const [walletDraft, setWalletDraft] = useState(authUser?.assetWallet || "");
   const [savingWallet, setSavingWallet] = useState(false);
@@ -349,6 +350,7 @@ export default function OwnerDashboard() {
       toast.error("Missing fields", { msg: "Name, location, valuation, and token price are required." });
       return;
     }
+    setCreatingBusy(true);
     try {
       const inrPaisa = BigInt(Math.floor(parseFloat(valueInr) * 100));
       const usdc6 = BigInt(Math.floor(parseFloat(price) * 1e6));
@@ -411,6 +413,8 @@ export default function OwnerDashboard() {
       await load(effectiveOwnerWallet);
     } catch (e) {
       toast.error("Create failed", { msg: friendlyTxError(e) });
+    } finally {
+      setCreatingBusy(false);
     }
   }
 
@@ -489,6 +493,7 @@ export default function OwnerDashboard() {
           onChange={setNewProp}
           onSubmit={handleCreate}
           onCancel={() => setCreatingNew(false)}
+          busy={creatingBusy}
         />
       )}
 
@@ -701,7 +706,7 @@ function KpiCard({ icon, label, value, tone = "accent", mono = false }) {
   );
 }
 
-function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
+function CreatePropertyForm({ value, onChange, onSubmit, onCancel, busy }) {
   return (
     <div className="card card-elevated reveal" style={{ marginBottom: 24 }}>
       <div className="card-body">
@@ -773,10 +778,12 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel }) {
         </div>
 
         <div className="flex gap-3" style={{ marginTop: 20 }}>
-          <button className="btn btn-primary" onClick={onSubmit}>
-            <Icon name="check" size={13} /> Mint property
+          <button className="btn btn-primary" onClick={onSubmit} disabled={busy}>
+            {busy
+              ? <><span className="spinner" style={{ width: 13, height: 13, borderWidth: 1.5 }} /> Deploying contracts…</>
+              : <><Icon name="check" size={13} /> Mint property</>}
           </button>
-          <button className="btn btn-ghost" onClick={onCancel}>Cancel</button>
+          <button className="btn btn-ghost" onClick={onCancel} disabled={busy}>Cancel</button>
         </div>
       </div>
     </div>

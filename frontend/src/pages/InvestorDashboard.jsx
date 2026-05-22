@@ -30,6 +30,7 @@ export default function InvestorDashboard() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState(null);
+  const [claimReceipt, setClaimReceipt] = useState(null); // { amount, propertyName, gasMethod, txHash, time }
   const [portfolioEpochs, setPortfolioEpochs] = useState([]);
   const [walletStats, setWalletStats] = useState(null);
 
@@ -126,6 +127,17 @@ export default function InvestorDashboard() {
         gasMethod: isUGFEnabled ? "ugf" : "eth",
         gasCostUsd: isUGFEnabled ? Number((amountUsd * 0.0001).toFixed(4)) : null,
       });
+
+      // Show receipt
+      setClaimReceipt({
+        amount: amountUsd,
+        propertyName: it.property?.name || `Property #${it.id}`,
+        gasMethod: isUGFEnabled ? "ugf" : "eth",
+        txHash,
+        time: new Date().toLocaleTimeString(),
+      });
+      setTimeout(() => setClaimReceipt(null), 12000);
+
       toast.success("Rent claimed", { msg: `${fmtUsdc(it.pending)} arrived in your wallet.` });
       await refreshUsdcBalance();
       await load();
@@ -315,6 +327,43 @@ export default function InvestorDashboard() {
 
         {/* SIDEBAR */}
         <div>
+          {/* Claim receipt */}
+          {claimReceipt && (
+            <div style={{
+              marginBottom: 16, padding: "18px 20px", borderRadius: "var(--radius-md, 12px)",
+              background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
+              border: "2px solid #10b981",
+              animation: "fadeIn 0.3s ease-out",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <span style={{
+                  width: 28, height: 28, borderRadius: "50%", background: "#10b981",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#fff", fontSize: 16, fontWeight: 800,
+                }}>✓</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: "#065f46" }}>Rent claimed!</div>
+                  <div style={{ fontSize: 11, color: "#047857" }}>{claimReceipt.time}</div>
+                </div>
+                <button onClick={() => setClaimReceipt(null)} style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "#065f46", fontSize: 16, padding: 4,
+                }}>×</button>
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#065f46", marginBottom: 8 }}>
+                +${claimReceipt.amount.toFixed(2)} USDC
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, fontSize: 12, color: "#065f46" }}>
+                <div><span style={{ opacity: 0.7 }}>Property:</span> <strong>{claimReceipt.propertyName}</strong></div>
+                <div><span style={{ opacity: 0.7 }}>Gas:</span> <strong>{claimReceipt.gasMethod === "ugf" ? "Mock USD (UGF) ⚡" : "ETH"}</strong></div>
+              </div>
+              {claimReceipt.txHash && (
+                <div style={{ marginTop: 8, fontSize: 10, color: "#047857", wordBreak: "break-all" }}>
+                  Tx: {claimReceipt.txHash.slice(0, 10)}...{claimReceipt.txHash.slice(-8)}
+                </div>
+              )}
+            </div>
+          )}
           <SidebarTips />
         </div>
       </div>

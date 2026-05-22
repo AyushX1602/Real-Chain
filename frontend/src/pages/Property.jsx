@@ -184,13 +184,25 @@ export default function Property() {
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromListing", [listing.id]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
 
+      const gasMethod = isUGFEnabled ? "ugf" : "eth";
+
       logTx({
         txHash, type: "buy",
         propertyId: Number(id),
         amount: Number(cost) / 1e6,
         tokenAmount: Number(ethers.formatEther(listing.amount)),
-        gasMethod: isUGFEnabled ? "ugf" : "eth",
+        gasMethod,
       });
+
+      setLastReceipt({
+        txHash,
+        tokens: Number(ethers.formatEther(listing.amount)),
+        cost: Number(cost) / 1e6,
+        gasMethod,
+        propertyName: prop?.name || "Property",
+        time: new Date().toLocaleTimeString(),
+      });
+      setTimeout(() => setLastReceipt(null), 15000);
 
       toast.success("Listing purchased", { msg: `${fmtProp(listing.amount)} PROP from ${fmtAddr(listing.seller)}.` });
       await loadReadOnly();
