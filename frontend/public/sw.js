@@ -10,8 +10,8 @@
  * are passed straight through.
  */
 
-const STATIC_CACHE = "rc-static-v2";
-const RUNTIME_CACHE = "rc-runtime-v2";
+const STATIC_CACHE = "rc-static-v3";
+const RUNTIME_CACHE = "rc-runtime-v3";
 
 const CORE_ASSETS = [
   "/",
@@ -39,15 +39,21 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // App shell — cache-first.
-  if (req.mode === "navigate" || url.origin === location.origin) {
+  // Never intercept hashed Vite assets — they have content-hash filenames
+  // and must be served with the correct MIME type by the CDN/server.
+  // Caching them in the SW risks serving stale HTML (index.html) for
+  // JS module requests, which triggers the strict MIME type error.
+  if (url.pathname.startsWith("/assets/")) return;
+
+  // App shell navigation — cache-first for HTML pages only.
+  if (req.mode === "navigate") {
     event.respondWith(
-      caches.match(req).then((cached) => {
+      caches.match("/").then((cached) => {
         const network = fetch(req)
           .then((res) => {
             if (res && res.status === 200) {
               const copy = res.clone();
-              caches.open(RUNTIME_CACHE).then((c) => c.put(req, copy));
+              caches.open(RUNTIME_CACHE).then((c) => c.put("/", copy));
             }
             return res;
           })
