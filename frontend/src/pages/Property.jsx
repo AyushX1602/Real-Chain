@@ -122,19 +122,21 @@ export default function Property() {
     const cost = amount * pricePerToken;
     setBusy("primary");
     try {
-      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
+      toast.info("Step 1/2 — Approving USDC", { msg: "Confirm in MetaMask to allow USDC spending." });
       await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, prop.marketplace, cost);
 
       // Owner needs to have approved marketplace for the supply transfer.
-      const { token } = getPropertyContracts({
+      const { token: tokenRo } = getReadPropertyContracts({
         propertyToken: prop.propertyToken,
         rentalDistribution: prop.rentalDistribution,
         marketplace: prop.marketplace,
       });
-      const ownerAllowance = await token.allowance(prop.owner, prop.marketplace);
+      const ownerAllowance = await tokenRo.allowance(prop.owner, prop.marketplace);
       if (ownerAllowance < amount * BigInt(1e18)) {
-        throw new Error("Owner has not approved primary supply. Run seedDemo or approve from the owner wallet before selling.");
+        throw new Error("Owner has not approved primary supply. Ask the owner to approve marketplace first.");
       }
+
+      toast.info("Step 2/2 — Buying tokens", { msg: "Confirm in MetaMask to purchase." });
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromOwner", [amount]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
@@ -178,8 +180,10 @@ export default function Property() {
     const cost = (listing.amount * listing.price) / BigInt(1e18);
     setBusy(`listing-${listing.id}`);
     try {
-      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
+      toast.info("Step 1/2 — Approving USDC", { msg: "Confirm in MetaMask to allow USDC spending." });
       await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, prop.marketplace, cost);
+
+      toast.info("Step 2/2 — Buying listing", { msg: "Confirm in MetaMask to purchase." });
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "buyFromListing", [listing.id]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
@@ -248,8 +252,10 @@ export default function Property() {
     const priceVal = BigInt(Math.floor(parseFloat(listPrice) * 1e6));
     setBusy("create-listing");
     try {
-      toast.info("Approving PROP tokens", { msg: "UGF will settle approval gas in Mock USD." });
+      toast.info("Step 1/2 — Approving PROP", { msg: "Confirm in MetaMask to allow token transfer." });
       await ugfApprove(prop.propertyToken, prop.marketplace, amount * BigInt(1e18));
+
+      toast.info("Step 2/2 — Creating listing", { msg: "Confirm in MetaMask to list tokens for sale." });
 
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "createListing", [amount, priceVal]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;

@@ -174,9 +174,10 @@ function HoldingCard({ holding, fmtUsdc, fmtProp, onRefresh, ugfExecute, ugfAppr
     const priceVal = BigInt(Math.floor(parseFloat(listPrice) * 1e6));
     setBusy("create");
     try {
-      toast.info("Approving PROP", { msg: "UGF will settle listing approval gas in Mock USD." });
+      toast.info("Step 1/2 — Approving PROP", { msg: "Confirm in MetaMask to allow token transfer." });
       await ugfApprove(prop.propertyToken, prop.marketplace, amount * BigInt(1e18));
 
+      toast.info("Step 2/2 — Creating listing", { msg: "Confirm in MetaMask to list tokens." });
       const receipt = await ugfExecute(prop.marketplace, MARKETPLACE_ABI, "createListing", [amount, priceVal]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
       setLastTxHash(txHash);

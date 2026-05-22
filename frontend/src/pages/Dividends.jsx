@@ -220,9 +220,10 @@ function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, ugfApprove, isUGFEnabled
     const amt = BigInt(Math.floor(parseFloat(depositAmt) * 1e6));
     setBusy("deposit");
     try {
-      toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
+      toast.info("Step 1/2 — Approving USDC", { msg: "Confirm in MetaMask to allow USDC spending." });
       await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, prop.rentalDistribution, amt);
 
+      toast.info("Step 2/2 — Depositing rent", { msg: "Confirm in MetaMask to create a new epoch." });
       const receipt = await ugfExecute(prop.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [amt]);
       const txHash = receipt?.hash || receipt?.transactionHash || null;
       setLastTxHash(txHash);

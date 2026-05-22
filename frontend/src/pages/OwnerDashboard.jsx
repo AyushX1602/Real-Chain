@@ -852,17 +852,11 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
       // The contract has `onlyOwner` on depositRental, and we need the approval
       // to be mined before the deposit (UGF async timing caused race conditions).
       toast.info("Step 1/2 — Approving USDC", { msg: "Confirm in MetaMask to allow USDC spending." });
-      const approveIface = new ethers.Interface(MOCK_USDC_ABI);
-      const approveData = approveIface.encodeFunctionData("approve", [p.rentalDistribution, usdcRaw]);
-      const approveTx = await signer.sendTransaction({ to: CONTRACT_ADDRESSES.mockUsdc, data: approveData });
-      await approveTx.wait();
+      await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, p.rentalDistribution, usdcRaw);
 
       toast.info("Step 2/2 — Depositing rent", { msg: "Confirm in MetaMask to create a new epoch." });
-      const depositIface = new ethers.Interface(RENTAL_DISTRIBUTION_ABI);
-      const depositData = depositIface.encodeFunctionData("depositRental", [usdcRaw]);
-      const tx = await signer.sendTransaction({ to: p.rentalDistribution, data: depositData });
-      const receipt = await tx.wait();
-      const txHash = receipt?.hash || tx.hash || null;
+      const receipt = await ugfExecute(p.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [usdcRaw]);
+      const txHash = receipt?.hash || receipt?.transactionHash || null;
       setLastTxHash(txHash);
       logTx({
         txHash,
