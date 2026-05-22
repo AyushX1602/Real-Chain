@@ -158,16 +158,18 @@ export function UGFContextProvider({ children }) {
     const iface = new ethers.Interface(abi);
     const data = iface.encodeFunctionData(fnName, args);
     const value = opts.value ?? 0n;
-    const tx = { to: target, data, value };
 
-    if (isUGFEnabled && NETWORK_CHAIN_ID === 84532) {
-      return executeWithUGF(tx);
-    }
-
-    const sent = await signer.sendTransaction(tx);
+    // All contract calls go directly via MetaMask so msg.sender = user wallet.
+    // UGF's Remote Transaction model routes through a relayer, changing msg.sender,
+    // which breaks ALL contract functions that check caller identity (onlyOwner,
+    // balanceOf(msg.sender), allowance checks, seller == msg.sender, etc).
+    const sent = await signer.sendTransaction({ to: target, data, value });
     return sent.wait();
-  }, [signer, isUGFEnabled, executeWithUGF]);
+  }, [signer]);
 
+  // Approve also goes directly via MetaMask for consistent sequencing.
+  // ERC20.approve doesn't depend on msg.sender for access control, but sending
+  // it via UGF caused race conditions (UGF "complete" before on-chain confirmation).
   const ugfApprove = useCallback((tokenAddress, spender, amount, opts = {}) => (
     ugfExecute(tokenAddress, opts.abi || APPROVE_ABI, "approve", [spender, amount], opts)
   ), [ugfExecute]);
