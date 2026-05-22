@@ -82,6 +82,30 @@ export function UGFContextProvider({ children }) {
     pendingUgfRef.current = null;
   }, []);
 
+  // Catch UGFError thrown by the SDK's internal sponsorAndExecute/poll chain.
+  // These fire as unhandled rejections because the SDK runs them on a separate
+  // promise chain from our openUGF() call.
+  useEffect(() => {
+    function onUnhandledRejection(event) {
+      const err = event?.reason;
+      const isUGFError =
+        err?.name === "UGFError" ||
+        (err?.constructor?.name === "UGFError") ||
+        (typeof err?.message === "string" && err.message.includes("UGFError"));
+      if (!isUGFError) return;
+
+      const pending = pendingUgfRef.current;
+      if (pending) {
+        event.preventDefault(); // suppress console noise
+        window.clearTimeout(pending.timeoutId);
+        pendingUgfRef.current = null;
+        pending.reject(new Error(err.message || "UGF transaction failed on-chain"));
+      }
+    }
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
+    return () => window.removeEventListener("unhandledrejection", onUnhandledRejection);
+  }, []);
+
   const sdkReady = isUGFEnabled && Boolean(openUGF);
 
   const executeWithUGF = useCallback((tx) => new Promise((resolve, reject) => {
