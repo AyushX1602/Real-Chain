@@ -14,7 +14,7 @@ import {
   EpochCadenceIndicator,
   FractionalOwnershipBar,
 } from "../components/ScreenPrimitives";
-import { CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI } from "../config/contracts";
+import { CONTRACT_ADDRESSES, RENTAL_DISTRIBUTION_ABI, BACKEND_URL } from "../config/contracts";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // "Claim Rent" page — granular per-property view (replaces the old Dividends).
@@ -41,7 +41,7 @@ export default function Dividends() {
   }, [account]);
 
   async function load() {
-    setLoading(true);
+    if (properties.length === 0) setLoading(true);
     try {
       const factory = getReadFactory();
       const count = Number(await factory.getPropertiesCount());
@@ -55,11 +55,30 @@ export default function Dividends() {
         });
 
         const epochCount = Number(await rental.epochCount());
-        const epochs = [];
-        for (let j = 0; j < epochCount; j++) {
-          const [total, , ts] = await rental.getEpoch(j);
-          const isClaimed = await rental.claimed(j, account);
-          epochs.push({ id: j, total, ts: Number(ts), isClaimed });
+        let epochs = [];
+
+        // Try loading epochs from backend API (fast — single HTTP call)
+        try {
+          const apiRes = await fetch(`${BACKEND_URL}/api/properties/${i}/epochs?limit=50`);
+          if (apiRes.ok) {
+            const apiEpochs = await apiRes.json();
+            if (apiEpochs.length > 0) {
+              // Enrich with per-user claimed status from chain
+              epochs = await Promise.all(apiEpochs.map(async (e) => {
+                const isClaimed = await rental.claimed(e.id, account).catch(() => false);
+                return { id: e.id, total: BigInt(e.total), ts: e.ts, isClaimed };
+              }));
+            }
+          }
+        } catch { /* API unavailable — fall through to chain */ }
+
+        // Fallback: read directly from chain if API returned nothing
+        if (epochs.length === 0 && epochCount > 0) {
+          for (let j = 0; j < epochCount; j++) {
+            const [total, , ts] = await rental.getEpoch(j);
+            const isClaimed = await rental.claimed(j, account);
+            epochs.push({ id: j, total, ts: Number(ts), isClaimed });
+          }
         }
 
         const [pending, balance, totalSupply] = await Promise.all([
@@ -156,6 +175,7 @@ export default function Dividends() {
               onRefresh={load}
               refreshUsdcBalance={refreshUsdcBalance}
               toast={toast}
+              getReadPropertyContracts={getReadPropertyContracts}
             />
           ))}
         </div>
@@ -164,7 +184,7 @@ export default function Dividends() {
   );
 }
 
-function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, ugfApprove, isUGFEnabled, logTx, onRefresh, refreshUsdcBalance, toast }) {
+function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, ugfApprove, isUGFEnabled, logTx, onRefresh, refreshUsdcBalance, toast, getReadPropertyContracts }) {
   const { prop, balance, totalSupply, pending, epochCount, epochs, isOwner, propId, cadenceDays, lastDepositAt } = data;
   const [busy, setBusy] = useState(null); // null | "claim" | "deposit"
   const [depositAmt, setDepositAmt] = useState("");
@@ -214,7 +234,36 @@ function RentCard({ data, fmtUsdc, fmtProp, ugfExecute, ugfApprove, isUGFEnabled
       });
       toast.success("Rent deposited", { msg: `${fmtUsdc(amt)} added to a new epoch.` });
       setDepositAmt("");
-      onRefresh();
+
+      // Persist epoch to backend immediately (fast-path)
+      try {
+        const { rental: rentalRo } = getReadPropertyContracts({
+          propertyToken: prop.propertyToken,
+          rentalDistribution: prop.rentalDistribution,
+          marketplace: prop.marketplace,
+        });
+        await new Promise((r) => setTimeout(r, 2000));
+        const newEpochCount = Number(await rentalRo.epochCount());
+        const lastIdx = newEpochCount - 1;
+        if (lastIdx >= 0) {
+          const [total, , ts] = await rentalRo.getEpoch(lastIdx);
+          await fetch(`${BACKEND_URL}/api/properties/${propId}/epochs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              epochIndex: lastIdx,
+              amount: Number(total) / 1e6,
+              amountRaw: total.toString(),
+              timestamp: Number(ts),
+              txHash,
+            }),
+          });
+        }
+      } catch (saveErr) {
+        console.warn("Epoch save to backend failed (non-fatal):", saveErr);
+      }
+
+      await onRefresh();
     } catch (e) {
       toast.error("Deposit failed", { msg: (e.reason || e.message || "").slice(0, 180) });
     } finally {

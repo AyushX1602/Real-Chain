@@ -79,19 +79,40 @@ export default function InvestorDashboard() {
             : 0;
           list.push({ id: i, property: p, balance: bal, pending });
 
-          // Fetch epoch history for the portfolio chart.
-          for (let j = 0; j < Math.min(Number(epochCount), 50); j++) {
-            try {
-              const [total, , ts] = await rental.getEpoch(j);
-              allEpochs.push({
-                propertyName: p.name,
-                id: j,
-                total,
-                ts: Number(ts),
-                ownershipPct,
-              });
-            } catch { /* skip bad epochs */ }
+          // Fetch epoch history for the portfolio chart — try API first
+          let propertyEpochs = [];
+          try {
+            const apiRes = await fetch(`${BACKEND_URL}/api/properties/${i}/epochs?limit=50`);
+            if (apiRes.ok) {
+              const apiEpochs = await apiRes.json();
+              if (apiEpochs.length > 0) {
+                propertyEpochs = apiEpochs.map((e) => ({
+                  propertyName: p.name,
+                  id: e.id,
+                  total: BigInt(e.total),
+                  ts: e.ts,
+                  ownershipPct,
+                }));
+              }
+            }
+          } catch { /* API unavailable */ }
+
+          // Fallback: read from chain if API returned nothing
+          if (propertyEpochs.length === 0) {
+            for (let j = 0; j < Math.min(Number(epochCount), 50); j++) {
+              try {
+                const [total, , ts] = await rental.getEpoch(j);
+                propertyEpochs.push({
+                  propertyName: p.name,
+                  id: j,
+                  total,
+                  ts: Number(ts),
+                  ownershipPct,
+                });
+              } catch { /* skip bad epochs */ }
+            }
           }
+          allEpochs.push(...propertyEpochs);
         }
       }
       setItems(list);
