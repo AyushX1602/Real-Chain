@@ -34,6 +34,7 @@ import {
 export default function OwnerDashboard() {
   const {
     account,
+    signer,
     chainId,
     isCorrectNetwork,
     nodeOnline,
@@ -553,6 +554,7 @@ export default function OwnerDashboard() {
               onRefresh={load}
               toast={toast}
               getReadPropertyContracts={getReadPropertyContracts}
+              signer={signer}
             />
           ))}
         </div>
@@ -812,7 +814,7 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel, busy }) {
   );
 }
 
-function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfApprove, isUGFEnabled, canWriteAsOwner, logTx, onRefresh, toast, getReadPropertyContracts }) {
+function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfApprove, isUGFEnabled, canWriteAsOwner, logTx, onRefresh, toast, getReadPropertyContracts, signer }) {
   const { property: p, totalDeposited, ownerSupply, totalSupply, epochs, cadenceDays, lastDepositAt, holderShares } = item;
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
@@ -845,11 +847,18 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
     const usdcRaw = BigInt(Math.floor(parseFloat(amount) * 1e6));
     setBusy(true);
     try {
+      // Approve USDC via UGF (no onlyOwner on ERC20.approve)
       toast.info("Approving USDC", { msg: "UGF will settle approval gas in Mock USD." });
       await ugfApprove(CONTRACT_ADDRESSES.mockUsdc, p.rentalDistribution, usdcRaw);
 
-      const receipt = await ugfExecute(p.rentalDistribution, RENTAL_DISTRIBUTION_ABI, "depositRental", [usdcRaw]);
-      const txHash = receipt?.hash || receipt?.transactionHash || null;
+      // depositRental must go directly via MetaMask — the contract has `onlyOwner`
+      // which checks msg.sender == owner. UGF relayer would be a different msg.sender.
+      toast.info("Depositing rent", { msg: "Sending directly from your wallet (owner signature required)." });
+      const iface = new ethers.Interface(RENTAL_DISTRIBUTION_ABI);
+      const data = iface.encodeFunctionData("depositRental", [usdcRaw]);
+      const tx = await signer.sendTransaction({ to: p.rentalDistribution, data });
+      const receipt = await tx.wait();
+      const txHash = receipt?.hash || tx.hash || null;
       setLastTxHash(txHash);
       logTx({
         txHash,
