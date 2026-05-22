@@ -152,6 +152,7 @@ export default function Home() {
         const p = await factory.properties(i);
         let totalSupply = null;
         let pricePerToken = null;
+        let tokensRemaining = null;
         try {
           const { token, market } = getReadPropertyContracts({
             propertyToken: p.propertyToken,
@@ -162,8 +163,13 @@ export default function Home() {
             token.totalSupply(),
             market.pricePerToken(),
           ]);
+          // Owner's balance = tokens remaining for primary sale
+          try {
+            const ownerBal = await token.balanceOf(p.owner);
+            tokensRemaining = ownerBal;
+          } catch { /* ignore */ }
         } catch { /* keep nulls — render dashes */ }
-        list.push({ id: i, ...p, totalSupply, pricePerToken });
+        list.push({ id: i, ...p, totalSupply, pricePerToken, tokensRemaining });
       }
       setProps(list);
       setLastUpdatedMs(Date.now());
@@ -422,6 +428,9 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
   const perfGrade = ["D", "C", "B", "A"][perfScore];
   const perfColor = { A: "#22c55e", B: "#B9FF66", C: "#f59e0b", D: "#ef4444" }[perfGrade];
 
+  // Sold out = owner has 0 remaining tokens for primary sale
+  const isSoldOut = tokensRemainingNum != null && tokensRemainingNum <= 0;
+
   return (
     <article ref={ref} className="card property-card" onClick={onView} role="button" tabIndex={0}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onView()}>
@@ -432,7 +441,9 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
         >
           <div className="property-cover-scrim" aria-hidden="true" />
           <div className="property-tag-row">
-            <span className="badge badge-success"><span className="status-dot" /> Live</span>
+            {isSoldOut
+              ? <span className="badge" style={{ background: "#ef4444", color: "#fff", fontWeight: 800, fontSize: 11, letterSpacing: "0.06em" }}>SOLD OUT</span>
+              : <span className="badge badge-success"><span className="status-dot" /> Live</span>}
             <span className="badge" style={{ background: perfColor, color: "#191A23", fontWeight: 800, fontSize: 11 }}>{perfGrade}</span>
             <HolderCountChip count={holderCount} loading={holderCount === undefined} />
             <button
@@ -482,8 +493,8 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
           <ContractMethodBadge contractName="Marketplace" methodName="buyFromOwner" address={property.marketplace} />
         </div>
 
-        <button className="btn btn-primary btn-full">
-          View property <Icon name="arrowRight" size={13} />
+        <button className="btn btn-primary btn-full" style={isSoldOut ? { opacity: 0.7 } : undefined}>
+          {isSoldOut ? <>Sold out · View secondary market <Icon name="arrowRight" size={13} /></> : <>View property <Icon name="arrowRight" size={13} /></>}
         </button>
       </div>
     </article>
