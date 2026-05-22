@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Property = require("../models/Property");
 const Holding = require("../models/Holding");
+const Epoch = require("../models/Epoch");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // /api/properties — frontend-shaped responses.
@@ -283,6 +284,66 @@ router.post("/sync", async (req, res) => {
     }
 
     res.json({ ok: true, synced, chainId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/properties/:id/epochs — List epochs for a property ─────────────
+router.get("/:id/epochs", async (req, res) => {
+  try {
+    const propertyId = Number(req.params.id);
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
+    const epochs = await Epoch.find({ propertyId })
+      .sort({ epochIndex: -1 })
+      .limit(limit)
+      .lean();
+    res.json(epochs.map((e) => ({
+      id: e.epochIndex,
+      total: e.amountRaw || String(Math.round(e.amount * 1e6)),
+      totalFormatted: e.amount,
+      ts: e.timestamp,
+      txHash: e.txHash,
+    })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/properties/:id/epochs — Record a new epoch (fast-path) ────────
+// Called by the frontend immediately after a successful depositRental tx.
+// This is the fast-path so the "Recent epochs" table updates instantly,
+// without waiting for the background indexer to pick up the chain event.
+router.post("/:id/epochs", async (req, res) => {
+  try {
+    const propertyId = Number(req.params.id);
+    const { epochIndex, amount, amountRaw, timestamp, txHash, depositor } = req.body;
+    if (epochIndex == null || amount == null || timestamp == null) {
+      return res.status(400).json({ error: "epochIndex, amount, and timestamp are required" });
+    }
+    const epoch = await Epoch.findOneAndUpdate(
+      { propertyId, epochIndex: Number(epochIndex) },
+      {
+        propertyId,
+        epochIndex: Number(epochIndex),
+        amount: Number(amount),
+        amountRaw: amountRaw || String(Math.round(Number(amount) * 1e6)),
+        timestamp: Number(timestamp),
+        txHash: txHash || null,
+        depositor: depositor ? String(depositor).toLowerCase() : null,
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+    // Also bump epochCount + totalRentDeposited on the Property doc
+    await Property.findOneAndUpdate(
+      { propertyId },
+      {
+        $max: { epochCount: Number(epochIndex) + 1 },
+        $inc: { totalRentDeposited: Number(amount) },
+        lastDepositAt: new Date(Number(timestamp) * 1000),
+      }
+    );
+    res.json({ ok: true, epoch: { id: epoch.epochIndex, total: epoch.amountRaw, ts: epoch.timestamp } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

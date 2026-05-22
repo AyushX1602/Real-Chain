@@ -151,11 +151,31 @@ export default function OwnerDashboard() {
         });
         const epochCount = Number(await rental.epochCount());
         let totalDeposited = 0n;
-        const epochs = [];
-        for (let j = 0; j < epochCount; j++) {
-          const [total, , ts] = await rental.getEpoch(j);
-          totalDeposited += total;
-          epochs.push({ id: j, total, ts: Number(ts) });
+        let epochs = [];
+
+        // Try loading epochs from the backend API (fast — single HTTP call)
+        try {
+          const apiRes = await fetch(`${BACKEND_URL}/api/properties/${i}/epochs?limit=50`);
+          if (apiRes.ok) {
+            const apiEpochs = await apiRes.json();
+            if (apiEpochs.length > 0) {
+              epochs = apiEpochs.map((e) => ({
+                id: e.id,
+                total: BigInt(e.total),
+                ts: e.ts,
+              }));
+              totalDeposited = epochs.reduce((s, e) => s + e.total, 0n);
+            }
+          }
+        } catch { /* API unavailable — fall through to chain */ }
+
+        // Fallback: read directly from chain if API returned nothing
+        if (epochs.length === 0 && epochCount > 0) {
+          for (let j = 0; j < epochCount; j++) {
+            const [total, , ts] = await rental.getEpoch(j);
+            totalDeposited += total;
+            epochs.push({ id: j, total, ts: Number(ts) });
+          }
         }
 
         // Cadence calc — same logic as the Claim Rent screen.
@@ -532,6 +552,7 @@ export default function OwnerDashboard() {
               logTx={logTx}
               onRefresh={load}
               toast={toast}
+              getReadPropertyContracts={getReadPropertyContracts}
             />
           ))}
         </div>
@@ -791,7 +812,7 @@ function CreatePropertyForm({ value, onChange, onSubmit, onCancel, busy }) {
   );
 }
 
-function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfApprove, isUGFEnabled, canWriteAsOwner, logTx, onRefresh, toast }) {
+function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfApprove, isUGFEnabled, canWriteAsOwner, logTx, onRefresh, toast, getReadPropertyContracts }) {
   const { property: p, totalDeposited, ownerSupply, totalSupply, epochs, cadenceDays, lastDepositAt, holderShares } = item;
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
@@ -839,8 +860,37 @@ function OwnedPropertyCard({ item, fmtUsdc, fmtProp, fmtInr, ugfExecute, ugfAppr
       });
       toast.success("Rent deposited", { msg: `${fmtUsdc(usdcRaw)} added to a new epoch.` });
       setAmount("");
-      // Wait briefly for the new block to propagate, then refresh epoch data
-      await new Promise((r) => setTimeout(r, 2000));
+
+      // Persist epoch to backend immediately (fast-path for instant UI update)
+      try {
+        const { rental: rentalRo } = getReadPropertyContracts({
+          propertyToken: p.propertyToken,
+          rentalDistribution: p.rentalDistribution,
+          marketplace: p.marketplace,
+        });
+        // Wait briefly for the block, then read the new epoch count
+        await new Promise((r) => setTimeout(r, 2000));
+        const newEpochCount = Number(await rentalRo.epochCount());
+        const lastIdx = newEpochCount - 1;
+        if (lastIdx >= 0) {
+          const [total, , ts] = await rentalRo.getEpoch(lastIdx);
+          await fetch(`${BACKEND_URL}/api/properties/${item.id}/epochs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              epochIndex: lastIdx,
+              amount: Number(total) / 1e6,
+              amountRaw: total.toString(),
+              timestamp: Number(ts),
+              txHash,
+              depositor: p.owner,
+            }),
+          });
+        }
+      } catch (saveErr) {
+        console.warn("Epoch save to backend failed (non-fatal):", saveErr);
+      }
+
       await onRefresh();
     } catch (e) {
       toast.error("Deposit failed", { msg: (e.reason || e.message || "").slice(0, 160) });

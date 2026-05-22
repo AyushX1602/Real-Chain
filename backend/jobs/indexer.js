@@ -29,6 +29,7 @@ const mongoose = require("mongoose");
 const Property = require("../models/Property");
 const Transaction = require("../models/Transaction");
 const Holding = require("../models/Holding");
+const Epoch = require("../models/Epoch");
 const IndexerCheckpoint = require("../models/IndexerCheckpoint");
 const logger = require("../logger");
 
@@ -223,16 +224,37 @@ async function indexProperty(provider, doc, chainId) {
   // Rent deposits
   const fromD = await getCheckpoint(chainId, doc.rentalAddress, "RentalDeposited");
   await scanLogs(provider, rental, "RentalDeposited", fromD, latest, async (log) => {
+    const epochIdx = Number(log.args.epochIndex);
+    const amountRaw = log.args.amount.toString();
+    const amountHuman = Number(log.args.amount) / 1e6;
+    const ts = Number(log.args.timestamp);
+
     await upsertTransaction({
       txHash: log.transactionHash,
       type: "deposit",
       from: doc.owner,
       propertyId: doc.propertyId,
-      amount: Number(log.args.amount) / 1e6,
-      gasMethod: "eth", // unknown from on-chain alone; client log can override later
+      amount: amountHuman,
+      gasMethod: "eth",
       status: "confirmed",
       chainId,
     });
+
+    // Persist epoch to the Epoch collection
+    await Epoch.findOneAndUpdate(
+      { propertyId: doc.propertyId, epochIndex: epochIdx },
+      {
+        propertyId: doc.propertyId,
+        epochIndex: epochIdx,
+        amount: amountHuman,
+        amountRaw,
+        timestamp: ts,
+        txHash: log.transactionHash,
+        depositor: doc.owner,
+        chainId,
+      },
+      { upsert: true }
+    );
   }, ctx);
 
   // Claims
