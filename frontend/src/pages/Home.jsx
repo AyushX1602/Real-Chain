@@ -149,30 +149,43 @@ export default function Home() {
       const count = Number(await factory.getPropertiesCount());
       const list = [];
       for (let i = 0; i < count; i++) {
-        const p = await factory.properties(i);
-        let totalSupply = null;
-        let pricePerToken = null;
-        let tokensRemaining = null;
         try {
-          const { token, market } = getReadPropertyContracts({
-            propertyToken: p.propertyToken,
-            rentalDistribution: p.rentalDistribution,
-            marketplace: p.marketplace,
-          });
-          [totalSupply, pricePerToken] = await Promise.all([
-            token.totalSupply(),
-            market.pricePerToken(),
-          ]);
-          // Owner's balance = tokens remaining for primary sale
+          const p = await factory.properties(i);
+          // ethers v6 Result: access by named field (not spread — spreads numeric keys)
+          const propertyToken      = p.propertyToken      ?? p[3];
+          const rentalDistribution = p.rentalDistribution ?? p[4];
+          const marketplace        = p.marketplace        ?? p[5];
+          const owner              = p.owner              ?? p[6];
+          let totalSupply = null;
+          let pricePerToken = null;
+          let tokensRemaining = null;
           try {
-            const ownerBal = await token.balanceOf(p.owner);
-            tokensRemaining = ownerBal;
-          } catch { /* ignore */ }
-        } catch { /* keep nulls — render dashes */ }
-        list.push({ id: i, ...p, totalSupply, pricePerToken, tokensRemaining });
+            const { token, market } = getReadPropertyContracts({
+              propertyToken, rentalDistribution, marketplace,
+            });
+            [totalSupply, pricePerToken] = await Promise.all([
+              token.totalSupply(),
+              market.pricePerToken(),
+            ]);
+            try {
+              tokensRemaining = await token.balanceOf(owner);
+            } catch { /* ignore */ }
+          } catch { /* keep nulls — render dashes */ }
+          list.push({
+            id: i,
+            name: p.name ?? p[0],
+            location: p.location ?? p[1],
+            valueInr: p.valueInr ?? p[2],
+            owner, propertyToken, rentalDistribution, marketplace,
+            totalSupply, pricePerToken, tokensRemaining,
+          });
+        } catch (propErr) {
+          console.warn(`properties(${i}) failed:`, propErr?.shortMessage || propErr?.message);
+        }
       }
       setProps(list);
       setLastUpdatedMs(Date.now());
+
     } catch (e) {
       console.error(e);
       setErr("Could not reach the network. Make sure the chain is online.");
@@ -493,8 +506,10 @@ function PropertyCard({ property, onView, fmtInr, fmtProp, starred, onToggleStar
           <ContractMethodBadge contractName="Marketplace" methodName="buyFromOwner" address={property.marketplace} />
         </div>
 
-        <button className="btn btn-primary btn-full" style={isSoldOut ? { opacity: 0.7 } : undefined}>
-          {isSoldOut ? <>Sold out · View secondary market <Icon name="arrowRight" size={13} /></> : <>View property <Icon name="arrowRight" size={13} /></>}
+        <button className="btn btn-primary btn-full" style={isSoldOut ? { opacity: 0.75, fontSize: 13 } : undefined}>
+          {isSoldOut
+            ? <><span style={{ marginRight: 4 }}>🔴 Sold out</span> · View listings <Icon name="arrowRight" size={13} /></>
+            : <>View property <Icon name="arrowRight" size={13} /></>}
         </button>
       </div>
     </article>
