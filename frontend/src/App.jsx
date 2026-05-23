@@ -41,6 +41,7 @@ function Navbar() {
   } = useWeb3();
   const navigate = useNavigate();
   const [walletOpen, setWalletOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const walletWrapRef = useRef(null);
 
   // Close wallet dropdown on outside click
@@ -132,6 +133,15 @@ function Navbar() {
           </div>
 
           <div className="navbar-actions">
+            {/* Hamburger button — visible only on mobile via CSS */}
+            <button
+              className="hamburger-btn"
+              onClick={() => setMobileOpen((o) => !o)}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+            >
+              <span className={`hamburger-line ${mobileOpen ? "is-open" : ""}`} />
+            </button>
             {isAuthenticated ? (
               <>
                 <span className={`role-badge ${authUser?.role === "owner" ? "is-owner" : "is-investor"}`} title={authUser?.email}>
@@ -222,6 +232,45 @@ function Navbar() {
       </nav>
 
       {error && <ErrorBanner error={error} />}
+
+      {/* Mobile nav drawer */}
+      {mobileOpen && (
+        <div className="mobile-nav-backdrop" onClick={() => setMobileOpen(false)}>
+          <div className="mobile-nav-drawer" onClick={(e) => e.stopPropagation()}>
+            <NavLink to="/marketplace" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
+              <Icon name="building" size={16} /> Marketplace
+            </NavLink>
+            {(account || isAuthenticated) && (
+              <NavLink to={dashboardHref} className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
+                <Icon name="trending" size={16} /> Dashboard
+              </NavLink>
+            )}
+            {!isOwnerNav && (account || isAuthenticated) && (
+              <NavLink to="/dividends" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
+                <Icon name="coins" size={16} /> Rent History
+              </NavLink>
+            )}
+            <NavLink to="/demo" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
+              <Icon name="bolt" size={16} /> Demo
+            </NavLink>
+            <NavLink to="/about" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>
+              <Icon name="info" size={16} /> About
+            </NavLink>
+            <hr style={{ border: "none", borderTop: "1px solid var(--border-soft)", margin: "8px 0" }} />
+            {!account && (
+              <button className="btn btn-primary btn-full" onClick={() => { connect(); setMobileOpen(false); }}>
+                <Icon name="wallet" size={14} /> Connect wallet
+              </button>
+            )}
+            {account && (
+              <div className="mobile-nav-wallet">
+                <span className="badge badge-success"><span className="status-dot" /> {fmtAddr(account)}</span>
+                <span className="badge badge-gold">${usdcBalance} USDC</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }
