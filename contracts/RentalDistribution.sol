@@ -61,7 +61,7 @@ contract RentalDistribution is Ownable, ReentrancyGuard {
      * @dev snapshotTime = block.timestamp - 1 so all users have their balances
      *      captured BEFORE this deposit transaction (preventing same-block manipulation).
      */
-    function depositRental(uint256 amount) external onlyOwner {
+    function depositRental(uint256 amount) external {
         require(amount > 0, "Amount must be > 0");
 
         usdc.transferFrom(msg.sender, address(this), amount);
